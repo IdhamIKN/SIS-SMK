@@ -1,66 +1,119 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SIS SMKN 5 Madiun
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Laravel](https://img.shields.io/badge/Laravel-11-green?logo=laravel)](https://laravel.com)
+[![PHP 8.2+](https://img.shields.io/badge/PHP-8.2+-8892BF?logo=php)](https://php.net)
 
-## About Laravel
+Sistem Informasi Sekolah (SIS) untuk SMKN 5 Madiun - Management siswa, absensi GPS-based, laporan GTK.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Fitur Utama
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Autentikasi Role-Based** (Siswa, GTK, BK, Wali Kelas, Admin Tatib, Superadmin) via Spatie Laravel Permission
+- **Manajemen Siswa** 
+  - CRUD lengkap
+  - Import/Export Excel (Maatwebsite)
+  - Generate CV PDF (DomPDF)
+  - Integrasi data legacy (Siswa, Kelas, Jurusan, Absensi lama)
+- **Absensi Siswa (Unified)**
+  - Masuk/Pulang dengan GPS distance check (GeolocationService)
+  - Notifikasi WhatsApp otomatis (WhatsappService)
+  - Status hari ini, manual override (BK/Admin)
+  - Jadwal KBM integration
+- **GTK & Laporan Kehadiran**
+  - CRUD GTK
+  - Buat/Lihat laporan harian kehadiran guru
+- **Dashboard** Overview data
+- **Lainnya:** QR/Barcode, Log Viewer, Reverb WebSockets
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 📦 Dependencies Utama
+```
+laravel/framework ^11.31
+spatie/laravel-permission *
+maatwebsite/excel ^3.1
+barryvdh/laravel-dompdf ^3.1
+laravel/reverb *
+opcodesio/log-viewer ^3.14
+```
 
-## Learning Laravel
+## 🛠 Setup Lokal
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+1. **Clone/Setup**
+   ```
+   cd sis-app
+   composer install --optimize-autoloader --no-dev
+   ```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+2. **Environment**
+   ```
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+3. **Database** (MySQL/PostgreSQL)
+   ```
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=sis_smk5
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+   ```
+   php artisan migrate
+   php artisan db:seed  # GTKSeeder, JurusanSeeder, KelasSeeder, SiswaSeeder, RolesSeeder
+   ```
 
-## Laravel Sponsors
+4. **Assets**
+   ```
+   npm install
+   npm run build
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+5. **Run**
+   ```
+   php artisan serve
+   php artisan queue:work  # WA notif, jobs
+   php artisan reverb:start  # jika butuh websocket
+   ```
 
-### Premium Partners
+**Login Superadmin:** `admin@smk5.test` / `password`
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+**Absensi Siswa:** Login NIS/NIK → Absen page → GPS harus dalam radius sekolah.
 
-## Contributing
+## 📱 Demo Absensi
+- Siswa scan lokasi → Validasi jarak → Absen + WA notif ke wali
+- Manual absen by BK
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 🗄 Database
+```
+users (auth + siswa_id)
+permissions/roles
+siswas (NIS, NISN, NIK, legacy data)
+absen_siswas (masuk/pulang, lat/lng, distance)
+gtks
+jadwal_kbms
+laporan_kehadiran_gurus
+kelas/jurusans/sekolahs/set_jams
+```
 
-## Code of Conduct
+## 📚 Legacy Migration
+Data lama dari `sql_id_edutec_my_id.sql` → Seeders import.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 🚀 Deploy
+```
+composer install --no-dev --optimize-autoloader
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan migrate --force
+php artisan queue:work
+```
 
-## Security Vulnerabilities
+## Todos (from project files)
+- Absen unified fixes (TODO-Absen-Unified.md)
+- NIS/NIK login (TODO-NIS-NIK-Login.md)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Kontribusi
+Fork → blackboxai/ branch → PR.
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Lisensi
+MIT
