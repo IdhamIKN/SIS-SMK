@@ -6,7 +6,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GTK\GTKController;
 use App\Http\Controllers\Siswa\SiswaController;
 use App\Http\Controllers\Siswa\AbsenController;
+use App\Http\Controllers\Siswa\IzinController;
 use App\Http\Controllers\GTK\LaporanKehadiranController;
+use App\Http\Controllers\Admin\IzinController as AdminIzinController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -46,4 +48,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/status-hari-ini', [AbsenController::class, 'statusHariIni'])->name('status-hari-ini')->middleware('role:siswa');
         Route::post('/manual/{jenis}', [AbsenController::class, 'manual'])->name('manual')->where(['jenis' => 'masuk|pulang'])->middleware('role:bk|superadmin');
     });
+
+    // Pengajuan Izin Siswa
+    Route::prefix('izin')->as('siswa.izin.')->middleware('role:siswa')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Siswa\IzinController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Siswa\IzinController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Siswa\IzinController::class, 'store'])->name('store');
+        Route::get('/{izin}', [\App\Http\Controllers\Siswa\IzinController::class, 'show'])->name('show');
+        Route::get('/{izin}/edit', [\App\Http\Controllers\Siswa\IzinController::class, 'edit'])->name('edit');
+        Route::put('/{izin}', [\App\Http\Controllers\Siswa\IzinController::class, 'update'])->name('update');
+        Route::delete('/{izin}', [\App\Http\Controllers\Siswa\IzinController::class, 'destroy'])->name('destroy');
+    });
+
+    // Admin Verifikasi Izin
+    Route::prefix('admin/izin')->as('admin.izin.')->middleware('role:superadmin|admin_tatib|bk')->group(function () {
+        Route::get('/', [AdminIzinController::class, 'index'])->name('index');
+        Route::patch('/{izin}', [AdminIzinController::class, 'updateStatus'])->name('update');
+    });
 });
+
