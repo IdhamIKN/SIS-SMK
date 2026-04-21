@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Siswa;
 
 use App\Models\AbsenSiswa;
+use App\Models\PengajuanIzin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -14,6 +15,17 @@ use App\Jobs\SendAbsenPulangNotif;
 
 class AbsenPulangController extends Controller
 {
+    protected function punyaIzinPulangCepatDisetujui(int $siswaId, string $tanggal): bool
+    {
+        return PengajuanIzin::query()
+            ->where('siswa_id', $siswaId)
+            ->where('jenis', 'izin_pulang_cepat')
+            ->where('status', 'disetujui')
+            ->whereDate('tanggal_mulai', '<=', $tanggal)
+            ->whereDate('tanggal_sampai', '>=', $tanggal)
+            ->exists();
+    }
+
     public function index(Request $request): View
     {
         Log::channel('sis')->info('[AbsenPulang] Halaman absen pulang', [
@@ -45,6 +57,7 @@ class AbsenPulangController extends Controller
         }
 
         $tanggal = now()->toDateString();
+        $bolehPulangCepat = $this->punyaIzinPulangCepatDisetujui($siswa->id, $tanggal);
 
         // Cek sudah absen masuk hari ini (harus masuk dulu sebelum pulang)
         $sudahAbsenMasuk = AbsenSiswa::where('siswa_id', $siswa->id)
@@ -72,6 +85,13 @@ class AbsenPulangController extends Controller
                 'tanggal' => $tanggal,
             ]);
             return back()->withErrors(['error' => 'Anda sudah absen pulang hari ini']);
+        }
+
+        $shift = config('sekolah.jam_shift.pagi');
+        $now = now();
+        if (!$bolehPulangCepat && ($now->lt($shift['pulang']) || $now->gt($shift['limit_pulang']))) {
+            $waktuValid = date('H:i', strtotime($shift['pulang'])) . ' - ' . date('H:i', strtotime($shift['limit_pulang']));
+            return back()->withErrors(['error' => "Waktu absen pulang tidak sesuai ({$waktuValid})"]);
         }
 
         // Hitung jarak ke sekolah

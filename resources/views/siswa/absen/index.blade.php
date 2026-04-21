@@ -673,14 +673,27 @@
 
         {{-- Jenis Absen --}}
         @php $jenis = $status['sudahMasuk'] ? 'pulang' : 'masuk'; @endphp
-        @php $shift = config('sekolah.jam_shift.pagi'); @endphp
+        @php $shift = jam_shift_config()['pagi'] ?? config('sekolah.jam_shift.pagi'); @endphp
         @php $waktuValid = ($jenis=='masuk' ? date('H:i', strtotime($shift['masuk'])) . '-' . date('H:i', strtotime($shift['limit_masuk'])) : date('H:i', strtotime($shift['pulang'])) . '-' . date('H:i', strtotime($shift['limit_pulang']))); @endphp
 
         <div class="time-window">
             <strong>⏰ Waktu Absen {{ ucfirst($jenis) }}:</strong><br>
-            <span id="timeWindow">{{ $waktuValid }}</span>
+            <span id="timeWindow">
+                @if ($jenis === 'pulang' && ($status['bolehPulangCepat'] ?? false))
+                    Izin pulang cepat disetujui, boleh absen pulang sekarang
+                @else
+                    {{ $waktuValid }}
+                @endif
+            </span>
             <div id="timeStatus" style="font-size:.75rem;color:#64748b;margin-top:4px;"></div>
         </div>
+
+        @if ($jenis === 'pulang' && ($status['bolehPulangCepat'] ?? false) && !$status['sudahPulang'])
+            <div class="alert a-ok">
+                <span>INFO</span>
+                <div>Izin pulang cepat Anda sudah disetujui. Absen pulang hari ini boleh dilakukan tanpa menunggu jam pulang normal.</div>
+            </div>
+        @endif
 
         {{-- Map Card - FIXED --}}
         <div class="card">

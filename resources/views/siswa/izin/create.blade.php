@@ -206,15 +206,6 @@
             </div>
         </form>
 
-        {{-- Back Link --}}
-        <a href="{{ route('siswa.izin.index') }}" class="btn-izin btn-izin-secondary"
-            style="position: fixed; top: 24px; left: 24px; z-index: 1000;">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-            Riwayat
-        </a>
     </div>
 
     <script>
@@ -365,7 +356,9 @@
 
             // Drag drop
             fileDropZone.addEventListener('click', () => buktiInput.click());
-            fileDropZone.addEventListener('dragover', e => e.preventDataTransfer = false);
+            fileDropZone.addEventListener('dragover', e => {
+                e.preventDefault();
+            });
             fileDropZone.addEventListener('drop', e => {
                 e.preventDefault();
                 const file = e.dataTransfer.files[0];

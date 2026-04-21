@@ -8,27 +8,23 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Log;
-use App\Services\GeolocationService;
-use App\Jobs\SendAbsenMasukNotif;
-use App\Jobs\SendAbsenPulangNotif;
+use App\Services\AbsenService;
 
 class AbsenController extends Controller
 {
+    public function __construct(protected AbsenService $absenService)
+    {
+    }
+
     public function index(Request $request): View
     {
         Log::channel('sis')->info('[Absen] Halaman absen unified', [
             'user_id' => $request->user()->id,
         ]);
 
-        $siswa = $request->user()->siswa;
+        $siswa = $request->user()->siswa()->firstOrFail();
         $tanggal = now()->toDateString();
-
-        $status = [
-            'sudahMasuk' => AbsenSiswa::where('siswa_id', $siswa->id)
-                ->where('tanggal', $tanggal)->where('jenis', 'masuk')->exists(),
-            'sudahPulang' => AbsenSiswa::where('siswa_id', $siswa->id)
-                ->where('tanggal', $tanggal)->where('jenis', 'pulang')->exists(),
-        ];
+        $status = $this->absenService->statusHariIni($siswa->id, $tanggal);
 
         return view('siswa.absen.index', compact('status'));
     }
@@ -42,11 +38,7 @@ class AbsenController extends Controller
             'jenis' => $jenis,
         ]);
 
-        $request->validate([
-            'foto_selfie' => 'required|image|max:2048',
-            'latitude' => 'required|numeric|between:-90,90',
-            'longitude' => 'required|numeric|between:-180,180',
-        ]);
+        $validated = $this->absenService->validateAbsenRequest($request);
 
         $siswa = $request->user()->siswa;
         if (!$siswa) {
@@ -54,48 +46,34 @@ class AbsenController extends Controller
         }
 
         $tanggal = now()->toDateString();
-        $shift = config('sekolah.jam_shift.pagi');
+        $shift = $this->absenService->getShiftPagi();
+        $bolehPulangCepat = $jenis === 'pulang'
+            && $this->absenService->punyaIzinPulangCepatDisetujui($siswa->id, $tanggal);
 
         // Validasi waktu
-        $now = now();
-        if ($jenis === 'masuk') {
-            if ($now->lt($shift['masuk']) || $now->gt($shift['limit_masuk'])) {
-                $waktuValid = date('H:i', strtotime($shift['masuk'])) . ' - ' . date('H:i', strtotime($shift['limit_masuk']));
-                return back()->withErrors(['error' => "Waktu absen masuk tidak sesuai ({$waktuValid})"]);
-            }
-        } elseif ($jenis === 'pulang') {
-            if ($now->lt($shift['pulang']) || $now->gt($shift['limit_pulang'])) {
-                $waktuValid = date('H:i', strtotime($shift['pulang'])) . ' - ' . date('H:i', strtotime($shift['limit_pulang']));
-                return back()->withErrors(['error' => "Waktu absen pulang tidak sesuai ({$waktuValid})"]);
-            }
-        } else {
+        if (!in_array($jenis, ['masuk', 'pulang'], true)) {
             return back()->withErrors(['error' => 'Jenis absen tidak valid']);
+        }
+        $errorWaktu = $this->absenService->validasiWaktu($jenis, $bolehPulangCepat, $shift);
+        if ($errorWaktu) {
+            return back()->withErrors(['error' => $errorWaktu]);
         }
 
         // Cek status absen
-        $sudahMasuk = AbsenSiswa::where('siswa_id', $siswa->id)
-            ->where('tanggal', $tanggal)->where('jenis', 'masuk')->exists();
-
-        $sudahPulang = AbsenSiswa::where('siswa_id', $siswa->id)
-            ->where('tanggal', $tanggal)->where('jenis', 'pulang')->exists();
-
-        if ($jenis === 'masuk' && $sudahMasuk) {
-            return back()->withErrors(['error' => 'Anda sudah absen masuk hari ini']);
-        }
-
-        if ($jenis === 'pulang') {
-            if (!$sudahMasuk) {
-                return back()->withErrors(['error' => 'Harus absen masuk dulu sebelum pulang']);
-            }
-            if ($sudahPulang) {
-                return back()->withErrors(['error' => 'Anda sudah absen pulang hari ini']);
-            }
+        $statusHariIni = $this->absenService->statusHariIni($siswa->id, $tanggal);
+        $errorKondisi = $this->absenService->validasiKondisiAbsen(
+            $jenis,
+            $statusHariIni['sudahMasuk'],
+            $statusHariIni['sudahPulang']
+        );
+        if ($errorKondisi) {
+            return back()->withErrors(['error' => $errorKondisi]);
         }
 
         // Cek radius
-        $jarak = GeolocationService::hitungJarak(
-            $request->latitude, $request->longitude,
-            config('sekolah.latitude'), config('sekolah.longitude')
+        $jarak = $this->absenService->hitungJarakSekolah(
+            (float) $validated['latitude'],
+            (float) $validated['longitude']
         );
 
         if ($jarak > config('sekolah.radius_m')) {
@@ -103,25 +81,30 @@ class AbsenController extends Controller
         }
 
         // Simpan foto
-        $fotoPath = $request->file('foto_selfie')->store('absen-selfie', 'public');
+        $fotoPath = $this->absenService->simpanFotoSelfie($request->file('foto_selfie'));
 
         try {
-            $absen = AbsenSiswa::create([
-                'siswa_id' => $siswa->id,
-                'kelas_id' => $siswa->kelas_id,
-                'tanggal' => $tanggal,
-                'jenis' => $jenis,
-                'status' => 'hadir',
-                'waktu_absen' => now(),
-                'foto_selfie' => $fotoPath,
-                'latitude' => $request->latitude,
-                'longitude' => $request->longitude,
-                'jarak_meter' => $jarak,
-            ]);
+            $absen = AbsenSiswa::create($this->absenService->buatDataAbsen(
+                $siswa->id,
+                $siswa->kelas_id,
+                $tanggal,
+                $jenis,
+                $fotoPath,
+                (float) $validated['latitude'],
+                (float) $validated['longitude'],
+                $jarak
+            ));
 
             Log::channel('sis')->info("[Absen {$jenisUcase}] Berhasil", ['absen_id' => $absen->id]);
+            if ($bolehPulangCepat) {
+                Log::channel('sis')->info('[Absen Pulang] Bypass jam pulang karena izin pulang cepat disetujui', [
+                    'siswa_id' => $siswa->id,
+                    'tanggal' => $tanggal,
+                    'absen_id' => $absen->id,
+                ]);
+            }
 
-            // Dispatch WA job
+            // Dispatch WA job secara dinamis (masuk / pulang)
             $jobClass = "App\\Jobs\\SendAbsen{$jenisUcase}Notif";
             if (class_exists($jobClass)) {
                 $jobClass::dispatch($absen);
@@ -131,6 +114,7 @@ class AbsenController extends Controller
             return back()->with('success', $successMsg);
 
         } catch (\Exception $e) {
+            $this->absenService->hapusFotoSelfie($fotoPath);
             Log::channel('sis')->error("[Absen {$jenisUcase}] Gagal", [
                 'siswa_id' => $siswa->id, 'error' => $e->getMessage()
             ]);
@@ -140,14 +124,11 @@ class AbsenController extends Controller
 
     public function distanceCheck(Request $request)
     {
-        $request->validate([
-            'latitude' => 'required|numeric|between:-90,90',
-            'longitude' => 'required|numeric|between:-180,180',
-        ]);
+        $validated = $this->absenService->validateDistanceRequest($request);
 
-        $jarak = GeolocationService::hitungJarak(
-            $request->latitude, $request->longitude,
-            config('sekolah.latitude'), config('sekolah.longitude')
+        $jarak = $this->absenService->hitungJarakSekolah(
+            (float) $validated['latitude'],
+            (float) $validated['longitude']
         );
 
         return response()->json([
@@ -158,15 +139,9 @@ class AbsenController extends Controller
 
     public function statusHariIni(Request $request)
     {
-        $siswa = $request->user()->siswa;
+        $siswa = $request->user()->siswa()->firstOrFail();
         $tanggal = now()->toDateString();
-
-        return response()->json([
-            'sudahMasuk' => AbsenSiswa::where('siswa_id', $siswa->id)
-                ->where('tanggal', $tanggal)->where('jenis', 'masuk')->exists(),
-            'sudahPulang' => AbsenSiswa::where('siswa_id', $siswa->id)
-                ->where('tanggal', $tanggal)->where('jenis', 'pulang')->exists(),
-        ]);
+        return response()->json($this->absenService->statusHariIni($siswa->id, $tanggal));
     }
 
     public function manual(Request $request, string $jenis): RedirectResponse

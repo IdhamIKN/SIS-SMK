@@ -57,6 +57,7 @@
 {{-- ===== SCRIPTS ===== --}}
 <script src="{{ asset('azures/scripts/bootstrap.min.js') }}"></script>
 <script src="{{ asset('azures/scripts/custom.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 {{-- Feather Icons --}}
 <script src="https://unpkg.com/feather-icons"></script>

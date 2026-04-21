@@ -81,4 +81,9 @@ class Siswa extends Model
     {
         return $this->hasMany(LegacyAbsensi::class, 'noreg', 'noreg_legacy');
     }
+
+    public function pengajuanIzin()
+    {
+        return $this->hasMany(PengajuanIzin::class, 'siswa_id');
+    }
 }

@@ -43,7 +43,7 @@ return [
             'masuk' => '07:00:59',
             'limit_masuk' => '07:30:00',
             'pulang' => '12:00:00',
-            'limit_pulang' => '13:00:00',
+            'limit_pulang' => '16:00:00',
         ],
         'siang' => [
             'masuk' => '12:30:59',

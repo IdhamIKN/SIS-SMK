@@ -24,7 +24,12 @@
             <i class="fas fa-file-circle-check"></i>
             {{ $izin->jenis_label }}
         </h2>
-        <p>{{ $izin->status_label }} &bull; {{ $izin->tanggal_izin->format('d F Y') }}</p>
+        <p>
+            {{ $izin->status_label }}
+            @if ($izin->tanggal_izin)
+                &bull; {{ $izin->tanggal_izin->format('d F Y') }}
+            @endif
+        </p>
     </div>
 
     {{-- Status Chips --}}
@@ -33,7 +38,15 @@
             <div class="ci ci-p"><i class="fas fa-calendar-day"></i></div>
             <div>
                 <div class="c-lbl">Tanggal Izin</div>
-                <div class="c-val">{{ $izin->tanggal_izin->format('d M Y') }}</div>
+                <div class="c-val">
+                    @if ($izin->tanggal_mulai && $izin->tanggal_sampai)
+                        {{ $izin->tanggal_mulai->format('d M Y') }} - {{ $izin->tanggal_sampai->format('d M Y') }}
+                    @elseif ($izin->tanggal_izin)
+                        {{ $izin->tanggal_izin->format('d M Y') }}
+                    @else
+                        Tanggal belum tersedia
+                    @endif
+                </div>
             </div>
         </div>
         <div class="s-chip">
@@ -165,6 +178,15 @@
      ═══════════════════════════════════════════════════════ --}}
 @push('scripts')
 <script>
+@if (session('success'))
+Swal.fire({
+    title: 'Berhasil',
+    text: @json(session('success')),
+    icon: 'success',
+    confirmButtonColor: '#10b981'
+});
+@endif
+
 function confirmDelete() {
     Swal.fire({
         title: 'Konfirmasi Hapus',

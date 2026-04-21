@@ -104,7 +104,13 @@
                         <div class="izin-meta">
                             <span class="meta-date">
                                 <i class="fas fa-calendar-day"></i>
-                                {{ $item->tanggal_izin->format('d M Y') }}
+                                @if ($item->tanggal_mulai && $item->tanggal_sampai)
+                                    {{ $item->tanggal_mulai->format('d M Y') }} - {{ $item->tanggal_sampai->format('d M Y') }}
+                                @elseif ($item->tanggal_mulai)
+                                    {{ $item->tanggal_mulai->format('d M Y') }}
+                                @else
+                                    Tanggal belum tersedia
+                                @endif
                             </span>
                             @if ($item->verifier)
                                 <span class="meta-verifier">
@@ -133,11 +139,10 @@
                                     <i class="fas fa-pen"></i> Edit
                                 </a>
 
-                                <form method="POST" action="{{ route('siswa.izin.destroy', $item) }}"
-                                    onsubmit="return confirm('Hapus pengajuan ini? Tindakan tidak bisa dibatalkan.')"
+                                <form id="delete-form-{{ $item->id }}" method="POST" action="{{ route('siswa.izin.destroy', $item) }}"
                                     style="display:inline;">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="action-btn btn-delete">
+                                    <button type="button" class="action-btn btn-delete" onclick="confirmDelete({{ $item->id }})">
                                         <i class="fas fa-trash-alt"></i> Hapus
                                     </button>
                                 </form>
@@ -186,3 +191,35 @@
         Ajukan Izin
     </a>
 @endsection
+
+@push('scripts')
+<script>
+function confirmDelete(id) {
+    if (typeof Swal === 'undefined') {
+        if (confirm('Yakin hapus pengajuan izin ini? Tindakan tidak bisa dibatalkan.')) {
+            document.getElementById('delete-form-' + id).submit();
+        }
+        return;
+    }
+
+    Swal.fire({
+        title: 'Konfirmasi Hapus',
+        html: 'Yakin hapus pengajuan izin ini?<br><small style="color:#64748b;">Tindakan tidak bisa dibatalkan.</small>',
+        icon: 'warning',
+        showCancelButton: true,
+        reverseButtons: true,
+        buttonsStyling: false,
+        customClass: {
+            confirmButton: 'action-btn btn-delete',
+            cancelButton: 'action-btn btn-view',
+        },
+        confirmButtonText: '<i class="fas fa-trash-alt"></i>&nbsp; Hapus',
+        cancelButtonText: '<i class="fas fa-times"></i>&nbsp; Batal',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('delete-form-' + id).submit();
+        }
+    });
+}
+</script>
+@endpush

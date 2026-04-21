@@ -4,13 +4,16 @@ namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
 use App\Models\PengajuanIzin;
+use App\Services\IzinService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
 
 class IzinController extends Controller
 {
+    public function __construct(protected IzinService $izinService)
+    {
+    }
+
     public function index(Request $request)
     {
         $siswa = auth()->user()->siswa()->firstOrFail();
@@ -35,62 +38,25 @@ class IzinController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'jenis' => 'required|in:izin_sakit,izin_pulang_cepat,izin_terlambat,izin_lainnya',
-            'tanggal_izin' => 'required_if:jenis,izin_pulang_cepat,izin_terlambat|nullable|date|after_or_equal:today',
-            'tanggal_mulai' => 'required_if:jenis,izin_sakit,izin_lainnya|nullable|date|after_or_equal:today',
-            'tanggal_sampai' => 'required_if:jenis,izin_sakit,izin_lainnya|nullable|date|after_or_equal:tanggal_mulai',
-            'alasan' => 'required|string|max:500',
-            'bukti' => 'nullable|image|mimes:jpeg,jpg,png|max:10240',
-        ]);
-
-        $buktiPath = null;
-        if ($request->hasFile('bukti')) {
-            $file = $request->file('bukti');
-            $image = \Intervention\Image\Facades\Image::make($file);
-
-            // Resize & quality 70%
-            $image->resize(1200, null, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            })->encode('jpg', 70);
-
-            $dir = 'izin/' . date('Y/m');
-            Storage::disk('public')->makeDirectory($dir, 0755, true, false);
-            $filename = time() . '_' . $siswa->id . '_bukti.jpg';
-            $path = $dir . '/' . $filename;
-
-            Storage::disk('public')->put($path, $image->stream()->__toString());
-            $buktiPath = $path;
-        }
-
         $siswa = auth()->user()->siswa()->firstOrFail();
-        $data = [
-            'siswa_id' => $siswa->id,
-            'jenis' => $request->jenis,
-            'alasan' => $request->alasan,
-            'bukti' => $buktiPath,
-        ];
+        $validated = $this->izinService->validateRequest($request);
 
-        if ($request->filled('tanggal_izin')) {
-            $data['tanggal_izin'] = $request->tanggal_izin;
+        $this->izinService->ensureTidakBentrokDenganAbsensi($siswa->id, $validated);
+
+        $bukti = null;
+        if ($request->hasFile('bukti')) {
+            $bukti = $this->izinService->storeOptimizedBukti($request->file('bukti'), $siswa->id);
         }
-        if ($request->filled('tanggal_mulai')) {
-            $data['tanggal_mulai'] = $request->tanggal_mulai;
-        }
-        if ($request->filled('tanggal_sampai')) {
-            $data['tanggal_sampai'] = $request->tanggal_sampai;
-        }
+
+        $data = $this->izinService->buildPayload($validated, $siswa->id, $bukti);
 
         $izin = $siswa->pengajuanIzin()->create($data);
-
-
 
         Log::channel('sis')->info('[PengajuanIzin] Siswa ajukan izin', [
             'izin_id' => $izin->id,
             'siswa_id' => $siswa->id,
             'jenis' => $izin->jenis,
-            'tanggal_izin' => $izin->tanggal_izin,
+            ...$this->izinService->resolveTanggalData($validated),
         ]);
 
 
@@ -121,61 +87,27 @@ class IzinController extends Controller
         if ($izin->siswa_id !== auth()->user()->siswa_id || $izin->status !== 'diajukan') {
             abort(403, 'Hanya bisa edit izin yang belum disetujui');
         }
+        $validated = $this->izinService->validateRequest($request, $izin);
 
-        $request->validate([
-            'jenis' => 'required|in:izin_sakit,izin_pulang_cepat,izin_terlambat,izin_lainnya',
-            'tanggal_izin' => 'required_if:jenis,izin_pulang_cepat,izin_terlambat|nullable|date|after_or_equal:today',
-            'tanggal_mulai' => 'required_if:jenis,izin_sakit,izin_lainnya|nullable|date|after_or_equal:today',
-            'tanggal_sampai' => 'required_if:jenis,izin_sakit,izin_lainnya|nullable|date|after_or_equal:tanggal_mulai',
-            'alasan' => 'required|string|max:500',
-            'bukti' => 'nullable|image|mimes:jpeg,jpg,png|max:10240',
-        ]);
+        $this->izinService->ensureTidakBentrokDenganAbsensi($izin->siswa_id, $validated);
 
         $oldBukti = $izin->bukti;
         $buktiPath = $izin->bukti;
 
         if ($request->hasFile('bukti')) {
-            $file = $request->file('bukti');
-            $image = \Intervention\Image\Facades\Image::make($file);
-
-            $image->resize(1200, null, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            })->encode('jpg', 70);
-
-            $dir = 'izin/' . date('Y/m');
-            Storage::disk('public')->makeDirectory($dir, 0755, true, false);
-            $filename = time() . '_' . $izin->siswa_id . '_bukti.jpg';
-            $path = $dir . '/' . $filename;
-
-            Storage::disk('public')->put($path, $image->stream()->__toString());
-            $buktiPath = $path;
+            $buktiPath = $this->izinService->storeOptimizedBukti($request->file('bukti'), $izin->siswa_id);
         }
 
-        $data = [
-            'jenis' => $request->jenis,
-            'alasan' => $request->alasan,
-            'bukti' => $buktiPath,
-        ];
-
-        if ($request->filled('tanggal_izin')) {
-            $data['tanggal_izin'] = $request->tanggal_izin;
-        }
-        if ($request->filled('tanggal_mulai')) {
-            $data['tanggal_mulai'] = $request->tanggal_mulai;
-        }
-        if ($request->filled('tanggal_sampai')) {
-            $data['tanggal_sampai'] = $request->tanggal_sampai;
-        }
+        $data = $this->izinService->buildPayload($validated, $izin->siswa_id, $buktiPath);
 
         $izin->update($data);
 
         // Delete old bukti if new uploaded
         if ($request->hasFile('bukti') && $oldBukti) {
-            Storage::disk('public')->delete($oldBukti);
+            $this->izinService->deleteBukti($oldBukti);
         }
 
-        return redirect()->route('siswa.izin.index')
+        return redirect()->route('siswa.izin.show', $izin)
             ->with('success', 'Pengajuan izin berhasil diupdate.');
     }
 
@@ -185,9 +117,7 @@ class IzinController extends Controller
             abort(403, 'Hanya bisa hapus izin yang belum disetujui');
         }
 
-        if ($izin->bukti) {
-            Storage::disk('public')->delete($izin->bukti);
-        }
+        $this->izinService->deleteBukti($izin->bukti);
 
         $izin->delete();
 
