@@ -34,16 +34,16 @@ return [
     'radius_m'  => env('SEKOLAH_RADIUS', 50000),
 
     // Tahun ajaran aktif
-    'tahun_ajaran_aktif' => '2024/2025',
+    'tahun_ajaran_aktif' => '2026/2027',
     'semester_aktif' => 1,
 
     // Jam absen default
     'jam_shift' => [
         'pagi' => [
             'masuk' => '07:00:59',
-            'limit_masuk' => '07:30:00',
-            'pulang' => '12:00:00',
-            'limit_pulang' => '13:00:00',
+            'limit_masuk' => '23:30:00',
+            'pulang' => '24:00:00',
+            'limit_pulang' => '24:00:00',
         ],
         'siang' => [
             'masuk' => '12:30:59',

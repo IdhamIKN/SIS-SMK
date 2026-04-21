@@ -10,7 +10,7 @@
      data-menu-effect="menu-over">
 
     {{-- Header Menu --}}
-    <div class="menu-header">
+    {{-- <div class="menu-header">
         <a href="#" data-toggle-theme class="border-right-0">
             <i class="fa font-12 color-yellow-dark fa-lightbulb"></i>
         </a>
@@ -20,8 +20,8 @@
         <a href="#" class="close-menu border-right-0">
             <i class="fa font-12 color-red-dark fa-times"></i>
         </a>
-    </div>
-
+    </div> --}}
+<br>
     {{-- Logo / Avatar --}}
     <div class="menu-logo text-center">
         @if(auth()->user()?->foto)
@@ -58,17 +58,17 @@
         </a>
 
         {{-- ===== MENU SISWA ===== --}}
-        @hasrole('siswa')
+@hasrole('siswa')
         <a href="{{ route('absen.index') }}" class="{{ request()->routeIs('absen.*') ? 'active-nav' : '' }}">
             <i data-feather="check-circle" data-feather-line="1" data-feather-size="16"
                data-feather-color="green-dark" data-feather-bg="green-fade-light"></i>
             <span>Absen</span>
             <i class="fa fa-angle-right"></i>
         </a>
-        <a href="#" class="">
-            <i data-feather="log-out" data-feather-line="1" data-feather-size="16"
-               data-feather-color="orange-dark" data-feather-bg="orange-fade-light"></i>
-            <span>Absen Pulang</span>
+        <a href="{{ route('siswa.izin.index') }}" class="{{ request()->routeIs('siswa.izin.*') ? 'active-nav' : '' }}">
+            <i data-feather="file-text" data-feather-line="1" data-feather-size="16"
+               data-feather-color="purple-dark" data-feather-bg="purple-fade-light"></i>
+            <span>Pengajuan Izin</span>
             <i class="fa fa-angle-right"></i>
         </a>
         <a href="#" class="">
@@ -78,6 +78,7 @@
             <i class="fa fa-angle-right"></i>
         </a>
         @endhasrole
+
 
         {{-- ===== MENU ADMIN / STAFF ===== --}}
         @hasanyrole('superadmin|admin_tatib|bk|waka|kepala_sekolah|gtk')
@@ -90,12 +91,20 @@
             <i class="fa fa-angle-right"></i>
         </a>
 
+        <a href="{{ route('admin.izin.index') }}" class="{{ request()->routeIs('admin.izin.*') ? 'active-nav' : '' }}">
+            <i data-feather="file-check" data-feather-line="1" data-feather-size="16"
+               data-feather-color="purple-dark" data-feather-bg="purple-fade-light"></i>
+            <span>Verifikasi Izin</span>
+            <i class="fa fa-angle-right"></i>
+        </a>
+
         <a href="{{ route('gtk.index') }}" class="{{ request()->routeIs('gtk.*') ? 'active-nav' : '' }}">
             <i data-feather="briefcase" data-feather-line="1" data-feather-size="16"
                data-feather-color="teal-dark" data-feather-bg="teal-fade-light"></i>
             <span>Data GTK</span>
             <i class="fa fa-angle-right"></i>
         </a>
+
 
         <a href="#" class="">
             <i data-feather="grid" data-feather-line="1" data-feather-size="16"

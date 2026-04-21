@@ -70,11 +70,17 @@ class Siswa extends Model
         return $this->hasMany(SiswaPetugasLaporan::class);
     }
 
+    public function pengajuanIzin()
+    {
+        return $this->hasMany(\App\Models\PengajuanIzin::class);
+    }
+
     // Relationship dengan data legacy
     public function siswaLegacy()
     {
         return $this->belongsTo(LegacySiswa::class, 'noreg_legacy', 'noreg');
     }
+
 
     // Relationship dengan absensi legacy
     public function absensiLegacy()
