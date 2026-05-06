@@ -89,4 +89,3 @@ class PengajuanIzin extends Model
         return $this->belongsTo(User::class, 'diverifikasi_oleh');
     }
 }
-

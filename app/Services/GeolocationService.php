@@ -29,6 +29,7 @@ class GeolocationService
     public static function dalamRadius(float $siswaLat, float $siswaLon, float $sekolahLat, float $sekolahLon, int $radiusMeter): bool
     {
         $jarak = self::hitungJarak($siswaLat, $siswaLon, $sekolahLat, $sekolahLon);
+
         return $jarak <= $radiusMeter;
     }
 }

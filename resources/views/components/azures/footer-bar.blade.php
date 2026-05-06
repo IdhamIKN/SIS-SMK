@@ -26,13 +26,12 @@
                 data-feather-bg="green-fade-light"></i>
             <span>Absen</span>
         </a>
-
-        <a href="#" class="{{ request()->routeIs('rekap.*') ? 'active-nav' : '' }}">
-            <i data-feather="bar-chart-2" data-feather-line="1" data-feather-size="21" data-feather-color="orange-dark"
-                data-feather-bg="orange-fade-light"></i>
-            <span>Rekap</span>
+        <a href="{{ route('event.index') }}" class="{{ request()->routeIs('event.*') ? 'active-nav' : '' }}">
+            <i data-feather="calendar" data-feather-line="1" data-feather-size="21" data-feather-color="red-dark"
+                data-feather-bg="red-fade-light"></i>
+            <span>Event</span>
         </a>
-        <a href="#" class="{{ request()->routeIs('profil.*') ? 'active-nav' : '' }}">
+        <a href="{{ route('profile.index') }}" class="{{ request()->routeIs('profile.*') ? 'active-nav' : '' }}">
             <i data-feather="user" data-feather-line="1" data-feather-size="21" data-feather-color="brown-dark"
                 data-feather-bg="brown-fade-light"></i>
             <span>Profil</span>
@@ -44,10 +43,10 @@
                 data-feather-bg="blue-fade-light"></i>
             <span>Dashboard</span>
         </a>
-        <a href="{{ route('absen.masuk') }}" class="{{ request()->routeIs('absen.*') ? 'active-nav' : '' }}">
-            <i data-feather="check-square" data-feather-line="1" data-feather-size="21" data-feather-color="green-dark"
-                data-feather-bg="green-fade-light"></i>
-            <span>Absen</span>
+        <a href="{{ route('event.index') }}" class="{{ request()->routeIs('event.*') ? 'active-nav' : '' }}">
+            <i data-feather="calendar" data-feather-line="1" data-feather-size="21" data-feather-color="red-dark"
+                data-feather-bg="red-fade-light"></i>
+            <span>Event</span>
         </a>
         <a href="{{ route('siswa.index') }}" class="{{ request()->routeIs('siswa.*') ? 'active-nav' : '' }}">
             <i data-feather="users" data-feather-line="1" data-feather-size="21" data-feather-color="red-dark"
@@ -59,7 +58,7 @@
                 data-feather-bg="teal-fade-light"></i>
             <span>GTK</span>
         </a>
-        <a href="#" class="{{ request()->routeIs('profil.*') ? 'active-nav' : '' }}">
+        <a href="{{ route('profile.index') }}" class="{{ request()->routeIs('profile.*') ? 'active-nav' : '' }}">
             <i data-feather="settings" data-feather-line="1" data-feather-size="21" data-feather-color="dark-dark"
                 data-feather-bg="gray-fade-light"></i>
             <span>Profil</span>

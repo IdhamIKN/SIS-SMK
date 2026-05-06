@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\GTK;
+use App\Models\Siswa;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
@@ -16,7 +20,7 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-$credentials = $request->validate([
+        $credentials = $request->validate([
             'username' => 'required|string',
             'password' => 'required',
         ]);
@@ -28,30 +32,39 @@ $credentials = $request->validate([
 
         $username = $request->username;
         $user = null;
-
-        // Detect NIS (siswa) - biasanya 8-10 digit
-        if (preg_match('/^\\d{8,10}$/', $username)) {
-            $siswa = \App\Models\Siswa::where('nis', $username)->with('user')->first();
-            if ($siswa && $siswa->user) {
-                $user = $siswa->user;
-                Log::channel('sis')->info('[Auth] NIS detected', ['nis' => $username]);
+        // Detect berdasarkan panjang digit (sesuai validsidigit.md)
+        if (preg_match('/^\\d{16}$/', $username)) {
+            // NIK (16 digit) - untuk GTK
+            $gtk = GTK::where('nik', $username)->with('user')->first();
+            if ($gtk && $gtk->user) {
+                $user = $gtk->user;
+                Log::channel('sis')->info('[Auth] NIK detected', ['nik' => $username]);
             }
-        } 
-        // Detect NIP/NIK (gtk/admin) - 18 digit
-        elseif (preg_match('/^\\d{18}$/', $username)) {
-            $gtk = \App\Models\GTK::where('nip', $username)->with('user')->first();
+        } elseif (preg_match('/^\\d{18}$/', $username)) {
+            // NIP (18 digit) - untuk GTK
+            $gtk = GTK::where('nip', $username)->with('user')->first();
             if ($gtk && $gtk->user) {
                 $user = $gtk->user;
                 Log::channel('sis')->info('[Auth] NIP detected', ['nip' => $username]);
             }
-        } 
-        // Fallback email
-        else {
-            $user = \App\Models\User::where('email', $username)->first();
-            Log::channel('sis')->info('[Auth] Email fallback', ['email' => $username]);
+        } elseif (preg_match('/^\d+$/', $username)) {
+            // NIS atau NISN (siswa) - panjang bervariasi, bukan 16 atau 18 digit 0094163349
+            $siswa = Siswa::where('nisn', $username)->orWhere('nisn', $username)->with('user')->first();
+            if ($siswa && $siswa->user) {
+                $user = $siswa->user;
+                Log::channel('sis')->info('[Auth] NIS/NISN detected', ['identifier' => $username]);
+            }
         }
 
-        if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+        // Fallback ke email jika tidak ditemukan di digit atau input bukan digit
+        if (! $user) {
+            $user = User::where('email', $username)->first();
+            if ($user) {
+                Log::channel('sis')->info('[Auth] Email fallback', ['email' => $username]);
+            }
+        }
+
+        if ($user && Hash::check($request->password, $user->password)) {
             Auth::login($user, $request->boolean('remember'));
             $request->session()->regenerate();
 
@@ -63,7 +76,7 @@ $credentials = $request->validate([
             ]);
 
             // Role-based redirect
-            return match($role) {
+            return match ($role) {
                 'superadmin', 'admin_tatib' => redirect()->intended('/dashboard'),
                 'kepala_sekolah', 'waka' => redirect()->intended('/panel/realtime'),
                 'gtk' => redirect()->intended('/kehadiran-guru/laporan'),

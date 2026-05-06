@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\GTK;
 use App\Models\Jurusan;
 use App\Models\Kelas;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -33,7 +32,7 @@ class KelasSeeder extends Seeder
                 $bk = $k->idbk ? GTK::where('kd_guru', $k->idbk)->first() : null;
 
                 // Map tingkat dari legacy (X, XI, XII)
-                $tingkat = match($k->kelas) {
+                $tingkat = match ($k->kelas) {
                     'X' => 'X',
                     'XI' => 'XI',
                     'XII' => 'XII',

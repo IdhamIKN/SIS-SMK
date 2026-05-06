@@ -359,7 +359,7 @@
     </div>
 
     {{-- FORM SUBMIT --}}
-    <form id="absenForm" method="POST" action="{{ route('absen.masuk.store') }}" enctype="multipart/form-data">
+    <form id="absenForm" method="POST" action="{{ route('absen.store', 'masuk') }}" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="latitude"  id="hidLat">
         <input type="hidden" name="longitude" id="hidLng">

@@ -7,7 +7,7 @@
     red, green, blue, yellow, orange, brown, teal, magenta, blue2
 --}}
 
-<div id="menu-highlights"
+{{-- <div id="menu-highlights"
      class="menu menu-box-bottom menu-box-detached rounded-m"
      data-menu-height="510"
      data-menu-effect="menu-over">
@@ -59,4 +59,4 @@
             <div class="clearfix"></div>
         </div>
     </div>
-</div>
+</div> --}}

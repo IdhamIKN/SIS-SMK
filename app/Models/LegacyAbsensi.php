@@ -7,8 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class LegacyAbsensi extends Model
 {
     protected $table = 'tblabsensi';
+
     protected $primaryKey = 'idabsensi';
+
     public $incrementing = false;
+
     protected $keyType = 'int';
 
     protected $fillable = [
@@ -16,7 +19,7 @@ class LegacyAbsensi extends Model
         'kelas', 'nmkelas', 'semester', 'thajaran', 'time_in', 'time_out',
         'picture_in', 'picture_out', 'hadir', 'ijin', 'sakit', 'alpha', 'pulang',
         'ket', 'userx', 'acc', 'tglacc', 'nmacc', 'lokasi',
-        'latitude_longtitude_in', 'latitude_longtitude_out'
+        'latitude_longtitude_in', 'latitude_longtitude_out',
     ];
 
     protected $casts = [
@@ -40,10 +43,19 @@ class LegacyAbsensi extends Model
     // Helper untuk menentukan status
     public function getStatusAttribute()
     {
-        if ($this->hadir == 1) return 'hadir';
-        if ($this->ijin == 1) return 'izin';
-        if ($this->sakit == 1) return 'sakit';
-        if ($this->alpha == 1) return 'alfa';
+        if ($this->hadir == 1) {
+            return 'hadir';
+        }
+        if ($this->ijin == 1) {
+            return 'izin';
+        }
+        if ($this->sakit == 1) {
+            return 'sakit';
+        }
+        if ($this->alpha == 1) {
+            return 'alfa';
+        }
+
         return 'unknown';
     }
 
@@ -56,6 +68,7 @@ class LegacyAbsensi extends Model
         if ($this->time_out && $this->time_out != '00:00:00') {
             return 'pulang';
         }
+
         return 'unknown';
     }
 }

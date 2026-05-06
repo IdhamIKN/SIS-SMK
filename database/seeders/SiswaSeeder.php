@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Kelas;
 use App\Models\Siswa;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -60,4 +59,3 @@ class SiswaSeeder extends Seeder
         ]);
     }
 }
-

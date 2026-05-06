@@ -25,7 +25,7 @@
             </div>
         @endif
 
-        <form id="absenForm" method="POST" action="{{ route('absen.pulang.store') }}" enctype="multipart/form-data" class="space-y-4">
+        <form id="absenForm" method="POST" action="{{ route('absen.store', 'pulang') }}" enctype="multipart/form-data" class="space-y-4">
             @csrf
 
             <div class="text-center">

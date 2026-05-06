@@ -7,13 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class LegacyKelas extends Model
 {
     protected $table = 'tblkelas';
+
     protected $primaryKey = 'idkelas';
+
     public $incrementing = false;
+
     protected $keyType = 'int';
 
     protected $fillable = [
         'idkelas', 'nmkelas', 'kelas', 'idjurusan', 'idwali', 'idbk',
-        'color', 'shif', 'wagroup'
+        'color', 'shif', 'wagroup',
     ];
 
     // Relationship dengan Kelas baru

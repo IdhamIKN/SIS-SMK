@@ -33,9 +33,10 @@ class AppServiceProvider extends ServiceProvider
     private function registerSekolahHelpers(): void
     {
         // Helper untuk data sekolah
-        app()->singleton('sekolah.data', function() {
-            return Cache::remember('sekolah_data', 3600, function() {
+        app()->singleton('sekolah.data', function () {
+            return Cache::remember('sekolah_data', 3600, function () {
                 $sekolah = Sekolah::first();
+
                 return $sekolah ? [
                     'nama' => $sekolah->sekolah,
                     'alamat' => $sekolah->alsekolah,
@@ -47,21 +48,23 @@ class AppServiceProvider extends ServiceProvider
                     'nama_waka' => $sekolah->nama_waka,
                     'nip_waka' => $sekolah->nip_waka,
                     'wa_sekolah' => $sekolah->wasekolah,
+                    'system_name' => $sekolah->system_name ?: 'SIS SMKN 5 Madiun',
                 ] : config('sekolah.sekolah');
             });
         });
 
         // Helper untuk tahun ajaran aktif
-        app()->singleton('sekolah.tahun_ajaran', function() {
-            return Cache::remember('tahun_ajaran_aktif', 3600, function() {
+        app()->singleton('sekolah.tahun_ajaran', function () {
+            return Cache::remember('tahun_ajaran_aktif', 3600, function () {
                 $th = DB::table('tblthajaran')->where('aktif', 'Y')->first();
+
                 return $th ? $th->thajaran : config('sekolah.tahun_ajaran_aktif');
             });
         });
 
         // Helper untuk jam shift
-        app()->singleton('sekolah.jam_shift', function() {
-            return Cache::remember('jam_shift_config', 3600, function() {
+        app()->singleton('sekolah.jam_shift', function () {
+            return Cache::remember('jam_shift_config', 3600, function () {
                 $jamPagi = SetJam::getJamByShift('Pagi');
                 $jamSiang = SetJam::getJamByShift('Siang');
 
@@ -83,8 +86,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // Helper untuk threshold alfa
-        app()->singleton('sekolah.threshold_alfa', function() {
-            return Cache::remember('threshold_alfa_config', 3600, function() {
+        app()->singleton('sekolah.threshold_alfa', function () {
+            return Cache::remember('threshold_alfa_config', 3600, function () {
                 $alphas = DB::table('tblsetalpha')->orderBy('jumalpa1')->get();
                 $result = [];
 

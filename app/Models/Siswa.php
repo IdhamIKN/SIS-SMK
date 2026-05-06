@@ -24,20 +24,33 @@ class Siswa extends Model
         'tempat_lahir',
         'tanggal_lahir',
         'alamat',
+        'desa',
+        'kelurahan',
+        'kecamatan',
+        'kabupaten',
+        'kode_pos',
         'no_hp_siswa',
         'no_hp_ortu1',
         'no_hp_ortu2',
         'nama_ortu1',
         'nama_ortu2',
         'nama_wali',
-        'status_aktif',
-        'noreg_legacy',
-        'user_id',
+        'graduation_year',
+        'retention_count',
+        'academic_status',
     ];
 
     protected $casts = [
         'tanggal_lahir' => 'date',
         'status_aktif' => 'boolean',
+    ];
+
+    protected $fillable_legacy = [
+        'nama_ortu2',
+        'nama_wali',
+        'status_aktif',
+        'noreg_legacy',
+        'user_id',
     ];
 
     public function user(): BelongsTo
@@ -80,6 +93,38 @@ class Siswa extends Model
     public function absensiLegacy()
     {
         return $this->hasMany(LegacyAbsensi::class, 'noreg', 'noreg_legacy');
+    }
+
+    /**
+     * Get all promotion history for this student
+     */
+    public function promotions(): HasMany
+    {
+        return $this->hasMany(StudentPromotion::class, 'student_id');
+    }
+
+    /**
+     * Check if student can be promoted
+     */
+    public function canBePromoted(): bool
+    {
+        return $this->academic_status === 'active';
+    }
+
+    /**
+     * Check if student is retained
+     */
+    public function isRetained(): bool
+    {
+        return $this->retention_count > 0;
+    }
+
+    /**
+     * Get latest promotion record
+     */
+    public function latestPromotion(): ?StudentPromotion
+    {
+        return $this->promotions()->latest('promotion_date')->first();
     }
 
     public function pengajuanIzin()

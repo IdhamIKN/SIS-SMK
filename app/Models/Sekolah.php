@@ -7,14 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 class Sekolah extends Model
 {
     protected $table = 'tblsekolah';
+
     protected $primaryKey = 'idsekolah';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
+
+    public $timestamps = false; // Disable timestamps for legacy table
 
     protected $fillable = [
         'idsekolah', 'sekolah', 'alsekolah', 'telp', 'email', 'kab',
         'disurat', 'alias', 'nama_ks', 'nip_ks', 'nama_waka', 'nip_waka',
-        'nama_ketua', 'nip_ketua', 'site_url', 'site_logo', 'wasSekolah'
+        'nama_ketua', 'nip_ketua', 'site_url', 'site_logo', 'wasekolah',
+        'jam_masuk', 'jam_pulang', 'hari_efektif', 'latitude', 'longitude', 'system_name',
     ];
 
     // Method untuk mendapatkan data sekolah aktif

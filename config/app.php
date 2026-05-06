@@ -13,7 +13,14 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', function() {
+        try {
+            $sekolah = \App\Models\Sekolah::first();
+            return $sekolah ? ($sekolah->system_name ?: 'SIS SMKN 5 Madiun') : 'SIS SMKN 5 Madiun';
+        } catch (\Exception $e) {
+            return 'SIS SMKN 5 Madiun';
+        }
+    }),
 
     /*
     |--------------------------------------------------------------------------
@@ -122,6 +129,5 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
-    
 
 ];

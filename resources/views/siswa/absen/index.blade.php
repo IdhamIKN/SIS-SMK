@@ -4,6 +4,8 @@
 
 @push('styles')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    {{-- SweetAlert2 --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
@@ -259,34 +261,6 @@
             border-radius: 20px;
             background: #f1f5f9;
             color: #64748b;
-        }
-
-        .alert {
-            border-radius: 10px;
-            padding: 11px 14px;
-            font-size: .82rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-
-        .a-ok {
-            background: #f0fdf4;
-            border: 1px solid #86efac;
-            color: #15803d;
-        }
-
-        .a-err {
-            background: #fef2f2;
-            border: 1px solid #fca5a5;
-            color: #dc2626;
-        }
-
-        .a-warn {
-            background: #fffbeb;
-            border: 1px solid #fcd34d;
-            color: #b45309;
         }
 
         /* Map styles - FIXED */
@@ -576,6 +550,11 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* SweetAlert2 custom font */
+        .swal2-popup {
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+        }
     </style>
 @endpush
 
@@ -612,24 +591,6 @@
                 @endif
             </p>
         </div>
-
-        {{-- Alerts --}}
-        @if (session('success'))
-            <div class="alert a-ok">
-                <span>✅</span>
-                <div>{{ session('success') }}</div>
-            </div>
-        @endif
-        @if ($errors->any())
-            <div class="alert a-err">
-                <span>❌</span>
-                <ul>
-                    @foreach ($errors->all() as $e)
-                        <li>{{ $e }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
 
         {{-- Steps --}}
         <div class="steps">
@@ -686,39 +647,6 @@
                 @endif
             </span>
             <div id="timeStatus" style="font-size:.75rem;color:#64748b;margin-top:4px;"></div>
-        </div>
-
-        @if ($jenis === 'pulang' && ($status['bolehPulangCepat'] ?? false) && !$status['sudahPulang'])
-            <div class="alert a-ok">
-                <span>INFO</span>
-                <div>Izin pulang cepat Anda sudah disetujui. Absen pulang hari ini boleh dilakukan tanpa menunggu jam pulang normal.</div>
-            </div>
-        @endif
-
-        {{-- Map Card - FIXED --}}
-        <div class="card">
-            <div class="c-head">
-                <div class="c-icon" style="background:#dbeafe;">📍</div>
-                <h3>Lokasi Saat Ini</h3>
-                <span class="hbadge" id="gpsBadge">Mendeteksi GPS...</span>
-            </div>
-            <div class="map-wrapper">
-                <div id="map"></div>
-                <div class="map-bar">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <span id="mapTxt">Mendapatkan lokasi...</span>
-                    <span class="dbadge db-wait" id="distBadge">— m</span>
-                </div>
-            </div>
-            <div class="map-info">
-                <span id="coordTxt">🌐 —</span>
-                <span id="accTxt">🎯 Akurasi: — m</span>
-            </div>
         </div>
 
         {{-- Selfie Card --}}
@@ -786,13 +714,6 @@
             <input type="hidden" name="longitude" id="hidLng">
             <canvas id="cv" style="display:none;"></canvas>
 
-            <div id="warnJarak" class="alert a-warn" style="display:none;">
-                ⚠️ Lokasi terlalu jauh ({{ config('sekolah.radius_m') }}m max)
-            </div>
-            <div id="warnTime" class="alert a-warn" style="display:none;">
-                ⚠️ Di luar jam absen: <span id="warnTimeText"></span>
-            </div>
-
             <button type="submit" id="btnSub" disabled class="btn-sub">
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"
                     viewBox="0 0 24 24">
@@ -801,24 +722,89 @@
                 <span id="subLbl">{{ $status['sudahMasuk'] ? 'Konfirmasi Pulang' : 'Absen Masuk Sekarang' }}</span>
             </button>
         </form>
+        <br>
 
-        @if ($status['sudahMasuk'] && $status['sudahPulang'])
-            <div class="alert a-ok" style="margin-top:16px;">
-                <span>🎉</span>
-                <div>Absen hari ini sudah lengkap! Terima kasih.</div>
+        {{-- Map Card - FIXED --}}
+        <div class="card">
+            <div class="c-head">
+                <div class="c-icon" style="background:#dbeafe;">📍</div>
+                <h3>Lokasi Saat Ini</h3>
+                <span class="hbadge" id="gpsBadge">Mendeteksi GPS...</span>
             </div>
-        @endif
+            <div class="map-wrapper">
+                <div id="map"></div>
+                <div class="map-bar">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span id="mapTxt">Mendapatkan lokasi...</span>
+                    <span class="dbadge db-wait" id="distBadge">— m</span>
+                </div>
+            </div>
+            <div class="map-info">
+                <span id="coordTxt">🌐 —</span>
+                <span id="accTxt">🎯 Akurasi: — m</span>
+            </div>
+        </div>
+        <br>
     </div>
 @endsection
 
 @push('scripts')
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
             const SCH_LAT = {{ config('sekolah.latitude') }};
             const SCH_LNG = {{ config('sekolah.longitude') }};
             const RADIUS = {{ config('sekolah.radius_m') }};
+
+            /* ─── TAMPILKAN FLASH MESSAGE VIA SWEETALERT ─────────── */
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: '{{ session('success') }}',
+                    confirmButtonColor: '#16a34a',
+                    confirmButtonText: 'OK',
+                    timer: 4000,
+                    timerProgressBar: true,
+                });
+            @endif
+
+            @if ($errors->any())
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validasi Gagal',
+                    html: '<ul style="text-align:left;padding-left:16px;">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>',
+                    confirmButtonColor: '#dc2626',
+                    confirmButtonText: 'Tutup',
+                });
+            @endif
+
+            @if ($jenis === 'pulang' && ($status['bolehPulangCepat'] ?? false) && !$status['sudahPulang'])
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Izin Pulang Cepat',
+                    text: 'Izin pulang cepat Anda sudah disetujui. Absen pulang hari ini boleh dilakukan tanpa menunggu jam pulang normal.',
+                    confirmButtonColor: '#0ea5e9',
+                    confirmButtonText: 'Mengerti',
+                });
+            @endif
+
+            @if ($status['sudahMasuk'] && $status['sudahPulang'])
+                Swal.fire({
+                    icon: 'success',
+                    title: '🎉 Absen Lengkap!',
+                    text: 'Absen hari ini sudah lengkap! Terima kasih.',
+                    confirmButtonColor: '#16a34a',
+                    confirmButtonText: 'OK',
+                });
+            @endif
 
             let gpsOk = false,
                 blob = null,
@@ -828,7 +814,6 @@
 
             /* ─── MAP INITIALIZATION ──────────────────────────────── */
             function initMap() {
-                // Tunggu dom siap
                 setTimeout(() => {
                     const mapElement = document.getElementById('map');
                     if (!mapElement) {
@@ -836,7 +821,6 @@
                         return;
                     }
 
-                    // Inisialisasi map
                     map = L.map('map', {
                         zoomControl: false,
                         dragging: true,
@@ -845,19 +829,14 @@
                         attributionControl: true
                     }).setView([SCH_LAT, SCH_LNG], 15);
 
-                    // Tambah tile layer
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         attribution: '© OpenStreetMap contributors',
                         maxZoom: 19,
                         minZoom: 12
                     }).addTo(map);
 
-                    // Zoom control
-                    L.control.zoom({
-                        position: 'topright'
-                    }).addTo(map);
+                    L.control.zoom({ position: 'topright' }).addTo(map);
 
-                    // School marker
                     const mkSchool = L.divIcon({
                         html: `<div style="background:#0ea5e9;width:34px;height:34px;border-radius:50%;
                         border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);
@@ -867,12 +846,9 @@
                         className: ''
                     });
 
-                    L.marker([SCH_LAT, SCH_LNG], {
-                            icon: mkSchool
-                        }).addTo(map)
+                    L.marker([SCH_LAT, SCH_LNG], { icon: mkSchool }).addTo(map)
                         .bindPopup(`<b>Lokasi Sekolah</b><br>Radius ${RADIUS}m`);
 
-                    // School radius circle
                     L.circle([SCH_LAT, SCH_LNG], {
                         radius: RADIUS,
                         color: '#0ea5e9',
@@ -882,7 +858,6 @@
                         dashArray: '5,5'
                     }).addTo(map);
 
-                    // User marker
                     const mkUser = L.divIcon({
                         html: `<div style="background:#16a34a;width:30px;height:30px;border-radius:50%;
                         border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);
@@ -893,13 +868,10 @@
                     });
 
                     let uMarker = null;
-
-                    // Force map resize
                     map.invalidateSize();
 
-                    // GPS Location
                     function haversine(lat1, lng1, lat2, lng2) {
-                        const R = 6371000; // Earth radius in meters
+                        const R = 6371000;
                         const dLat = (lat2 - lat1) * Math.PI / 180;
                         const dLng = (lng2 - lng1) * Math.PI / 180;
                         const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 *
@@ -907,7 +879,6 @@
                         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
                     }
 
-                    // Get user location
                     if (navigator.geolocation) {
                         navigator.geolocation.getCurrentPosition(gpsOK, gpsFail, {
                             enableHighAccuracy: true,
@@ -927,24 +898,13 @@
                         document.getElementById('hidLat').value = lat;
                         document.getElementById('hidLng').value = lng;
 
-                        // Remove old marker
                         if (uMarker) map.removeLayer(uMarker);
 
-                        // Add user marker
-                        uMarker = L.marker([lat, lng], {
-                                icon: mkUser
-                            }).addTo(map)
+                        uMarker = L.marker([lat, lng], { icon: mkUser }).addTo(map)
                             .bindPopup(`<b>Posisi Anda</b><br>${lat.toFixed(5)}, ${lng.toFixed(5)}`);
 
-                        // Fit bounds
-                        map.fitBounds([
-                            [lat, lng],
-                            [SCH_LAT, SCH_LNG]
-                        ], {
-                            padding: [30, 30]
-                        });
+                        map.fitBounds([[lat, lng], [SCH_LAT, SCH_LNG]], { padding: [30, 30] });
 
-                        // Update info
                         document.getElementById('coordTxt').textContent =
                             `🌐 ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
                         document.getElementById('accTxt').textContent = `🎯 Akurasi: ±${acc}m`;
@@ -973,7 +933,15 @@
                             db.textContent = distance + 'm';
                             mt.textContent = `Terlalu jauh (${distance}m dari sekolah)`;
                             mt.style.color = '#dc2626';
-                            document.getElementById('warnJarak').style.display = 'flex';
+
+                            /* ── SweetAlert: lokasi terlalu jauh ── */
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Lokasi Terlalu Jauh',
+                                html: `Anda berada <b>${distance}m</b> dari sekolah.<br>Maksimum radius yang diizinkan adalah <b>${RADIUS}m</b>.`,
+                                confirmButtonColor: '#f59e0b',
+                                confirmButtonText: 'Mengerti',
+                            });
                         }
                         checkReady();
                     }
@@ -986,6 +954,15 @@
                         document.getElementById('mapTxt').textContent =
                             'Izin lokasi ditolak atau GPS tidak tersedia';
                         document.getElementById('mapTxt').style.color = '#dc2626';
+
+                        /* ── SweetAlert: GPS gagal ── */
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'GPS Tidak Tersedia',
+                            text: 'Izin lokasi ditolak atau GPS tidak tersedia. Aktifkan lokasi dan muat ulang halaman.',
+                            confirmButtonColor: '#dc2626',
+                            confirmButtonText: 'Tutup',
+                        });
                     }
 
                 }, 100);
@@ -1014,7 +991,6 @@
                 img.style.display = 'none';
                 cbadge.style.display = 'none';
 
-                // Show loading spinner
                 ph.innerHTML =
                     '<div class="spinner"></div><p style="font-size:.72rem;line-height:1.4;">Membuka kamera...</p>';
                 ph.style.display = 'block';
@@ -1027,12 +1003,8 @@
                     stream = await navigator.mediaDevices.getUserMedia({
                         video: {
                             facingMode: 'user',
-                            width: {
-                                ideal: 640
-                            },
-                            height: {
-                                ideal: 640
-                            }
+                            width: { ideal: 640 },
+                            height: { ideal: 640 }
                         }
                     });
                     vid.srcObject = stream;
@@ -1046,12 +1018,20 @@
                 } catch (e) {
                     console.error('Camera error:', e);
                     ph.innerHTML =
-                        '<p style="font-size:.72rem;line-height:1.4;color:#dc2626;">❌ Kamera tidak bisa dibuka<br>' +
-                        e.message + '</p>';
+                        '<p style="font-size:.72rem;line-height:1.4;color:#dc2626;">❌ Kamera tidak bisa dibuka</p>';
                     sb.style.background = '#fee2e2';
                     sb.style.color = '#dc2626';
                     sb.textContent = 'Kamera gagal';
                     show('btnCam', true);
+
+                    /* ── SweetAlert: kamera gagal ── */
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Kamera Tidak Bisa Dibuka',
+                        html: `Pastikan izin kamera sudah diberikan di browser.<br><small style="color:#64748b;">${e.message}</small>`,
+                        confirmButtonColor: '#dc2626',
+                        confirmButtonText: 'Tutup',
+                    });
                 }
             }
 
@@ -1115,8 +1095,15 @@
             /* ─── SUBMIT ──────────────────────────── */
             document.getElementById('absenForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
+
                 if (!blob) {
-                    alert('Ambil foto selfie dulu!');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Foto Belum Diambil',
+                        text: 'Silakan ambil foto selfie terlebih dahulu.',
+                        confirmButtonColor: '#f59e0b',
+                        confirmButtonText: 'OK',
+                    });
                     return;
                 }
 
@@ -1132,21 +1119,57 @@
                     const response = await fetch(this.action, {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
                         },
                         body: fd
                     });
 
-                    if (response.ok) {
-                        window.location.href = response.url || window.location.href;
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Absen Berhasil! 🎉',
+                            text: data.message || 'Absen Anda telah tercatat.',
+                            confirmButtonColor: '#16a34a',
+                            confirmButtonText: 'OK',
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
+                        window.location.href = data.redirect || window.location.href;
                     } else {
-                        throw new Error('Response not ok');
+                        let errorMsg = '';
+                        if (data.errors && typeof data.errors === 'object') {
+                            errorMsg = '<ul style="text-align:left;padding-left:16px;">' +
+                                Object.values(data.errors).flat().map(e => `<li>${e}</li>`).join('') +
+                                '</ul>';
+                        } else {
+                            errorMsg = data.error || data.message || 'Terjadi kesalahan, silakan coba lagi.';
+                        }
+
+                        console.error('Server error:', data);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Absen Gagal',
+                            html: errorMsg,
+                            confirmButtonColor: '#dc2626',
+                            confirmButtonText: 'Tutup',
+                        });
+                        lbl.textContent = 'Coba Lagi';
                     }
                 } catch (error) {
-                    console.error('Error:', error);
-                    btn.disabled = false;
+                    console.error('Network/Parse error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Koneksi Gagal',
+                        text: 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda dan coba lagi.',
+                        confirmButtonColor: '#dc2626',
+                        confirmButtonText: 'Tutup',
+                    });
                     lbl.textContent = 'Absen Sekarang';
-                    alert('Gagal mengirim data, coba lagi.');
+                } finally {
+                    btn.disabled = false;
                 }
             });
 

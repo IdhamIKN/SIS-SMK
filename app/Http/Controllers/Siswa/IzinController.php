@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\IzinStoreRequest;
+use App\Http\Requests\IzinUpdateRequest;
 use App\Models\PengajuanIzin;
 use App\Services\IzinService;
 use Illuminate\Http\Request;
@@ -10,9 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class IzinController extends Controller
 {
-    public function __construct(protected IzinService $izinService)
-    {
-    }
+    public function __construct(protected IzinService $izinService) {}
 
     public function index(Request $request)
     {
@@ -30,16 +30,15 @@ class IzinController extends Controller
         return view('siswa.izin.index', compact('izin', 'pendingCount', 'approvedCount', 'rejectedCount', 'allCount'));
     }
 
-
     public function create()
     {
         return view('siswa.izin.create');
     }
 
-    public function store(Request $request)
+    public function store(IzinStoreRequest $request)
     {
         $siswa = auth()->user()->siswa()->firstOrFail();
-        $validated = $this->izinService->validateRequest($request);
+        $validated = $request->validated();
 
         $this->izinService->ensureTidakBentrokDenganAbsensi($siswa->id, $validated);
 
@@ -58,7 +57,6 @@ class IzinController extends Controller
             'jenis' => $izin->jenis,
             ...$this->izinService->resolveTanggalData($validated),
         ]);
-
 
         return redirect()->route('siswa.izin.index')
             ->with('success', 'Pengajuan izin berhasil diajukan. Menunggu persetujuan admin.');
@@ -82,12 +80,10 @@ class IzinController extends Controller
         return view('siswa.izin.edit', compact('izin'));
     }
 
-    public function update(Request $request, PengajuanIzin $izin)
+    public function update(IzinUpdateRequest $request, PengajuanIzin $izin)
     {
-        if ($izin->siswa_id !== auth()->user()->siswa_id || $izin->status !== 'diajukan') {
-            abort(403, 'Hanya bisa edit izin yang belum disetujui');
-        }
-        $validated = $this->izinService->validateRequest($request, $izin);
+        $siswa = auth()->user()->siswa()->firstOrFail();
+        $validated = $request->validated();
 
         $this->izinService->ensureTidakBentrokDenganAbsensi($izin->siswa_id, $validated);
 

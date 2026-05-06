@@ -7,15 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 class LegacySiswa extends Model
 {
     protected $table = 'tblsiswa';
+
     protected $primaryKey = 'noreg';
+
     public $incrementing = false;
+
     protected $keyType = 'int';
 
     protected $fillable = [
         'noreg', 'nisn', 'nama', 'hpsiswa', 'hportu', 'gender',
         'kelas', 'nmkelas', 'semester', 'thnpelajaran', 'statusx',
         'deviceid', 'report_guru', 'password', 'created_login',
-        'created_cookies', 'photo', 'idlokasi'
+        'created_cookies', 'photo', 'idlokasi',
     ];
 
     protected $casts = [

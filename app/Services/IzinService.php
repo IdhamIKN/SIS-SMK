@@ -78,7 +78,7 @@ class IzinService
             ->implode(', ');
 
         throw ValidationException::withMessages([
-            'tanggal_mulai' => 'Pengajuan izin tidak bisa diproses karena sudah ada data absensi pada tanggal tersebut: ' . $rincian . '.',
+            'tanggal_mulai' => 'Pengajuan izin tidak bisa diproses karena sudah ada data absensi pada tanggal tersebut: '.$rincian.'.',
         ]);
     }
 
@@ -87,11 +87,11 @@ class IzinService
         $image = ImageManager::gd()->read($file);
         $encoded = $image->scale(width: 1200)->toJpeg(70);
 
-        $dir = 'izin/' . date('Y/m');
+        $dir = 'izin/'.date('Y/m');
         Storage::disk('public')->makeDirectory($dir, 0755, true, false);
 
-        $filename = time() . '_' . $siswaId . '_bukti.jpg';
-        $path = $dir . '/' . $filename;
+        $filename = time().'_'.$siswaId.'_bukti.jpg';
+        $path = $dir.'/'.$filename;
 
         Storage::disk('public')->put($path, (string) $encoded);
 
@@ -142,11 +142,11 @@ class IzinService
             'alasan' => ['required', 'string', 'max:500'],
             'bukti' => [
                 Rule::requiredIf(function () use ($izin) {
-                    if (!request()->jenis || request()->jenis === 'izin_pulang_cepat') {
+                    if (! request()->jenis || request()->jenis === 'izin_pulang_cepat') {
                         return false;
                     }
 
-                    return $izin === null || !$izin->bukti;
+                    return $izin === null || ! $izin->bukti;
                 }),
                 'nullable',
                 'image',

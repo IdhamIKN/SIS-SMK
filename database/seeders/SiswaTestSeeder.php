@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\Siswa;
-use App\Models\Kelas;
 use App\Models\Jurusan;
+use App\Models\Kelas;
+use App\Models\Siswa;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -29,11 +29,11 @@ class SiswaTestSeeder extends Seeder
         $kelas = Kelas::firstOrCreate(
             ['nama_kelas' => 'XII RPL 1'],
             [
-                'tingkat'       => 'XII',
-                'jurusan_id'    => $jurusan->id,
+                'tingkat' => 'XII',
+                'jurusan_id' => $jurusan->id,
                 'wali_kelas_id' => null,
-                'shift'         => 'Pagi',
-                'tahun_ajaran'  => '2024/2025',
+                'shift' => 'Pagi',
+                'tahun_ajaran' => '2024/2025',
             ]
         );
 
@@ -43,65 +43,65 @@ class SiswaTestSeeder extends Seeder
         // Data siswa test — semua field sesuai $fillable model Siswa
         $siswaData = [
             [
-                'nis'           => 'RPL001',
-                'nisn'          => '1234567890',
-                'nama_lengkap'  => 'Ahmad Fauzi',
+                'nis' => 'RPL001',
+                'nisn' => '1234567890',
+                'nama_lengkap' => 'Ahmad Fauzi',
                 'jenis_kelamin' => 'L',
-                'angkatan'      => '2024',
-                'tempat_lahir'  => 'Madiun',
+                'angkatan' => '2024',
+                'tempat_lahir' => 'Madiun',
                 'tanggal_lahir' => '2006-01-15',
-                'alamat'        => 'Jl. Test No. 1, Madiun',
-                'no_hp_siswa'   => '081234567890',
-                'no_hp_ortu1'   => '081234567891',
-                'no_hp_ortu2'   => '081234567892',
-                'nama_ortu1'    => 'Bapak Fauzi',
-                'nama_ortu2'    => 'Ibu Fauzi',
-                'nama_wali'     => null,
-                'noreg_legacy'  => null,
-                'foto'          => null,
-                'status_aktif'  => true,
+                'alamat' => 'Jl. Test No. 1, Madiun',
+                'no_hp_siswa' => '081234567890',
+                'no_hp_ortu1' => '081234567891',
+                'no_hp_ortu2' => '081234567892',
+                'nama_ortu1' => 'Bapak Fauzi',
+                'nama_ortu2' => 'Ibu Fauzi',
+                'nama_wali' => null,
+                'noreg_legacy' => null,
+                'foto' => null,
+                'status_aktif' => true,
                 // untuk user — bukan kolom siswas
-                'email'         => 'ahmad.fauzi@test.com',
+                'email' => 'ahmad.fauzi@test.com',
             ],
             [
-                'nis'           => 'RPL002',
-                'nisn'          => '1234567891',
-                'nama_lengkap'  => 'Siti Aminah',
+                'nis' => 'RPL002',
+                'nisn' => '1234567891',
+                'nama_lengkap' => 'Siti Aminah',
                 'jenis_kelamin' => 'P',
-                'angkatan'      => '2024',
-                'tempat_lahir'  => 'Madiun',
+                'angkatan' => '2024',
+                'tempat_lahir' => 'Madiun',
                 'tanggal_lahir' => '2006-03-20',
-                'alamat'        => 'Jl. Test No. 2, Madiun',
-                'no_hp_siswa'   => '081234567893',
-                'no_hp_ortu1'   => '081234567894',
-                'no_hp_ortu2'   => '081234567895',
-                'nama_ortu1'    => 'Ibu Aminah',
-                'nama_ortu2'    => 'Bapak Aminah',
-                'nama_wali'     => null,
-                'noreg_legacy'  => null,
-                'foto'          => null,
-                'status_aktif'  => true,
-                'email'         => 'siti.aminah@test.com',
+                'alamat' => 'Jl. Test No. 2, Madiun',
+                'no_hp_siswa' => '081234567893',
+                'no_hp_ortu1' => '081234567894',
+                'no_hp_ortu2' => '081234567895',
+                'nama_ortu1' => 'Ibu Aminah',
+                'nama_ortu2' => 'Bapak Aminah',
+                'nama_wali' => null,
+                'noreg_legacy' => null,
+                'foto' => null,
+                'status_aktif' => true,
+                'email' => 'siti.aminah@test.com',
             ],
             [
-                'nis'           => 'RPL003',
-                'nisn'          => '1234567892',
-                'nama_lengkap'  => 'Budi Santoso',
+                'nis' => 'RPL003',
+                'nisn' => '1234567892',
+                'nama_lengkap' => 'Budi Santoso',
                 'jenis_kelamin' => 'L',
-                'angkatan'      => '2024',
-                'tempat_lahir'  => 'Madiun',
+                'angkatan' => '2024',
+                'tempat_lahir' => 'Madiun',
                 'tanggal_lahir' => '2006-05-10',
-                'alamat'        => 'Jl. Test No. 3, Madiun',
-                'no_hp_siswa'   => '081234567896',
-                'no_hp_ortu1'   => '081234567897',
-                'no_hp_ortu2'   => '081234567898',
-                'nama_ortu1'    => 'Bapak Santoso',
-                'nama_ortu2'    => 'Ibu Santoso',
-                'nama_wali'     => null,
-                'noreg_legacy'  => null,
-                'foto'          => null,
-                'status_aktif'  => true,
-                'email'         => 'budi.santoso@test.com',
+                'alamat' => 'Jl. Test No. 3, Madiun',
+                'no_hp_siswa' => '081234567896',
+                'no_hp_ortu1' => '081234567897',
+                'no_hp_ortu2' => '081234567898',
+                'nama_ortu1' => 'Bapak Santoso',
+                'nama_ortu2' => 'Ibu Santoso',
+                'nama_wali' => null,
+                'noreg_legacy' => null,
+                'foto' => null,
+                'status_aktif' => true,
+                'email' => 'budi.santoso@test.com',
             ],
         ];
 
@@ -110,15 +110,15 @@ class SiswaTestSeeder extends Seeder
             $user = User::firstOrCreate(
                 ['email' => $data['email']],
                 [
-                    'name'       => $data['nama_lengkap'],
-                    'password'   => Hash::make('password'),
-                    'avatar'     => null,
+                    'name' => $data['nama_lengkap'],
+                    'password' => Hash::make('password'),
+                    'avatar' => null,
                     'role_utama' => 'siswa',
                 ]
             );
 
             // Assign role siswa
-            if (!$user->hasRole('siswa')) {
+            if (! $user->hasRole('siswa')) {
                 $user->assignRole($roleSiswa);
             }
 
@@ -129,7 +129,7 @@ class SiswaTestSeeder extends Seeder
             $siswa = Siswa::firstOrCreate(
                 ['nisn' => $data['nisn']],
                 array_merge($siswaFields, [
-                    'user_id'  => $user->id,
+                    'user_id' => $user->id,
                     'kelas_id' => $kelas->id,
                 ])
             );

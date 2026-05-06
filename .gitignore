@@ -1,23 +1,269 @@
-/.phpunit.cache
-/node_modules
-/public/build
-/public/hot
-/public/storage
-/storage/*.key
-/storage/pail
-/vendor
+# ====================================
+# SIS SMKN 5 Madiun - .gitignore
+# GitHub: https://github.com/IdhamIKN/SIS-SMK
+# ====================================
+
+# ====================================
+# Laravel Specific
+# ====================================
+
+/vendor/
+/node_modules/
+/public/storage/
+/storage/app/
+/storage/framework/
+/storage/logs/
+/bootstrap/cache/
+/.phpunit.result.cache
+
+# ====================================
+# Environment & Configuration
+# ====================================
+
 .env
-.env.backup
+.env.local
 .env.production
-.phpactor.json
+.env.staging
+.env.testing
+.env.example
+
+# ====================================
+# TODO Files - Exclude ALL
+# ====================================
+
+*TODO*
+*todo*
+*Todo*
+TODO*
+todo*
+Todo*
+
+# File dengan TODO di dalamnya
+*TODO*.*
+*todo*.*
+*Todo*.*
+
+# Folder TODO
+**/TODO/
+**/todo/
+**/Todo/
+**/todos/
+**/Todos/
+
+# ====================================
+# Cache & Temporary Files
+# ====================================
+
+*.cache
+*.log
+*.tmp
+*.temp
+*.bak
+*.backup
+*.swp
+*.swo
+*~
+
+# Laravel specific caches
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
+
+# ====================================
+# IDE & Editor Files
+# ====================================
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# PHPStorm
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Atom
+.atom/
+
+# Vim
+*.swp
+*.swo
+Session.vim
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ====================================
+# OS Generated Files
+# ====================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ====================================
+# Package Managers
+# ====================================
+
+# Composer
+composer.lock
+/vendor/
+
+# NPM
+package-lock.json
+yarn.lock
+/node_modules/
+
+# ====================================
+# Testing & CI/CD
+# ====================================
+
+# PHPUnit
 .phpunit.result.cache
-Homestead.json
-Homestead.yaml
-npm-debug.log
-yarn-error.log
-/auth.json
-/.fleet
-/.idea
-/.nova
-/.vscode
-/.zed
+tests/coverage/
+
+# CI/CD
+.github/workflows/*.log
+.github/actions/**/*.log
+
+# ====================================
+# Database & Migrations
+# ====================================
+
+# Database files
+*.sqlite
+*.db
+*.sql
+
+# Migration backups
+database/migrations/backup/
+
+# ====================================
+# Public Assets
+# ====================================
+
+/public/uploads/
+/public/images/
+/public/files/
+/public/temp/
+
+# ====================================
+# Logs & Debug
+# ====================================
+
+logs/
+*.log
+laravel.log
+storage/logs/*.log
+
+# ====================================
+# Backup Files
+# ====================================
+
+*.backup
+*.bak
+*.old
+*_old
+*_backup
+
+# ====================================
+# Security & Sensitive Files
+# ====================================
+
+# Private keys
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+
+# API keys and secrets
+config/secrets.php
+config/keys.php
+
+# ====================================
+# Documentation & Assets
+# ====================================
+
+# Generated docs
+docs/build/
+*.pdf
+*.docx
+
+# Screenshots for development
+screenshots/
+screen_*.png
+
+# ====================================
+# Custom Exclusions for SIS-SMK
+# ====================================
+
+# School specific data
+storage/app/school-data/
+storage/app/student-photos/
+
+# Temporary migration files
+database/migrations/temp/
+database/seeders/temp/
+
+# Development notes
+NOTES.md
+DEV_NOTES.md
+TODO.md
+todo.md
+
+# ====================================
+# Allow Specific Files
+# ====================================
+
+# Include these despite patterns above
+!.env.example
+!.github/
+!.gitignore
+!CHANGELOG.md
+!README.md
+!composer.json
+!package.json
+!artisan
+!phpunit.xml
+!webpack.mix.js
+
+# ====================================
+# End of .gitignore
+# ====================================

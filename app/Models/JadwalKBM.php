@@ -11,6 +11,8 @@ class JadwalKBM extends Model
 {
     use HasFactory;
 
+    protected $table = 'jadwal_kbm';
+
     protected $fillable = [
         'kelas_id',
         'gtk_id',

@@ -7,13 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class SetJam extends Model
 {
     protected $table = 'tblsetjam';
+
     protected $primaryKey = 'id_jam';
+
     public $incrementing = false;
+
     protected $keyType = 'int';
 
     protected $fillable = [
         'id_jam', 'shif', 'nama_jam', 'time_in', 'limit_in',
-        'time_out', 'limit_out', 'statusjam'
+        'time_out', 'limit_out', 'statusjam',
     ];
 
     protected $casts = [

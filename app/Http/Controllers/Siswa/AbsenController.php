@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Siswa;
 
-use App\Models\AbsenSiswa;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
-use Illuminate\Support\Facades\Log;
+use App\Models\AbsenSiswa;
+use App\Models\Siswa;
 use App\Services\AbsenService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class AbsenController extends Controller
 {
-    public function __construct(protected AbsenService $absenService)
-    {
-    }
+    public function __construct(protected AbsenService $absenService) {}
 
     public function index(Request $request): View
     {
@@ -29,62 +30,65 @@ class AbsenController extends Controller
         return view('siswa.absen.index', compact('status'));
     }
 
-    public function store(Request $request, string $jenis): RedirectResponse
+    public function store(Request $request, string $jenis): JsonResponse
     {
         $jenisUcase = ucfirst($jenis);
-        Log::channel('sis')->info("[Absen {$jenisUcase}] Mulai proses", [
+        Log::channel('sis')->info("[Absen {$jenisUcase}] Mulai DEBUG", [
             'user_id' => $request->user()->id,
             'ip' => $request->ip(),
             'jenis' => $jenis,
+            'lat' => $request->input('latitude') ?? 'N/A',
+            'lng' => $request->input('longitude') ?? 'N/A',
+            'now' => now()->format('Y-m-d H:i:s'),
+            'has_foto' => $request->hasFile('foto_selfie'),
         ]);
 
-        $validated = $this->absenService->validateAbsenRequest($request);
-
-        $siswa = $request->user()->siswa;
-        if (!$siswa) {
-            return back()->withErrors(['error' => 'Data siswa tidak ditemukan']);
-        }
-
-        $tanggal = now()->toDateString();
-        $shift = $this->absenService->getShiftPagi();
-        $bolehPulangCepat = $jenis === 'pulang'
-            && $this->absenService->punyaIzinPulangCepatDisetujui($siswa->id, $tanggal);
-
-        // Validasi waktu
-        if (!in_array($jenis, ['masuk', 'pulang'], true)) {
-            return back()->withErrors(['error' => 'Jenis absen tidak valid']);
-        }
-        $errorWaktu = $this->absenService->validasiWaktu($jenis, $bolehPulangCepat, $shift);
-        if ($errorWaktu) {
-            return back()->withErrors(['error' => $errorWaktu]);
-        }
-
-        // Cek status absen
-        $statusHariIni = $this->absenService->statusHariIni($siswa->id, $tanggal);
-        $errorKondisi = $this->absenService->validasiKondisiAbsen(
-            $jenis,
-            $statusHariIni['sudahMasuk'],
-            $statusHariIni['sudahPulang']
-        );
-        if ($errorKondisi) {
-            return back()->withErrors(['error' => $errorKondisi]);
-        }
-
-        // Cek radius
-        $jarak = $this->absenService->hitungJarakSekolah(
-            (float) $validated['latitude'],
-            (float) $validated['longitude']
-        );
-
-        if ($jarak > config('sekolah.radius_m')) {
-            return back()->withErrors(['error' => 'Lokasi terlalu jauh dari sekolah (' . round($jarak) . 'm)']);
-        }
-
-        // Simpan foto
-        $fotoPath = $this->absenService->simpanFotoSelfie($request->file('foto_selfie'));
-
         try {
-            $absen = AbsenSiswa::create($this->absenService->buatDataAbsen(
+            $validated = $this->absenService->validateAbsenRequest($request);
+
+            $siswa = $request->user()->siswa;
+            if (! $siswa) {
+                return response()->json(['success' => false, 'error' => 'Data siswa tidak ditemukan'], 422);
+            }
+
+            $tanggal = now()->toDateString();
+            $shift = $this->absenService->getShiftPagi();
+            $bolehPulangCepat = $jenis === 'pulang'
+                && $this->absenService->punyaIzinPulangCepatDisetujui($siswa->id, $tanggal);
+
+            if (! in_array($jenis, ['masuk', 'pulang'], true)) {
+                return response()->json(['success' => false, 'error' => 'Jenis absen tidak valid'], 422);
+            }
+
+            $errorWaktu = $this->absenService->validasiWaktu($jenis, $bolehPulangCepat, $shift);
+            if ($errorWaktu) {
+                return response()->json(['success' => false, 'error' => $errorWaktu], 422);
+            }
+
+            $statusHariIni = $this->absenService->statusHariIni($siswa->id, $tanggal);
+            $errorKondisi = $this->absenService->validasiKondisiAbsen(
+                $jenis,
+                $statusHariIni['sudahMasuk'],
+                $statusHariIni['sudahPulang']
+            );
+            if ($errorKondisi) {
+                return response()->json(['success' => false, 'error' => $errorKondisi], 422);
+            }
+
+            $jarak = $this->absenService->hitungJarakSekolah(
+                (float) $validated['latitude'],
+                (float) $validated['longitude']
+            );
+
+            if ($jarak > config('sekolah.radius_m')) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Lokasi terlalu jauh dari sekolah ('.round($jarak).'m)',
+                ], 422);
+            }
+
+            $fotoPath = $this->absenService->simpanFotoSelfie($request->file('foto_selfie'));
+            $dataAbsen = $this->absenService->buatDataAbsen(
                 $siswa->id,
                 $siswa->kelas_id,
                 $tanggal,
@@ -93,32 +97,32 @@ class AbsenController extends Controller
                 (float) $validated['latitude'],
                 (float) $validated['longitude'],
                 $jarak
-            ));
+            );
 
-            Log::channel('sis')->info("[Absen {$jenisUcase}] Berhasil", ['absen_id' => $absen->id]);
-            if ($bolehPulangCepat) {
-                Log::channel('sis')->info('[Absen Pulang] Bypass jam pulang karena izin pulang cepat disetujui', [
-                    'siswa_id' => $siswa->id,
-                    'tanggal' => $tanggal,
-                    'absen_id' => $absen->id,
-                ]);
-            }
+            $absen = AbsenSiswa::create($dataAbsen);
+            Log::channel('sis')->info("[Absen {$jenisUcase}] SUKSES CREATE", ['id' => $absen->id]);
 
-            // Dispatch WA job secara dinamis (masuk / pulang)
             $jobClass = "App\\Jobs\\SendAbsen{$jenisUcase}Notif";
             if (class_exists($jobClass)) {
                 $jobClass::dispatch($absen);
             }
 
-            $successMsg = "Absen {$jenisUcase} berhasil!";
-            return back()->with('success', $successMsg);
-
-        } catch (\Exception $e) {
-            $this->absenService->hapusFotoSelfie($fotoPath);
-            Log::channel('sis')->error("[Absen {$jenisUcase}] Gagal", [
-                'siswa_id' => $siswa->id, 'error' => $e->getMessage()
+            return response()->json([
+                'success' => true,
+                'message' => "Absen {$jenisUcase} berhasil!",
+                'redirect' => route('absen.index'),   // <-- sesuaikan nama route
             ]);
-            return back()->withErrors(['error' => "Absen {$jenisUcase} gagal, coba lagi"]);
+        } catch (ValidationException $e) {
+            Log::channel('sis')->error("[Absen {$jenisUcase}] VALIDATION FAIL", ['errors' => $e->errors()]);
+
+            return response()->json(['success' => false, 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            Log::channel('sis')->error("[Absen {$jenisUcase}] EXCEPTION", [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json(['success' => false, 'error' => 'Absen gagal: '.$e->getMessage()], 500);
         }
     }
 
@@ -141,6 +145,7 @@ class AbsenController extends Controller
     {
         $siswa = $request->user()->siswa()->firstOrFail();
         $tanggal = now()->toDateString();
+
         return response()->json($this->absenService->statusHariIni($siswa->id, $tanggal));
     }
 
@@ -155,7 +160,7 @@ class AbsenController extends Controller
             'catatan' => 'nullable|string|max:500',
         ]);
 
-        $siswa = \App\Models\Siswa::find($validated['siswa_id']);
+        $siswa = Siswa::find($validated['siswa_id']);
 
         AbsenSiswa::create([
             'siswa_id' => $siswa->id,
@@ -171,4 +176,3 @@ class AbsenController extends Controller
         return back()->with('success', "Absen manual {$jenis} berhasil");
     }
 }
-

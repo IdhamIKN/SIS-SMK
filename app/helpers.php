@@ -1,6 +1,6 @@
 <?php
 
-if (!function_exists('sekolah_data')) {
+if (! function_exists('sekolah_data')) {
     /**
      * Get sekolah data from cache
      */
@@ -10,7 +10,7 @@ if (!function_exists('sekolah_data')) {
     }
 }
 
-if (!function_exists('tahun_ajaran_aktif')) {
+if (! function_exists('tahun_ajaran_aktif')) {
     /**
      * Get active tahun ajaran
      */
@@ -20,7 +20,7 @@ if (!function_exists('tahun_ajaran_aktif')) {
     }
 }
 
-if (!function_exists('jam_shift_config')) {
+if (! function_exists('jam_shift_config')) {
     /**
      * Get jam shift configuration
      */
@@ -30,7 +30,7 @@ if (!function_exists('jam_shift_config')) {
     }
 }
 
-if (!function_exists('threshold_alfa_config')) {
+if (! function_exists('threshold_alfa_config')) {
     /**
      * Get threshold alfa configuration
      */
@@ -40,17 +40,17 @@ if (!function_exists('threshold_alfa_config')) {
     }
 }
 
-if (!function_exists('azures_snackbar')) {
+if (! function_exists('azures_snackbar')) {
     /**
      * Generate Azures snackbar JavaScript
      */
     function azures_snackbar($message, $bg = 'bg-blue-dark', $duration = 3000)
     {
-        return "snackbar('" . addslashes($message) . "', '" . $bg . "', " . $duration . ");";
+        return "snackbar('".addslashes($message)."', '".$bg."', ".$duration.');';
     }
 }
 
-if (!function_exists('azures_toast_success')) {
+if (! function_exists('azures_toast_success')) {
     /**
      * Success toast
      */
@@ -60,7 +60,7 @@ if (!function_exists('azures_toast_success')) {
     }
 }
 
-if (!function_exists('azures_toast_error')) {
+if (! function_exists('azures_toast_error')) {
     /**
      * Error toast
      */
@@ -70,7 +70,7 @@ if (!function_exists('azures_toast_error')) {
     }
 }
 
-if (!function_exists('azures_toast_warning')) {
+if (! function_exists('azures_toast_warning')) {
     /**
      * Warning toast
      */

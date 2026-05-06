@@ -28,12 +28,12 @@
     @endif
 
     {{-- Toggle Dark Mode --}}
-    <a href="#" data-toggle-theme class="header-icon header-icon-2 show-on-theme-dark">
+    {{-- <a href="#" data-toggle-theme class="header-icon header-icon-2 show-on-theme-dark">
         <i class="fas fa-sun"></i>
     </a>
     <a href="#" data-toggle-theme class="header-icon header-icon-2 show-on-theme-light">
         <i class="fas fa-moon"></i>
-    </a>
+    </a> --}}
 
     {{-- Notifikasi (opsional) --}}
     @hasanyrole('superadmin|admin_tatib|bk')
@@ -46,7 +46,7 @@
     @endhasanyrole
 
     {{-- Avatar / Profile --}}
-    <a href="#" data-menu="menu-main" class="header-icon header-icon-4 bg-fade-highlight-light shadow-xl">
+    {{-- <a href="#" data-menu="menu-main" class="header-icon header-icon-4 bg-fade-highlight-light shadow-xl">
         @if(auth()->user()?->avatar)
             <img src="{{ Storage::url(auth()->user()->avatar) }}" alt="Avatar" class="rounded-circle preload-img" style="width:32px;height:32px;object-fit:cover;">
         @else
@@ -54,6 +54,6 @@
                 <i class="fas fa-user font-16 color-white"></i>
             </div>
         @endif
-    </a>
+    </a> --}}
 
 </div>

@@ -16,14 +16,21 @@
 </div>
 @endif
 
+@php
+    $validationErrors = $errors ?? null;
+    $hasValidationErrors = is_object($validationErrors)
+        && method_exists($validationErrors, 'any')
+        && $validationErrors->any();
+@endphp
+
 {{-- Error Alert --}}
-@if(session('error') || $errors->any())
+@if(session('error') || $hasValidationErrors)
 <div class="alert bg-red-dark color-white mb-3 rounded-s">
     <i class="fas fa-exclamation-triangle me-2"></i>
     @if(session('error'))
         {{ session('error') }}
-    @elseif($errors->any())
-        {{ $errors->first() }}
+    @elseif($hasValidationErrors)
+        {{ $validationErrors->first() }}
     @endif
     <button type="button" class="close-alert" style="position: absolute; right: 10px; top: 10px;">
         <i class="fas fa-times"></i>

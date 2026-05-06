@@ -11,10 +11,13 @@ class GTK extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'gtks';
+
     protected $fillable = [
         'user_id',
         'kd_guru',
         'nip',
+        'nik',
         'nuptk',
         'nama_lengkap',
         'jenis_kelamin',

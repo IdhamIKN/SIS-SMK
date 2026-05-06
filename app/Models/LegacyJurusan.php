@@ -7,12 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class LegacyJurusan extends Model
 {
     protected $table = 'tbljurusan';
+
     protected $primaryKey = 'idkom';
+
     public $incrementing = false;
+
     protected $keyType = 'int';
 
     protected $fillable = [
-        'idkom', 'idpro', 'kompetensi'
+        'idkom', 'idpro', 'kompetensi',
     ];
 
     // Relationship dengan Jurusan baru

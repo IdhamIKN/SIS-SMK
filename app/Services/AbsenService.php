@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AbsenSiswa;
 use App\Models\PengajuanIzin;
+use App\Http\Requests\AbsenSiswaRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -11,24 +12,17 @@ class AbsenService
 {
     public function validateAbsenRequest(Request $request): array
     {
-        return $request->validate(
-            [
-                'foto_selfie' => ['required', 'image', 'max:2048'],
-                'latitude' => ['required', 'numeric', 'between:-90,90'],
-                'longitude' => ['required', 'numeric', 'between:-180,180'],
-            ],
-            [
-                'foto_selfie.required' => 'Foto selfie wajib diambil sebelum absen.',
-                'foto_selfie.image' => 'Foto selfie harus berupa file gambar.',
-                'foto_selfie.max' => 'Ukuran foto selfie maksimal 2MB.',
-                'latitude.required' => 'Lokasi GPS belum terbaca. Aktifkan lokasi terlebih dahulu.',
-                'latitude.numeric' => 'Format latitude tidak valid.',
-                'latitude.between' => 'Latitude di luar batas yang diperbolehkan.',
-                'longitude.required' => 'Lokasi GPS belum terbaca. Aktifkan lokasi terlebih dahulu.',
-                'longitude.numeric' => 'Format longitude tidak valid.',
-                'longitude.between' => 'Longitude di luar batas yang diperbolehkan.',
-            ]
-        );
+        $absenRequest = new AbsenSiswaRequest();
+        $absenRequest->setContainer(app());
+        $absenRequest->setRedirector(app('redirect'));
+        $absenRequest->merge($request->all());
+
+        // Set files if any
+        if ($request->hasFile('foto_selfie')) {
+            $absenRequest->files->set('foto_selfie', $request->file('foto_selfie'));
+        }
+
+        return $absenRequest->validateResolved();
     }
 
     public function validateDistanceRequest(Request $request): array
@@ -42,6 +36,7 @@ class AbsenService
     public function getShiftPagi(): array
     {
         $jam = jam_shift_config();
+
         return $jam['pagi'] ?? config('sekolah.jam_shift.pagi');
     }
 
@@ -77,14 +72,16 @@ class AbsenService
 
         if ($jenis === 'masuk') {
             if ($sekarang < $shift['masuk'] || $sekarang > $shift['limit_masuk']) {
-                $waktuValid = date('H:i', strtotime($shift['masuk'])) . ' - ' . date('H:i', strtotime($shift['limit_masuk']));
+                $waktuValid = date('H:i', strtotime($shift['masuk'])).' - '.date('H:i', strtotime($shift['limit_masuk']));
+
                 return "Waktu absen masuk tidak sesuai ({$waktuValid})";
             }
         }
 
         if ($jenis === 'pulang') {
-            if (!$bolehPulangCepat && ($sekarang < $shift['pulang'] || $sekarang > $shift['limit_pulang'])) {
-                $waktuValid = date('H:i', strtotime($shift['pulang'])) . ' - ' . date('H:i', strtotime($shift['limit_pulang']));
+            if (! $bolehPulangCepat && ($sekarang < $shift['pulang'] || $sekarang > $shift['limit_pulang'])) {
+                $waktuValid = date('H:i', strtotime($shift['pulang'])).' - '.date('H:i', strtotime($shift['limit_pulang']));
+
                 return "Waktu absen pulang tidak sesuai ({$waktuValid})";
             }
         }
@@ -99,7 +96,7 @@ class AbsenService
         }
 
         if ($jenis === 'pulang') {
-            if (!$sudahMasuk) {
+            if (! $sudahMasuk) {
                 return 'Harus absen masuk dulu sebelum pulang';
             }
 
@@ -113,11 +110,15 @@ class AbsenService
 
     public function hitungJarakSekolah(float $latitude, float $longitude): float
     {
+        $sekolah = \App\Models\Sekolah::first();
+        $sekolahLat = $sekolah && $sekolah->latitude ? $sekolah->latitude : config('sekolah.latitude');
+        $sekolahLng = $sekolah && $sekolah->longitude ? $sekolah->longitude : config('sekolah.longitude');
+
         return GeolocationService::hitungJarak(
             $latitude,
             $longitude,
-            config('sekolah.latitude'),
-            config('sekolah.longitude')
+            $sekolahLat,
+            $sekolahLng
         );
     }
 

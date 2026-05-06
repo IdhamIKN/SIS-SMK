@@ -13,9 +13,9 @@ class WhatsappService
         $start = microtime(true);
 
         Log::channel('wa')->info('[WA] Mulai kirim', [
-            'to'    => $nomorHp,
+            'to' => $nomorHp,
             'jenis' => $jenis,
-            'ref'   => $referensiId,
+            'ref' => $referensiId,
         ]);
 
         // Cek mode WA: procedure atau gateway
@@ -24,8 +24,8 @@ class WhatsappService
         if ($mode === 'gateway') {
             // Kirim via HTTP GET ke WA gateway baru
             $response = Http::get(config('sekolah.wa.gateway_url'), [
-                'token'   => config('sekolah.wa.gateway_token'),
-                'to'      => $nomorHp,
+                'token' => config('sekolah.wa.gateway_token'),
+                'to' => $nomorHp,
                 'message' => $pesan,
             ]);
 
@@ -57,30 +57,30 @@ class WhatsappService
 
         // Simpan log ke wa_logs
         WaLog::create([
-            'no_tujuan'      => $nomorHp,
-            'pesan'          => $pesan,
-            'jenis'          => $jenis,
-            'status'         => $sukses ? 'sukses' : 'gagal',
-            'referensi_id'   => $referensiId,
+            'no_tujuan' => $nomorHp,
+            'pesan' => $pesan,
+            'jenis' => $jenis,
+            'status' => $sukses ? 'sukses' : 'gagal',
+            'referensi_id' => $referensiId,
             'referensi_tipe' => $jenis,
-            'wa_mode'        => $mode,
-            'dikirim_at'     => now(),
+            'wa_mode' => $mode,
+            'dikirim_at' => now(),
         ]);
 
         if ($sukses) {
             Log::channel('wa')->info('[WA] Terkirim sukses', [
-                'to'          => $nomorHp,
-                'jenis'       => $jenis,
+                'to' => $nomorHp,
+                'jenis' => $jenis,
                 'http_status' => $httpStatus,
-                'durasi_ms'   => $durasi,
+                'durasi_ms' => $durasi,
             ]);
         } else {
             Log::channel('wa')->error('[WA] Gagal kirim', [
-                'to'          => $nomorHp,
-                'jenis'       => $jenis,
+                'to' => $nomorHp,
+                'jenis' => $jenis,
                 'http_status' => $httpStatus,
-                'body'        => $body,
-                'durasi_ms'   => $durasi,
+                'body' => $body,
+                'durasi_ms' => $durasi,
             ]);
         }
 
@@ -92,14 +92,14 @@ class WhatsappService
      */
     public static function templateAbsenMasuk(string $namaSiswa, string $kelas, string $waktu): string
     {
-        return "Assalamualaikum Wr. Wb.\n\n" .
-               "Informasi Absensi Siswa SMKN 5 Madiun:\n\n" .
-               "Nama: {$namaSiswa}\n" .
-               "Kelas: {$kelas}\n" .
-               "Status: HADIR\n" .
-               "Waktu Absen Masuk: {$waktu}\n\n" .
-               "Terima kasih atas partisipasi siswa dalam kegiatan belajar mengajar.\n\n" .
-               "Wassalamualaikum Wr. Wb.";
+        return "Assalamualaikum Wr. Wb.\n\n".
+               "Informasi Absensi Siswa SMKN 5 Madiun:\n\n".
+               "Nama: {$namaSiswa}\n".
+               "Kelas: {$kelas}\n".
+               "Status: HADIR\n".
+               "Waktu Absen Masuk: {$waktu}\n\n".
+               "Terima kasih atas partisipasi siswa dalam kegiatan belajar mengajar.\n\n".
+               'Wassalamualaikum Wr. Wb.';
     }
 
     /**
@@ -107,14 +107,14 @@ class WhatsappService
      */
     public static function templateAbsenPulang(string $namaSiswa, string $kelas, string $waktu): string
     {
-        return "Assalamualaikum Wr. Wb.\n\n" .
-                "Informasi Absensi Siswa SMKN 5 Madiun:\n\n" .
-                "Nama: {$namaSiswa}\n" .
-                "Kelas: {$kelas}\n" .
-                "Status: PULANG\n" .
-                "Waktu Absen Pulang: {$waktu}\n\n" .
-                "Semoga siswa telah belajar dengan baik hari ini.\n\n" .
-                "Wassalamualaikum Wr. Wb.";
+        return "Assalamualaikum Wr. Wb.\n\n".
+                "Informasi Absensi Siswa SMKN 5 Madiun:\n\n".
+                "Nama: {$namaSiswa}\n".
+                "Kelas: {$kelas}\n".
+                "Status: PULANG\n".
+                "Waktu Absen Pulang: {$waktu}\n\n".
+                "Semoga siswa telah belajar dengan baik hari ini.\n\n".
+                'Wassalamualaikum Wr. Wb.';
     }
 
     /**
@@ -122,7 +122,7 @@ class WhatsappService
      */
     public static function templateLaporanKehadiranGuru(string $namaGuru, string $jenis, string $status, string $waktu, ?string $catatan = null): string
     {
-        $statusText = match($status) {
+        $statusText = match ($status) {
             'hadir' => 'HADIR',
             'sakit' => 'SAKIT',
             'izin' => 'IZIN',
@@ -130,19 +130,19 @@ class WhatsappService
             default => strtoupper($status)
         };
 
-        $pesan = "Assalamualaikum Wr. Wb.\n\n" .
-                "Laporan Kehadiran Guru SMKN 5 Madiun:\n\n" .
-                "Nama: {$namaGuru}\n" .
-                "Jenis: " . strtoupper($jenis) . "\n" .
-                "Status: {$statusText}\n" .
+        $pesan = "Assalamualaikum Wr. Wb.\n\n".
+                "Laporan Kehadiran Guru SMKN 5 Madiun:\n\n".
+                "Nama: {$namaGuru}\n".
+                'Jenis: '.strtoupper($jenis)."\n".
+                "Status: {$statusText}\n".
                 "Waktu Laporan: {$waktu}\n";
 
         if ($catatan) {
             $pesan .= "Catatan: {$catatan}\n";
         }
 
-        $pesan .= "\nMohon untuk ditindaklanjuti.\n\n" .
-                "Wassalamualaikum Wr. Wb.";
+        $pesan .= "\nMohon untuk ditindaklanjuti.\n\n".
+                'Wassalamualaikum Wr. Wb.';
 
         return $pesan;
     }
