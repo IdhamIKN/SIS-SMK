@@ -4,7 +4,11 @@ namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AbsenMasukStoreRequest;
+use App\Jobs\SendAbsenMasukNotif;
 use App\Models\AbsenSiswa;
+use App\Models\Sekolah;
+use App\Models\Siswa;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
@@ -77,13 +81,16 @@ class AbsenMasukController extends Controller
         // Upload foto
         $fotoPath = $request->file('foto_selfie')->store('absen-selfie', 'public');
 
+        // Tentukan status: hadir atau terlambat berdasarkan batas_tepat_waktu
+        $statusAbsen = $this->tentukanStatusMasuk(now());
+
         try {
             $absen = AbsenSiswa::create([
                 'siswa_id' => $siswa->id,
                 'kelas_id' => $siswa->kelas_id,
                 'tanggal' => $tanggal,
                 'jenis' => 'masuk',
-                'status' => 'hadir',
+                'status' => $statusAbsen,
                 'waktu_absen' => now(),
                 'foto_selfie' => $fotoPath,
                 'latitude' => $validated['latitude'],
@@ -94,6 +101,7 @@ class AbsenMasukController extends Controller
             Log::channel('sis')->info('[AbsenMasuk] Berhasil absen masuk', [
                 'absen_id' => $absen->id,
                 'siswa_id' => $siswa->id,
+                'status'   => $statusAbsen,
             ]);
 
             // Dispatch job kirim WA ke ortu
@@ -151,6 +159,29 @@ class AbsenMasukController extends Controller
         ]);
     }
 
+    /**
+     * Tentukan status masuk berdasarkan waktu absen vs batas tepat waktu konfigurasi sekolah.
+     * Jika siswa absen setelah batas_tepat_waktu → 'terlambat', selain itu → 'hadir'.
+     */
+    private function tentukanStatusMasuk(Carbon $waktuAbsen): string
+    {
+        $sekolah = Sekolah::aktif();
+        $raw = $sekolah?->batas_tepat_waktu;
+
+        if (! $raw) {
+            return 'hadir';
+        }
+
+        $timestamp = strtotime((string) $raw);
+        if ($timestamp === false) {
+            return 'hadir';
+        }
+
+        $batas = Carbon::today()->setTimeFromTimeString(date('H:i:s', $timestamp));
+
+        return $waktuAbsen->greaterThan($batas) ? 'terlambat' : 'hadir';
+    }
+
     public function manual(Request $request): RedirectResponse
     {
         // Untuk admin/BK manual entry
@@ -159,7 +190,7 @@ class AbsenMasukController extends Controller
         $validated = $request->validate([
             'siswa_id' => 'required|exists:siswas,id',
             'tanggal' => 'required|date',
-            'status' => 'required|in:hadir,sakit,izin, alfa',
+            'status' => 'required|in:hadir,terlambat,sakit,izin,alfa',
             'catatan' => 'nullable|string|max:500',
         ]);
 

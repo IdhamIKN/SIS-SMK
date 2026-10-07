@@ -18,5 +18,6 @@ class DatabaseSeeder extends Seeder
         $this->call(GTKSeeder::class);
         $this->call(KelasSeeder::class);
         $this->call(SiswaSeeder::class);
+        $this->call(DashboardLaporanPermissionSeeder::class);
     }
 }

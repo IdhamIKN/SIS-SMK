@@ -314,7 +314,7 @@
             <div class="hero-logo">
                 <i class="fas fa-graduation-cap"></i>
             </div>
-            <h1 class="hero-title">{{ config('sekolah.nama', 'SMKN 5 Madiun') }}</h1>
+            <h1 class="hero-title">{{ sekolah_data()['system_name'] ?? config('app.name', 'SIS SMKN 5 Madiun') }}</h1>
             <p class="hero-sub">Sistem Informasi Sekolah</p>
         </div>
     </div>
@@ -325,9 +325,12 @@
 
         {{-- Error --}}
         @if ($errors->any())
-            <div class="login-alert err">
+            <div class="login-alert err" id="loginAlert">
                 <i class="fas fa-exclamation-circle"></i>
-                <span>{{ $errors->first() }}</span>
+                <span id="alertMessage">{{ $errors->first() }}</span>
+                @if (session('throttle_seconds'))
+                    <span id="countdownWrap">&nbsp;(<span id="countdown">{{ session('throttle_seconds') }}</span>s)</span>
+                @endif
             </div>
         @endif
 
@@ -381,9 +384,9 @@
             </label>
 
             {{-- Submit --}}
-            <button type="submit" class="btn-login">
+            <button type="submit" class="btn-login" id="btnLogin">
                 <i class="fas fa-sign-in-alt"></i>
-                Masuk
+                <span id="btnText">Masuk</span>
             </button>
 
         </form>
@@ -405,5 +408,41 @@
             input.type = isHidden ? 'text' : 'password';
             icon.className = isHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
         }
+
+        // ── Countdown saat throttle login aktif ──────────────────────────────────
+        (function () {
+            const countdownEl = document.getElementById('countdown');
+            const btnLogin    = document.getElementById('btnLogin');
+            const btnText     = document.getElementById('btnText');
+
+            if (!countdownEl || !btnLogin) return;
+
+            let seconds = parseInt(countdownEl.textContent, 10);
+            if (isNaN(seconds) || seconds <= 0) return;
+
+            // Disable tombol login selama countdown
+            btnLogin.disabled = true;
+            btnLogin.style.opacity = '0.55';
+            btnLogin.style.cursor  = 'not-allowed';
+            btnText.textContent    = 'Tunggu ' + seconds + 's...';
+
+            const timer = setInterval(function () {
+                seconds--;
+                countdownEl.textContent = seconds;
+                btnText.textContent     = 'Tunggu ' + seconds + 's...';
+
+                if (seconds <= 0) {
+                    clearInterval(timer);
+                    // Aktifkan kembali tombol
+                    btnLogin.disabled      = false;
+                    btnLogin.style.opacity = '1';
+                    btnLogin.style.cursor  = 'pointer';
+                    btnText.textContent    = 'Masuk';
+                    // Sembunyikan alert throttle
+                    const wrap = document.getElementById('countdownWrap');
+                    if (wrap) wrap.remove();
+                }
+            }, 1000);
+        })();
     </script>
 @endpush

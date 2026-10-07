@@ -15,12 +15,7 @@ class SiswaPetugasLaporan extends Model
     protected $fillable = [
         'kelas_id',
         'siswa_id',
-        'tanggal',
         'created_by',
-    ];
-
-    protected $casts = [
-        'tanggal' => 'date',
     ];
 
     public function kelas(): BelongsTo

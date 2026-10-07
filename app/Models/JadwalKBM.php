@@ -16,6 +16,7 @@ class JadwalKBM extends Model
     protected $fillable = [
         'kelas_id',
         'gtk_id',
+        'mata_pelajaran_id',
         'hari',
         'jam_ke',
         'jam_mulai',
@@ -38,6 +39,11 @@ class JadwalKBM extends Model
     public function gtk(): BelongsTo
     {
         return $this->belongsTo(GTK::class);
+    }
+
+    public function mataPelajaran(): BelongsTo
+    {
+        return $this->belongsTo(MataPelajaran::class, 'mata_pelajaran_id');
     }
 
     public function laporanKehadiranGuru(): HasMany

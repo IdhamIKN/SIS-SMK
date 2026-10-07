@@ -456,7 +456,8 @@
     /* ── FIXED ACTION BAR ────────────────────────────────── */
     .action-bar {
         position: fixed;
-        bottom: var(--footer-h);
+        /* bottom: var(--footer-h); */
+        bottom: calc(var(--footer-h) + 24px + env(safe-area-inset-bottom));
         left: 0; right: 0;
         padding: 10px 16px 12px;
         background: rgba(255,255,255,.96);
@@ -464,7 +465,7 @@
         border-top: 1px solid var(--border);
         display: flex;
         gap: 10px;
-        z-index: 999;
+        z-index: 99;
         box-shadow: 0 -4px 20px rgba(0,0,0,.06);
     }
     .action-bar form { flex: 1; display: flex; }
@@ -501,7 +502,7 @@
     /* Edit — ungu */
     .ab-btn-edit {
         background: var(--purple-primary);
-        color: #fff !important;
+        color: #ffffff !important;
         box-shadow: 0 3px 12px rgba(124,58,237,.3);
     }
     .ab-btn-edit:hover { filter: brightness(1.08); }
@@ -602,9 +603,9 @@
 
     /* Edit — amber/oranye */
     .btn-edit {
-        background: #fffbeb;
+        background: #ffffeb;
         color: #b45309;
-        border: 1px solid #fde68a;
+        border: 1px solid #f7fd8a;
     }
     .btn-edit:hover {
         background: #fef3c7;

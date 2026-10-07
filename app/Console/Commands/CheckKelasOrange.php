@@ -35,8 +35,9 @@ class CheckKelasOrange extends Command
         $hari = Carbon::now()->locale('id')->dayName;
         $waktuSekarang = Carbon::now();
 
-        Log::channel('gtk')->info('[CheckOrange] Mulai pengecekan', [
+        Log::channel('sis')->info('[CheckOrange] Mulai pengecekan', [
             'tanggal' => $hariIni,
+
             'hari' => $hari,
             'waktu_sekarang' => $waktuSekarang->format('H:i:s'),
         ]);
@@ -52,8 +53,44 @@ class CheckKelasOrange extends Command
 
         foreach ($jadwalHariIni as $jadwal) {
             // Cek apakah waktu sekarang sudah lewat jam selesai + 20 menit
-            $jamSelesai = Carbon::createFromFormat('H:i:s', $jadwal->jam_selesai.':00');
-            $batasWaktu = $jamSelesai->copy()->addMinutes(20);
+            $jamSelesai = null;
+
+            try {
+                // `jam_selesai` di model sudah cast menjadi `datetime:H:i`,
+                // tapi kita tetap buat parsing robust (bisa saja ada data tidak konsisten).
+                $jamSelesaiValue = $jadwal->jam_selesai;
+
+                if ($jamSelesaiValue instanceof \Carbon\CarbonInterface) {
+                    $jamSelesai = Carbon::instance($jamSelesaiValue);
+                } elseif ($jamSelesaiValue instanceof \DateTimeInterface) {
+                    $jamSelesai = Carbon::instance($jamSelesaiValue);
+                } elseif (is_string($jamSelesaiValue)) {
+                    $jamSelesaiValue = trim($jamSelesaiValue);
+
+                    if (preg_match('/^\d{2}:\d{2}:\d{2}$/', $jamSelesaiValue)) {
+                        $jamSelesai = Carbon::createFromFormat('H:i:s', $jamSelesaiValue);
+                    } elseif (preg_match('/^\d{2}:\d{2}$/', $jamSelesaiValue)) {
+                        $jamSelesai = Carbon::createFromFormat('H:i', $jamSelesaiValue);
+                    } else {
+                        throw new \InvalidArgumentException("Format jam_selesai tidak dikenali: {$jamSelesaiValue}");
+                    }
+                } else {
+                    throw new \InvalidArgumentException('jam_selesai bertipe tidak didukung');
+                }
+
+                $batasWaktu = $jamSelesai->copy()->addMinutes(20);
+            } catch (\Throwable $e) {
+                Log::channel('sis')->error('[CheckOrange] Parsing jam selesai gagal, skip jadwal', [
+
+                    'jadwal_id' => $jadwal->id,
+                    'raw_jam_selesai' => $jadwal->jam_selesai,
+                    'error' => $e->getMessage(),
+                ]);
+
+                $this->warn("Skip jadwal id {$jadwal->id} karena jam_selesai tidak valid");
+                continue;
+            }
+
 
             if ($waktuSekarang->greaterThan($batasWaktu)) {
                 // Cek apakah sudah ada laporan untuk jadwal ini hari ini
@@ -75,7 +112,8 @@ class CheckKelasOrange extends Command
                             'catatan' => 'Auto-generated: Tidak ada laporan setelah 20 menit jam pelajaran selesai',
                         ]);
 
-                        Log::channel('gtk')->warning('[CheckOrange] Status orange dibuat', [
+                        Log::channel('sis')->warning('[CheckOrange] Status orange dibuat', [
+
                             'jadwal_id' => $jadwal->id,
                             'gtk_nama' => $jadwal->gtk->nama_lengkap,
                             'kelas' => $jadwal->kelas->nama_kelas,
@@ -86,9 +124,9 @@ class CheckKelasOrange extends Command
                         $counter++;
 
                         $this->line("✓ Status orange untuk {$jadwal->gtk->nama_lengkap} - {$jadwal->kelas->nama_kelas} Jam {$jadwal->jam_ke}");
-
                     } catch (\Exception $e) {
-                        Log::channel('gtk')->error('[CheckOrange] Gagal buat laporan orange', [
+                        Log::channel('sis')->error('[CheckOrange] Gagal buat laporan orange', [
+
                             'jadwal_id' => $jadwal->id,
                             'error' => $e->getMessage(),
                         ]);
@@ -99,7 +137,8 @@ class CheckKelasOrange extends Command
             }
         }
 
-        Log::channel('gtk')->info('[CheckOrange] Selesai', [
+        Log::channel('sis')->info('[CheckOrange] Selesai', [
+
             'total_orange_dibuat' => $counter,
         ]);
 

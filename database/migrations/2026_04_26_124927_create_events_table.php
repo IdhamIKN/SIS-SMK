@@ -19,9 +19,17 @@ return new class extends Migration
             $table->dateTime('tanggal_mulai');
             $table->dateTime('tanggal_selesai');
             $table->string('lokasi')->nullable();
+
+            // Geolocation fields
+            $table->decimal('lat', 10, 8)->nullable();
+            $table->decimal('lng', 11, 8)->nullable();
+            $table->unsignedInteger('radius_meter')->default(100);
+
             $table->boolean('ada_absen_masuk')->default(true);
             $table->boolean('ada_absen_pulang')->default(true);
             $table->boolean('berlaku_untuk_semua')->default(true);
+            $table->enum('mode_peserta', ['kelas', 'siswa'])->default('kelas');
+
             $table->integer('barcode_rotate_detik')->default(0); // 0 = statis
             $table->string('barcode_value');
             $table->timestamp('barcode_updated_at')->nullable();
@@ -32,7 +40,19 @@ return new class extends Migration
             $table->foreign('created_by')->references('id')->on('users');
             $table->index(['tanggal_selesai', 'barcode_rotate_detik']);
             $table->index('berlaku_untuk_semua');
+            $table->index('mode_peserta');
             $table->index('barcode_value');
+        });
+
+        // Create event_siswa pivot table
+        Schema::create('event_siswa', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('event_id')->constrained('events')->cascadeOnDelete();
+            $table->foreignId('siswa_id')->constrained('siswas')->cascadeOnDelete();
+            $table->timestamps();
+
+            $table->unique(['event_id', 'siswa_id']);
+            $table->index(['event_id', 'siswa_id']);
         });
     }
 
@@ -41,6 +61,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('event_siswa');
         Schema::dropIfExists('events');
     }
 };

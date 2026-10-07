@@ -8,11 +8,11 @@
     - $showMenu     : tampilkan tombol menu burger (default: true)
 --}}
 
-<div class="header header-fixed header-auto-show header-logo-app">
+<div class="header header-fixed header-auto-show header-active header-logo-app">
 
     {{-- Judul / Logo --}}
     <a href="{{ route('dashboard') }}" class="header-title">
-        {{ $headerTitle ?? config('app.name', 'SIS') }}
+        {{ $headerTitle ?? (sekolah_data()['system_name'] ?? config('app.name', 'SIS')) }}
     </a>
 
     {{-- Tombol Back (opsional) --}}
@@ -35,13 +35,18 @@
         <i class="fas fa-moon"></i>
     </a> --}}
 
-    {{-- Notifikasi (opsional) --}}
-    @hasanyrole('superadmin|admin_tatib|bk')
-        <a href="#" class="header-icon header-icon-3 position-relative">
+    {{-- Notifikasi Izin Pending (dinamis) --}}
+    @hasanyrole('superadmin|admin_tatib|bk|wali_kelas')
+        @php
+            $izinPendingBell = \App\Models\PengajuanIzin::diajukan()->count();
+        @endphp
+        <a href="{{ route('admin.izin.index') }}" class="header-icon header-icon-3 position-relative">
             <i class="fas fa-bell"></i>
-            <span class="notification-badge badge-medium bg-red-dark color-white position-top-right">
-                3
-            </span>
+            @if ($izinPendingBell > 0)
+                <span class="notification-badge badge-medium bg-red-dark color-white position-top-right">
+                    {{ $izinPendingBell > 99 ? '99+' : $izinPendingBell }}
+                </span>
+            @endif
         </a>
     @endhasanyrole
 

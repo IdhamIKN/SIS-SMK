@@ -277,9 +277,9 @@
         /* action bar */
         .action-bar {
             position: fixed;
-            bottom: var(--footer-h);
             left: 0;
             right: 0;
+            bottom: calc(var(--footer-h) + 24px + env(safe-area-inset-bottom));
             padding: 10px 16px 12px;
             background: rgba(255, 255, 255, .96);
             backdrop-filter: blur(10px);
@@ -288,6 +288,7 @@
             gap: 10px;
             z-index: 999;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, .06);
+            border-radius: 16px 16px 0 0;
         }
 
         .ab-btn {
@@ -345,8 +346,8 @@
 @endpush
 
 @section('content')
-    <div class="izin-wrap" style="padding-bottom: calc(var(--footer-h) + 88px);">
 
+    <div class="izin-wrap" style="padding-bottom: calc(var(--footer-h) + 120px + env(safe-area-inset-bottom));">
         {{-- Page Strip --}}
         <div class="page-strip page-strip-izin">
             <div class="live-badge">
@@ -426,8 +427,8 @@
                             <label class="form-label" for="angkatan">Angkatan</label>
                             <input type="number" id="angkatan" name="angkatan"
                                 class="form-input @error('angkatan') is-error @enderror"
-                                value="{{ old('angkatan', $siswa->angkatan) }}" placeholder="{{ date('Y') }}" min="2000"
-                                max="{{ date('Y') + 1 }}">
+                                value="{{ old('angkatan', $siswa->angkatan) }}" placeholder="{{ date('Y') }}"
+                                min="2000" max="{{ date('Y') + 1 }}">
                             <div class="form-hint">Tahun masuk</div>
                             @error('angkatan')
                                 <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
@@ -439,8 +440,9 @@
                     <div class="fgroup">
                         <label class="form-label" for="nama_lengkap">Nama Lengkap <span class="req">*</span></label>
                         <input type="text" id="nama_lengkap" name="nama_lengkap"
-                            class="form-input @error('nama_lengkap') is-error @enderror" value="{{ old('nama_lengkap', $siswa->nama_lengkap) }}"
-                            placeholder="Nama lengkap sesuai akta" maxlength="255" required>
+                            class="form-input @error('nama_lengkap') is-error @enderror"
+                            value="{{ old('nama_lengkap', $siswa->nama_lengkap) }}" placeholder="Nama lengkap sesuai akta"
+                            maxlength="255" required>
                         @error('nama_lengkap')
                             <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                         @enderror
@@ -453,7 +455,8 @@
                             <div class="radio-group">
                                 <label class="radio-card">
                                     <input type="radio" name="jenis_kelamin" value="L"
-                                        {{ old('jenis_kelamin', $siswa->jenis_kelamin) === 'L' ? 'checked' : '' }} required>
+                                        {{ old('jenis_kelamin', $siswa->jenis_kelamin) === 'L' ? 'checked' : '' }}
+                                        required>
                                     <div class="radio-box"><i class="fas fa-mars"></i> L</div>
                                 </label>
                                 <label class="radio-card fem">
@@ -513,7 +516,8 @@
                             <label class="form-label" for="tempat_lahir">Tempat Lahir</label>
                             <input type="text" id="tempat_lahir" name="tempat_lahir"
                                 class="form-input @error('tempat_lahir') is-error @enderror"
-                                value="{{ old('tempat_lahir', $siswa->tempat_lahir) }}" placeholder="Kota kelahiran" maxlength="100">
+                                value="{{ old('tempat_lahir', $siswa->tempat_lahir) }}" placeholder="Kota kelahiran"
+                                maxlength="100">
                             @error('tempat_lahir')
                                 <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                             @enderror
@@ -522,7 +526,8 @@
                             <label class="form-label" for="tanggal_lahir">Tanggal Lahir</label>
                             <input type="date" id="tanggal_lahir" name="tanggal_lahir"
                                 class="form-input @error('tanggal_lahir') is-error @enderror"
-                                value="{{ old('tanggal_lahir', $siswa->tanggal_lahir?->format('Y-m-d')) }}" max="{{ now()->subDay()->format('Y-m-d') }}">
+                                value="{{ old('tanggal_lahir', $siswa->tanggal_lahir?->format('Y-m-d')) }}"
+                                max="{{ now()->subDay()->format('Y-m-d') }}">
                             @error('tanggal_lahir')
                                 <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                             @enderror
@@ -542,8 +547,9 @@
                     <div class="fgroup">
                         <label class="form-label" for="no_hp_siswa">No. HP Siswa</label>
                         <input type="tel" id="no_hp_siswa" name="no_hp_siswa"
-                            class="form-input @error('no_hp_siswa') is-error @enderror" value="{{ old('no_hp_siswa', $siswa->no_hp_siswa) }}"
-                            placeholder="081234567890" maxlength="20">
+                            class="form-input @error('no_hp_siswa') is-error @enderror"
+                            value="{{ old('no_hp_siswa', $siswa->no_hp_siswa) }}" placeholder="081234567890"
+                            maxlength="20">
                         @error('no_hp_siswa')
                             <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                         @enderror
@@ -554,7 +560,8 @@
                             <label class="form-label" for="nama_ortu1">Nama Orang Tua 1</label>
                             <input type="text" id="nama_ortu1" name="nama_ortu1"
                                 class="form-input @error('nama_ortu1') is-error @enderror"
-                                value="{{ old('nama_ortu1', $siswa->nama_ortu1) }}" placeholder="Ayah / Ibu" maxlength="100">
+                                value="{{ old('nama_ortu1', $siswa->nama_ortu1) }}" placeholder="Ayah / Ibu"
+                                maxlength="100">
                             @error('nama_ortu1')
                                 <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                             @enderror
@@ -563,7 +570,8 @@
                             <label class="form-label" for="no_hp_ortu1">No. HP Ortu 1</label>
                             <input type="tel" id="no_hp_ortu1" name="no_hp_ortu1"
                                 class="form-input @error('no_hp_ortu1') is-error @enderror"
-                                value="{{ old('no_hp_ortu1', $siswa->no_hp_ortu1) }}" placeholder="081234567890" maxlength="20">
+                                value="{{ old('no_hp_ortu1', $siswa->no_hp_ortu1) }}" placeholder="081234567890"
+                                maxlength="20">
                             @error('no_hp_ortu1')
                                 <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                             @enderror
@@ -575,7 +583,8 @@
                             <label class="form-label" for="nama_ortu2">Nama Orang Tua 2</label>
                             <input type="text" id="nama_ortu2" name="nama_ortu2"
                                 class="form-input @error('nama_ortu2') is-error @enderror"
-                                value="{{ old('nama_ortu2', $siswa->nama_ortu2) }}" placeholder="Ayah / Ibu" maxlength="100">
+                                value="{{ old('nama_ortu2', $siswa->nama_ortu2) }}" placeholder="Ayah / Ibu"
+                                maxlength="100">
                             @error('nama_ortu2')
                                 <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                             @enderror
@@ -584,7 +593,8 @@
                             <label class="form-label" for="no_hp_ortu2">No. HP Ortu 2</label>
                             <input type="tel" id="no_hp_ortu2" name="no_hp_ortu2"
                                 class="form-input @error('no_hp_ortu2') is-error @enderror"
-                                value="{{ old('no_hp_ortu2', $siswa->no_hp_ortu2) }}" placeholder="081234567890" maxlength="20">
+                                value="{{ old('no_hp_ortu2', $siswa->no_hp_ortu2) }}" placeholder="081234567890"
+                                maxlength="20">
                             @error('no_hp_ortu2')
                                 <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                             @enderror
@@ -594,8 +604,9 @@
                     <div class="fgroup">
                         <label class="form-label" for="nama_wali">Nama Wali</label>
                         <input type="text" id="nama_wali" name="nama_wali"
-                            class="form-input @error('nama_wali') is-error @enderror" value="{{ old('nama_wali', $siswa->nama_wali) }}"
-                            placeholder="Nama wali (jika ada)" maxlength="100">
+                            class="form-input @error('nama_wali') is-error @enderror"
+                            value="{{ old('nama_wali', $siswa->nama_wali) }}" placeholder="Nama wali (jika ada)"
+                            maxlength="100">
                         <div class="form-hint">Kosongkan jika orang tua kandung</div>
                         @error('nama_wali')
                             <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
@@ -626,8 +637,8 @@
                         <div class="fgroup">
                             <label class="form-label" for="desa">Desa</label>
                             <input type="text" id="desa" name="desa"
-                                class="form-input @error('desa') is-error @enderror" value="{{ old('desa', $siswa->desa) }}"
-                                placeholder="Nama Desa" maxlength="100">
+                                class="form-input @error('desa') is-error @enderror"
+                                value="{{ old('desa', $siswa->desa) }}" placeholder="Nama Desa" maxlength="100">
                             @error('desa')
                                 <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                             @enderror
@@ -635,8 +646,9 @@
                         <div class="fgroup">
                             <label class="form-label" for="kelurahan">Kelurahan</label>
                             <input type="text" id="kelurahan" name="kelurahan"
-                                class="form-input @error('kelurahan') is-error @enderror" value="{{ old('kelurahan', $siswa->kelurahan) }}"
-                                placeholder="Nama Kelurahan" maxlength="100">
+                                class="form-input @error('kelurahan') is-error @enderror"
+                                value="{{ old('kelurahan', $siswa->kelurahan) }}" placeholder="Nama Kelurahan"
+                                maxlength="100">
                             @error('kelurahan')
                                 <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                             @enderror
@@ -647,8 +659,9 @@
                         <div class="fgroup">
                             <label class="form-label" for="kecamatan">Kecamatan</label>
                             <input type="text" id="kecamatan" name="kecamatan"
-                                class="form-input @error('kecamatan') is-error @enderror" value="{{ old('kecamatan', $siswa->kecamatan) }}"
-                                placeholder="Nama Kecamatan" maxlength="100">
+                                class="form-input @error('kecamatan') is-error @enderror"
+                                value="{{ old('kecamatan', $siswa->kecamatan) }}" placeholder="Nama Kecamatan"
+                                maxlength="100">
                             @error('kecamatan')
                                 <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                             @enderror
@@ -656,8 +669,9 @@
                         <div class="fgroup">
                             <label class="form-label" for="kabupaten">Kabupaten</label>
                             <input type="text" id="kabupaten" name="kabupaten"
-                                class="form-input @error('kabupaten') is-error @enderror" value="{{ old('kabupaten', $siswa->kabupaten) }}"
-                                placeholder="Nama Kabupaten" maxlength="100">
+                                class="form-input @error('kabupaten') is-error @enderror"
+                                value="{{ old('kabupaten', $siswa->kabupaten) }}" placeholder="Nama Kabupaten"
+                                maxlength="100">
                             @error('kabupaten')
                                 <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                             @enderror
@@ -665,8 +679,8 @@
                         <div class="fgroup">
                             <label class="form-label" for="kode_pos">Kode Pos</label>
                             <input type="text" id="kode_pos" name="kode_pos"
-                                class="form-input @error('kode_pos') is-error @enderror" value="{{ old('kode_pos', $siswa->kode_pos) }}"
-                                placeholder="12345" maxlength="10">
+                                class="form-input @error('kode_pos') is-error @enderror"
+                                value="{{ old('kode_pos', $siswa->kode_pos) }}" placeholder="12345" maxlength="10">
                             @error('kode_pos')
                                 <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                             @enderror
@@ -686,9 +700,13 @@
                     <label class="foto-upload" for="foto" id="fotoLabel">
                         <input type="file" id="foto" name="foto" accept="image/*"
                             onchange="previewFoto(this)">
-                        <img id="fotoPreview" src="{{ $siswa->foto ? asset('storage/' . $siswa->foto) : '' }}" alt="Preview" style="{{ $siswa->foto ? 'display: block;' : 'display: none;' }}">
-                        <div class="fu-icon" id="fotoIcon" style="{{ $siswa->foto ? 'display: none;' : 'display: block;' }}"><i class="fas fa-cloud-upload-alt"></i></div>
-                        <div class="fu-text" id="fotoText">{{ $siswa->foto ? 'Ganti Foto' : 'Ketuk untuk pilih foto' }}</div>
+                        <img id="fotoPreview" src="{{ $siswa->foto ? asset('storage/' . $siswa->foto) : '' }}"
+                            alt="Preview" style="{{ $siswa->foto ? 'display: block;' : 'display: none;' }}">
+                        <div class="fu-icon" id="fotoIcon"
+                            style="{{ $siswa->foto ? 'display: none;' : 'display: block;' }}"><i
+                                class="fas fa-cloud-upload-alt"></i></div>
+                        <div class="fu-text" id="fotoText">{{ $siswa->foto ? 'Ganti Foto' : 'Ketuk untuk pilih foto' }}
+                        </div>
                         <div class="fu-hint">JPG / PNG · Maks 2 MB</div>
                     </label>
                     @error('foto')

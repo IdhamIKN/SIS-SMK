@@ -125,7 +125,7 @@
     <div class="import-card">
         <h3 style="margin:0 0 16px; font-size:1.1rem; font-weight:700;">Format Data CSV</h3>
         <p style="margin:0 0 12px; font-size:.85rem; color:#374151;">
-            File CSV harus memiliki kolom berikut (wajib ada header). User login akan dibuat otomatis dengan email <code>kd_guru@school.local</code> dan password default <code>password123</code>.
+            File CSV harus memiliki kolom berikut (wajib ada header). User login akan dibuat otomatis dengan email <code>kd_guru@school.local</code> dan password default sesuai <code>NIK</code>.
         </p>
         <div style="background:#f8fafc; padding:12px; border-radius:8px; font-family:monospace; font-size:.75rem; color:#374151; margin-bottom:12px;">
             kd_guru,nip,nik,nuptk,nama_lengkap,jenis_kelamin,no_hp,mata_pelajaran,jabatan,status_aktif,acc_absen,acc_kurikulum,acc_jurnal,acc_bk,guru_piket,acc_profil,group_acc,view_siswa
@@ -133,14 +133,14 @@
         <ul style="font-size:.8rem; color:#4b5563; margin:0; padding-left:20px;">
             <li><strong>kd_guru</strong>: Kode guru (wajib, unik) - akan digunakan sebagai email login: <code>kd_guru@school.local</code></li>
             <li><strong>nip</strong>: Nomor Induk Pegawai (opsional)</li>
-            <li><strong>nik</strong>: Nomor Induk Kependudukan (opsional, untuk login)</li>
+            <li><strong>nik</strong>: Nomor Induk Kependudukan (wajib, digunakan untuk login dan password awal)</li>
             <li><strong>nuptk</strong>: Nomor Unik Pendidik (opsional)</li>
             <li><strong>nama_lengkap</strong>: Nama lengkap (wajib)</li>
             <li><strong>jenis_kelamin</strong>: L atau P</li>
             <li><strong>jabatan</strong>: Guru, Kepala Sekolah, dll</li>
             <li><strong>status_aktif</strong>: 1 (aktif) atau 0 (non aktif)</li>
             <li>Kolom akses (acc_*) dan view_siswa: 1 atau 0</li>
-            <li><em>Catatan: Password default adalah <code>password123</code>. Harap ubah setelah import.</em></li>
+            <li><em>Catatan: Password default akun GTK adalah <code>NIK</code> masing-masing.</em></li>
         </ul>
     </div>
 

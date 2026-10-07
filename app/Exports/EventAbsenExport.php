@@ -6,28 +6,24 @@ use App\Models\AbsenEvent;
 use App\Models\Event;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class EventAbsenExport implements FromCollection, WithHeadings, WithMapping, WithTitle
+/**
+ * Export absen event — pola unified (1 record per siswa per event).
+ * Satu baris = satu peserta, menampilkan waktu masuk & pulang sekaligus.
+ */
+class EventAbsenExport implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithTitle
 {
-    protected $event;
+    public function __construct(protected Event $event) {}
 
-    public function __construct(Event $event)
-    {
-        $this->event = $event;
-    }
-
-    /**
-     * @return Collection
-     */
-    public function collection()
+    public function collection(): Collection
     {
         return AbsenEvent::where('event_id', $this->event->id)
-            ->with('siswa')
-            ->orderBy('jenis')
-            ->orderBy('waktu_scan')
+            ->with(['siswa.kelas'])
+            ->orderBy('created_at')
             ->get();
     }
 
@@ -42,21 +38,30 @@ class EventAbsenExport implements FromCollection, WithHeadings, WithMapping, Wit
             'NIS',
             'Nama Siswa',
             'Kelas',
-            'Jenis Absen',
-            'Waktu Scan',
-            'Barcode Digunakan',
+            'Jam Masuk',
+            'Jam Pulang',
+            'Status',
         ];
     }
 
     public function map($row): array
     {
+        // Waktu masuk: kolom baru → fallback legacy waktu_scan
+        $waktuMasuk = $row->waktu_masuk ?? $row->waktu_scan;
+        $waktuPulang = $row->waktu_pulang;
+
+        $jamMasuk  = $waktuMasuk  ? $waktuMasuk->format('d/m/Y H:i')  : '-';
+        $jamPulang = $waktuPulang ? $waktuPulang->format('d/m/Y H:i') : '-';
+
+        $status = $waktuMasuk ? 'Hadir' : 'Alpa';
+
         return [
-            $row->siswa->nis ?? '-',
+            $row->siswa->nis          ?? '-',
             $row->siswa->nama_lengkap ?? '-',
             $row->siswa->kelas->nama_kelas ?? '-',
-            $row->jenis === 'masuk' ? 'Masuk' : 'Pulang',
-            $row->waktu_scan->format('d M Y H:i:s'),
-            $row->barcode_digunakan,
+            $jamMasuk,
+            $jamPulang,
+            $status,
         ];
     }
 }

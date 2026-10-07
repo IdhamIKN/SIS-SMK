@@ -16,16 +16,20 @@ class GTKStoreRequest extends FormRequest
         return [
             'kd_guru' => 'required|string|max:10|unique:gtks',
             'nip' => 'nullable|string|max:20',
-            'nik' => 'nullable|string|max:20',
+            'nik' => 'required|string|max:20',
             'nuptk' => 'nullable|string|max:20',
             'nama_lengkap' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:L,P',
             'no_hp' => 'nullable|string|max:20',
             'foto' => 'nullable|image|max:2048',
-            'mata_pelajaran' => 'nullable|string|max:255',
+            'mata_pelajaran' => 'nullable|array',
+            'mata_pelajaran.*' => 'exists:mata_pelajaran,id',
             'jabatan' => 'required|string|max:255',
             'status_aktif' => 'boolean',
             'acc_absen' => 'boolean',
+            // Roles hanya diproses jika yang membuat adalah superadmin
+            'roles'   => 'nullable|array',
+            'roles.*' => 'string|exists:roles,name',
         ];
     }
 
@@ -36,6 +40,7 @@ class GTKStoreRequest extends FormRequest
             'kd_guru.max' => 'Kode guru maksimal 10 karakter.',
             'kd_guru.unique' => 'Kode guru sudah digunakan.',
             'nip.max' => 'NIP maksimal 20 karakter.',
+            'nik.required' => 'NIK wajib diisi.',
             'nik.max' => 'NIK maksimal 20 karakter.',
             'nuptk.max' => 'NUPTK maksimal 20 karakter.',
             'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
@@ -45,7 +50,8 @@ class GTKStoreRequest extends FormRequest
             'no_hp.max' => 'Nomor HP maksimal 20 karakter.',
             'foto.image' => 'Foto harus berupa file gambar.',
             'foto.max' => 'Ukuran foto maksimal 2MB.',
-            'mata_pelajaran.max' => 'Mata pelajaran maksimal 255 karakter.',
+            'mata_pelajaran.array' => 'Mata pelajaran harus berupa array.',
+            'mata_pelajaran.*.exists' => 'Mata pelajaran yang dipilih tidak valid.',
             'jabatan.required' => 'Jabatan wajib diisi.',
             'jabatan.max' => 'Jabatan maksimal 255 karakter.',
         ];

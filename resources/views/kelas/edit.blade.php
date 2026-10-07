@@ -132,7 +132,7 @@
 @endpush
 
 @section('content')
-<div class="kelas-wrap">
+<div class="kelas-wrap" style="padding-top: var(--header-h, 56px); padding-bottom: calc(var(--footer-h) + 88px);">
 
     {{-- Page Strip --}}
     <div class="page-strip page-strip-kelas">
@@ -313,4 +313,15 @@
         <i class="fas fa-save"></i> Simpan Perubahan
     </button>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const header = document.querySelector('.header-auto-show');
+    if (header) {
+        header.classList.add('header-active');
+    }
+});
+</script>
+@endpush
 @endsection

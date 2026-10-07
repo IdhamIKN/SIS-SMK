@@ -15,9 +15,8 @@ class LaporanKehadiranStoreRequest extends FormRequest
     {
         return [
             'jadwal_kbm_id' => 'required|exists:jadwal_kbm,id',
-            'status' => 'required|in:hijau,kuning,merah,abu,biru,pink',
+            'status' => 'required|in:hijau,kuning,merah,abu,biru,pink,orange',
             'catatan' => 'nullable|string|max:500',
-            'foto_kelas' => 'nullable|image|mimes:jpeg,jpg,png|max:5120',
         ];
     }
 
@@ -30,9 +29,6 @@ class LaporanKehadiranStoreRequest extends FormRequest
             'status.in' => 'Status laporan tidak valid.',
             'catatan.string' => 'Catatan harus berupa teks.',
             'catatan.max' => 'Catatan maksimal 500 karakter.',
-            'foto_kelas.image' => 'Foto kelas harus berupa file gambar.',
-            'foto_kelas.mimes' => 'Foto kelas harus berformat JPEG, JPG, atau PNG.',
-            'foto_kelas.max' => 'Ukuran foto kelas maksimal 5MB.',
         ];
     }
 
@@ -42,7 +38,6 @@ class LaporanKehadiranStoreRequest extends FormRequest
             'jadwal_kbm_id' => 'Jadwal KBM',
             'status' => 'Status laporan',
             'catatan' => 'Catatan',
-            'foto_kelas' => 'Foto kelas',
         ];
     }
 }

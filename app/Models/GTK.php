@@ -23,7 +23,6 @@ class GTK extends Model
         'jenis_kelamin',
         'no_hp',
         'foto',
-        'mata_pelajaran',
         'jabatan',
         'status_aktif',
         'acc_absen',
@@ -70,5 +69,29 @@ class GTK extends Model
     public function kelasBK()
     {
         return $this->hasMany(Kelas::class, 'bk_id');
+    }
+
+    public function mataPelajaran()
+    {
+        return $this->belongsToMany(MataPelajaran::class, 'gtk_mata_pelajaran', 'gtk_id', 'mata_pelajaran_id');
+    }
+
+    // ── Relasi PKL ─────────────────────────────────────────────────────────
+
+    /**
+     * Semua penugasan PKL yang guru ini menjadi pembimbing.
+     */
+    public function penugasanPkl()
+    {
+        return $this->hasMany(\App\Models\PenugasanPkl::class, 'gtk_id');
+    }
+
+    /**
+     * Penugasan PKL aktif yang sedang dibimbing guru ini.
+     */
+    public function penugasanPklAktif()
+    {
+        return $this->hasMany(\App\Models\PenugasanPkl::class, 'gtk_id')
+            ->where('status', 'aktif');
     }
 }

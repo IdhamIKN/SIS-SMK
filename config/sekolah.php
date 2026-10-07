@@ -52,9 +52,10 @@ return [
 
     // WA Gateway
     'wa' => [
-        'mode' => env('WA_MODE', 'procedure'),
-        'gateway_url' => env('WA_GATEWAY_URL'),
+        'mode'          => env('WA_MODE', 'procedure'),
+        'gateway_url'   => env('WA_GATEWAY_URL', 'https://wazap.edutec.my.id/apiwazap/kirimwa.php'),
         'gateway_token' => env('WA_GATEWAY_TOKEN'),
+        'sender'        => env('WA_SENDER', 'presensi'),
     ],
 
     // Threshold alfa default

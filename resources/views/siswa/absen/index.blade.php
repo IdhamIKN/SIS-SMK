@@ -634,11 +634,12 @@
 
         {{-- Jenis Absen --}}
         @php $jenis = $status['sudahMasuk'] ? 'pulang' : 'masuk'; @endphp
-        @php $shift = jam_shift_config()['pagi'] ?? config('sekolah.jam_shift.pagi'); @endphp
+        @php $shift = $shift ?? (jam_shift_config()['pagi'] ?? config('sekolah.jam_shift.pagi')); @endphp
+        @php $jadwalAbsensiLabel = $jadwalAbsensiLabel ?? 'Normal'; @endphp
         @php $waktuValid = ($jenis=='masuk' ? date('H:i', strtotime($shift['masuk'])) . '-' . date('H:i', strtotime($shift['limit_masuk'])) : date('H:i', strtotime($shift['pulang'])) . '-' . date('H:i', strtotime($shift['limit_pulang']))); @endphp
 
         <div class="time-window">
-            <strong>⏰ Waktu Absen {{ ucfirst($jenis) }}:</strong><br>
+            <strong>⏰ Waktu Absen {{ ucfirst($jenis) }} ({{ $jadwalAbsensiLabel }}):</strong><br>
             <span id="timeWindow">
                 @if ($jenis === 'pulang' && ($status['bolehPulangCepat'] ?? false))
                     Izin pulang cepat disetujui, boleh absen pulang sekarang
@@ -759,9 +760,52 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
-            const SCH_LAT = {{ config('sekolah.latitude') }};
-            const SCH_LNG = {{ config('sekolah.longitude') }};
-            const RADIUS = {{ config('sekolah.radius_m') }};
+            const SCH_LAT = @json((float) ($lokasiSekolah['latitude'] ?? config('sekolah.latitude')));
+            const SCH_LNG = @json((float) ($lokasiSekolah['longitude'] ?? config('sekolah.longitude')));
+            const RADIUS = @json((int) ($radiusAbsensi ?? config('sekolah.radius_m')));
+
+            /* ─── TAMPILKAN FLASH MESSAGE VIA SWEETALERT ─────────── */
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: '{{ session('success') }}',
+                    confirmButtonColor: '#16a34a',
+                    confirmButtonText: 'OK',
+                    timer: 4000,
+                    timerProgressBar: true,
+                });
+            @endif
+
+            @if ($errors->any())
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validasi Gagal',
+                    html: '<ul style="text-align:left;padding-left:16px;">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>',
+                    confirmButtonColor: '#dc2626',
+                    confirmButtonText: 'Tutup',
+                });
+            @endif
+
+            @if ($jenis === 'pulang' && ($status['bolehPulangCepat'] ?? false) && !$status['sudahPulang'])
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Izin Pulang Cepat',
+                    text: 'Izin pulang cepat Anda sudah disetujui. Absen pulang hari ini boleh dilakukan tanpa menunggu jam pulang normal.',
+                    confirmButtonColor: '#0ea5e9',
+                    confirmButtonText: 'Mengerti',
+                });
+            @endif
+
+            @if ($status['sudahMasuk'] && $status['sudahPulang'])
+                Swal.fire({
+                    icon: 'success',
+                    title: '🎉 Absen Lengkap!',
+                    text: 'Absen hari ini sudah lengkap! Terima kasih.',
+                    confirmButtonColor: '#16a34a',
+                    confirmButtonText: 'OK',
+                });
+            @endif
 
             /* ─── TAMPILKAN FLASH MESSAGE VIA SWEETALERT ─────────── */
             @if (session('success'))

@@ -89,7 +89,7 @@ return [
             'handler_with' => [
                 'host' => env('PAPERTRAIL_URL'),
                 'port' => env('PAPERTRAIL_PORT'),
-                'connectionString' => 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT'),
+                'connectionString' => 'tls://' . env('PAPERTRAIL_URL') . ':' . env('PAPERTRAIL_PORT'),
             ],
             'processors' => [PsrLogMessageProcessor::class],
         ],
@@ -132,6 +132,45 @@ return [
             'path' => storage_path('logs/sis.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 30,
+            'replace_placeholders' => true,
+        ],
+
+        'wa' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/wa.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
+
+        'absen' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/absen.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
+        'gtk' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/gtk.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
+
+        'point-pelanggaran' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/point-pelanggaran.log'),
+            'level' => 'debug',
+            'days' => 60,
+            'replace_placeholders' => true,
+        ],
+
+        'event-scan' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/event-scan.log'),
+            'level' => 'debug',
+            'days' => 60,
             'replace_placeholders' => true,
         ],
 

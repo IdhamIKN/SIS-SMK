@@ -4,6 +4,7 @@
 
 @push('styles')
     @include('components.izin-styles')
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         .form-label {
             display: block;
@@ -62,6 +63,57 @@
             font-size: .7rem;
             color: #94a3b8;
             margin-top: 4px;
+        }
+
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-container--default .select2-selection--multiple {
+            min-height: 44px !important;
+            padding: 5px 8px !important;
+            border: 1.5px solid var(--border, #e2e8f0) !important;
+            border-radius: 10px !important;
+            background: #f8fafc !important;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: #7c3aed !important;
+            background: #fff !important;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, .1) !important;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background: #ede9fe !important;
+            border: none !important;
+            border-radius: 999px !important;
+            color: #5b21b6 !important;
+            font-size: .78rem !important;
+            font-weight: 700 !important;
+            padding: 5px 9px !important;
+        }
+
+        .select2-selection__choice__remove {
+            border: none !important;
+            color: #6d28d9 !important;
+            margin-right: 6px !important;
+        }
+
+        .select2-dropdown {
+            border: none !important;
+            border-radius: 12px !important;
+            overflow: hidden !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .12) !important;
+        }
+
+        .select2-results__option {
+            padding: 10px 12px !important;
+            font-size: .86rem !important;
+        }
+
+        .select2-results__option--highlighted[aria-selected] {
+            background: #ede9fe !important;
+            color: #6d28d9 !important;
         }
 
         /* grid helpers */
@@ -368,6 +420,18 @@
             color: var(--text-main);
             margin-bottom: 8px;
         }
+
+        /* role checklist card */
+        .role-check-card:has(input:checked) {
+            border-color: #6366f1 !important;
+            background: #eef2ff !important;
+        }
+        .role-check-card:has(input:checked) span {
+            color: #3730a3 !important;
+        }
+        .role-check-card:hover {
+            border-color: #a5b4fc !important;
+        }
     </style>
 @endpush
 
@@ -424,7 +488,7 @@
                         <label class="form-label" for="kd_guru">Kode Guru <span class="req">*</span></label>
                         <input type="text" id="kd_guru" name="kd_guru"
                             class="form-input @error('kd_guru') is-error @enderror" value="{{ old('kd_guru', $gtk->kd_guru) }}"
-                            placeholder="Kode unik guru" maxlength="10" required>
+                            placeholder="Kode unik guru" maxlength="10" required readonly>
                         @error('kd_guru')
                             <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                         @enderror
@@ -437,7 +501,7 @@
                             <input type="text" id="nip" name="nip"
                                 class="form-input @error('nip') is-error @enderror" value="{{ old('nip', $gtk->nip) }}"
                                 placeholder="Nomor Induk Pegawai" maxlength="20">
-                            <div class="form-hint">Opsional</div>
+                            {{-- <div class="form-hint">Opsional</div> --}}
                             @error('nip')
                                 <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                             @enderror
@@ -447,7 +511,7 @@
                             <input type="text" id="nik" name="nik"
                                 class="form-input @error('nik') is-error @enderror" value="{{ old('nik', $gtk->nik) }}"
                                 placeholder="Nomor Induk Kependudukan" maxlength="20">
-                            <div class="form-hint">Opsional, untuk login</div>
+                            {{-- <div class="form-hint">Opsional, untuk login</div> --}}
                             @error('nik')
                                 <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                             @enderror
@@ -457,7 +521,7 @@
                             <input type="text" id="nuptk" name="nuptk"
                                 class="form-input @error('nuptk') is-error @enderror" value="{{ old('nuptk', $gtk->nuptk) }}"
                                 placeholder="Nomor Unik Pendidik" maxlength="20">
-                            <div class="form-hint">Opsional</div>
+                            {{-- <div class="form-hint">Opsional</div> --}}
                             @error('nuptk')
                                 <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                             @enderror
@@ -540,10 +604,18 @@
                     <div class="grid-2">
                         <div class="fgroup">
                             <label class="form-label" for="mata_pelajaran">Mata Pelajaran</label>
-                            <input type="text" id="mata_pelajaran" name="mata_pelajaran"
-                                class="form-input @error('mata_pelajaran') is-error @enderror"
-                                value="{{ old('mata_pelajaran', $gtk->mata_pelajaran) }}" placeholder="Contoh: Matematika, Bahasa Indonesia" maxlength="255">
-                            <div class="form-hint">Opsional</div>
+                            @php
+                                $selectedMapelIds = old('mata_pelajaran', $gtk->mataPelajaran->pluck('id')->toArray());
+                            @endphp
+                            <select multiple id="mata_pelajaran" name="mata_pelajaran[]"
+                                class="form-input @error('mata_pelajaran') is-error @enderror">
+                                @foreach ($mataPelajarans as $mp)
+                                    <option value="{{ $mp->id }}" {{ in_array($mp->id, $selectedMapelIds) ? 'selected' : '' }}>
+                                        {{ $mp->kode_mapel ? $mp->nama_mapel . ' (' . $mp->kode_mapel . ')' : $mp->nama_mapel }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="form-hint">Ketik nama atau kode mata pelajaran untuk mencari</div>
                             @error('mata_pelajaran')
                                 <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                             @enderror
@@ -561,131 +633,76 @@
                 </div>
             </div>
 
-            {{-- ── ④ Akses & Permissions ── --}}
+            {{-- ── ⑤ Role Akun (superadmin only) ── --}}
+            @if(auth()->user()->hasRole('superadmin'))
             <div class="card">
                 <div class="c-head">
-                    <div class="c-icon" style="background:#dbeafe; color:#1d4ed8;"><i class="fas fa-shield-alt"></i></div>
-                    <h3>Akses & Permissions</h3>
+                    <div class="c-icon" style="background:#fef9c3; color:#854d0e;"><i class="fas fa-user-shield"></i></div>
+                    <h3>Role Akun</h3>
+                    <span class="hbadge" style="background:#fef3c7; color:#b45309;">
+                        <i class="fas fa-lock" style="font-size:.6rem;margin-right:3px;"></i>Superadmin Only
+                    </span>
                 </div>
                 <div class="c-body" style="padding:16px;">
-
-                    {{-- View Siswa --}}
                     <div class="fgroup">
-                        <label class="form-label">Akses Data Siswa <span class="req">*</span></label>
-                        <div class="radio-group">
-                            <label class="radio-card">
-                                <input type="radio" name="view_siswa" value="limit"
-                                    {{ old('view_siswa', $gtk->view_siswa) === 'limit' ? 'checked' : '' }} required>
-                                <div class="radio-box"><i class="fas fa-eye-slash"></i> Terbatas</div>
-                            </label>
-                            <label class="radio-card">
-                                <input type="radio" name="view_siswa" value="full"
-                                    {{ old('view_siswa', $gtk->view_siswa) === 'full' ? 'checked' : '' }}>
-                                <div class="radio-box"><i class="fas fa-eye"></i> Lengkap</div>
-                            </label>
+                        <label class="form-label">
+                            Role User
+                            <span class="req">*</span>
+                        </label>
+                        <div class="form-hint" style="margin-bottom:10px;">
+                            Role aktif saat ini:
+                            @forelse(old('roles', $currentRoles) as $cr)
+                                <span style="display:inline-flex;align-items:center;gap:4px;background:#eef2ff;color:#3730a3;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:700;margin:0 3px 3px 0;">
+                                    <i class="fas fa-id-badge" style="font-size:.6rem;"></i>{{ $cr }}
+                                </span>
+                            @empty
+                                <em style="color:#94a3b8;">Belum ada role</em>
+                            @endforelse
                         </div>
-                        @error('view_siswa')
-                            <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
+
+                        {{-- Checklist multi-role -- --}}
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                            @foreach($roles as $r)
+                            @php $checked = in_array($r, old('roles', $currentRoles)); @endphp
+                            <label style="display:flex;align-items:center;gap:9px;padding:10px 12px;
+                                border:1.5px solid {{ $checked ? '#6366f1' : '#e2e8f0' }};
+                                border-radius:10px;background:{{ $checked ? '#eef2ff' : '#f8fafc' }};
+                                cursor:pointer;transition:all .15s;"
+                                class="role-check-card">
+                                <input type="checkbox"
+                                    name="roles[]"
+                                    value="{{ $r }}"
+                                    {{ $checked ? 'checked' : '' }}
+                                    style="width:15px;height:15px;accent-color:#6366f1;flex-shrink:0;cursor:pointer;">
+                                <span style="font-size:.82rem;font-weight:700;color:{{ $checked ? '#3730a3' : '#334155' }};">
+                                    {{ $r }}
+                                </span>
+                            </label>
+                            @endforeach
+                        </div>
+
+                        @error('roles')
+                            <div class="form-error" style="margin-top:8px;"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
+                        @enderror
+                        @error('roles.*')
+                            <div class="form-error" style="margin-top:8px;"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                         @enderror
                     </div>
 
-                    {{-- Permissions --}}
-                    <div class="section-head">
-                        <div class="sh-icon" style="background:#e0e7ff; color:#3730a3;"><i class="fas fa-key"></i></div>
-                        <h4>Hak Akses</h4>
-                        <div class="section-line"></div>
+                    <div style="margin-top:10px;padding:10px 13px;background:#fefce8;border:1px solid #fde68a;border-radius:10px;font-size:.78rem;color:#854d0e;display:flex;align-items:flex-start;gap:9px;">
+                        <i class="fas fa-info-circle" style="margin-top:1px;flex-shrink:0;"></i>
+                        <span>
+                            Satu GTK bisa memiliki <strong>lebih dari satu role</strong>. Contoh: guru yang juga
+                            bertugas sebagai BK bisa dicentang <code style="background:#fef3c7;padding:1px 5px;border-radius:4px;">gtk</code>
+                            dan <code style="background:#fef3c7;padding:1px 5px;border-radius:4px;">bk</code> sekaligus.
+                            Jika role <strong>gtk</strong> tersedia, tetap centang agar identitas sebagai guru tidak hilang.
+                        </span>
                     </div>
-
-                    <div class="permissions-grid">
-                        <div class="perm-card">
-                            <div class="perm-title">Absensi</div>
-                            <div class="toggle-wrap">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" name="acc_absen" value="1"
-                                        {{ old('acc_absen', $gtk->acc_absen) ? 'checked' : '' }}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span class="toggle-label">Akses Absen</span>
-                            </div>
-                        </div>
-
-                        <div class="perm-card">
-                            <div class="perm-title">Kurikulum</div>
-                            <div class="toggle-wrap">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" name="acc_kurikulum" value="1"
-                                        {{ old('acc_kurikulum', $gtk->acc_kurikulum) ? 'checked' : '' }}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span class="toggle-label">Akses Kurikulum</span>
-                            </div>
-                        </div>
-
-                        <div class="perm-card">
-                            <div class="perm-title">Jurnal</div>
-                            <div class="toggle-wrap">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" name="acc_jurnal" value="1"
-                                        {{ old('acc_jurnal', $gtk->acc_jurnal) ? 'checked' : '' }}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span class="toggle-label">Akses Jurnal</span>
-                            </div>
-                        </div>
-
-                        <div class="perm-card">
-                            <div class="perm-title">BK</div>
-                            <div class="toggle-wrap">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" name="acc_bk" value="1"
-                                        {{ old('acc_bk', $gtk->acc_bk) ? 'checked' : '' }}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span class="toggle-label">Akses BK</span>
-                            </div>
-                        </div>
-
-                        <div class="perm-card">
-                            <div class="perm-title">Guru Piket</div>
-                            <div class="toggle-wrap">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" name="guru_piket" value="1"
-                                        {{ old('guru_piket', $gtk->guru_piket) ? 'checked' : '' }}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span class="toggle-label">Guru Piket</span>
-                            </div>
-                        </div>
-
-                        <div class="perm-card">
-                            <div class="perm-title">Profil</div>
-                            <div class="toggle-wrap">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" name="acc_profil" value="1"
-                                        {{ old('acc_profil', $gtk->acc_profil) ? 'checked' : '' }}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span class="toggle-label">Akses Profil</span>
-                            </div>
-                        </div>
-
-                        <div class="perm-card">
-                            <div class="perm-title">Group Access</div>
-                            <div class="toggle-wrap">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" name="group_acc" value="1"
-                                        {{ old('group_acc', $gtk->group_acc) ? 'checked' : '' }}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span class="toggle-label">Group Access</span>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
+            @endif
 
-            {{-- ── ⑤ Foto ── --}}
+            {{-- ── ⑥ Foto ── --}}
             <div class="card">
                 <div class="c-head">
                     <div class="c-icon" style="background:#ccfbf1; color:#0f766e;"><i class="fas fa-camera"></i></div>
@@ -726,6 +743,36 @@
 @endsection
 
 @push('scripts')
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#mata_pelajaran').select2({
+                placeholder: 'Cari & pilih mata pelajaran ...',
+                allowClear: true,
+                closeOnSelect: false,
+                width: '100%',
+                minimumInputLength: 0,
+                ajax: {
+                    url: @json(route('gtk.mata-pelajaran.search')),
+                    dataType: 'json',
+                    delay: 180,
+                    cache: true,
+                    data: params => ({
+                        q: params.term || '',
+                        page: params.page || 1,
+                    }),
+                    processResults: data => data,
+                },
+                language: {
+                    noResults: () => 'Mata pelajaran tidak ditemukan',
+                    searching: () => 'Mencari...',
+                    inputTooShort: () => 'Ketik nama atau kode mata pelajaran',
+                    removeAllItems: () => 'Hapus semua',
+                },
+            });
+        });
+    </script>
     <script>
         // Preview foto
         function previewFoto(input) {

@@ -4,7 +4,11 @@
 
 @push('styles')
     @include('components.izin-styles')
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
+        /* ════════════════════════════════════════
+                   BASE FORM ELEMENTS
+                ════════════════════════════════════════ */
         .form-label {
             display: block;
             font-size: .8rem;
@@ -41,7 +45,7 @@
 
         .form-input.is-error {
             border-color: #ef4444;
-            background: #fff;
+            background: #fff1f2;
         }
 
         textarea.form-input {
@@ -64,7 +68,154 @@
             margin-top: 4px;
         }
 
-        /* grid helpers */
+
+
+        /* =========================
+           SELECT2 MODERN STYLE
+        ========================= */
+
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-container--default .select2-selection--multiple {
+            min-height: 52px !important;
+            padding: 6px 10px !important;
+            border-radius: 14px !important;
+            border: 1.5px solid #dbe2ea !important;
+            background: #ffffff !important;
+            display: flex !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+            gap: 4px;
+            transition: all .2s ease;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: #7c3aed !important;
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, .12) !important;
+        }
+
+        /* selected chip */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background: linear-gradient(135deg, #ede9fe, #ddd6fe) !important;
+            border: none !important;
+            color: #5b21b6 !important;
+            padding: 6px 12px !important;
+            border-radius: 999px !important;
+            font-size: .78rem !important;
+            font-weight: 700 !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        /* remove button */
+        .select2-selection__choice__remove {
+            border: none !important;
+            color: #6d28d9 !important;
+            margin-right: 6px !important;
+            font-size: 1rem !important;
+            background: transparent !important;
+        }
+
+        .select2-selection__choice__remove:hover {
+            color: #dc2626 !important;
+        }
+
+        /* search input */
+        .select2-search__field {
+            font-size: .9rem !important;
+            margin-top: 6px !important;
+            padding-left: 4px !important;
+        }
+
+        /* dropdown */
+        .select2-dropdown {
+            border: none !important;
+            border-radius: 14px !important;
+            overflow: hidden !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .12) !important;
+        }
+
+        /* search area dropdown */
+        .select2-search--dropdown {
+            padding: 10px !important;
+            background: #f8fafc !important;
+            border-bottom: 1px solid #eef2f7 !important;
+        }
+
+        .select2-search--dropdown .select2-search__field {
+            height: 44px !important;
+            border-radius: 10px !important;
+            border: 1.5px solid #dbe2ea !important;
+            padding: 0 14px !important;
+            font-size: .88rem !important;
+        }
+
+        .select2-search--dropdown .select2-search__field:focus {
+            border-color: #7c3aed !important;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, .1) !important;
+        }
+
+        /* item dropdown */
+        .select2-results__option {
+            padding: 12px 14px !important;
+            font-size: .86rem !important;
+            border-radius: 10px !important;
+            margin: 4px 6px !important;
+            transition: all .15s ease;
+        }
+
+        .select2-results__option--highlighted[aria-selected] {
+            background: #ede9fe !important;
+            color: #6d28d9 !important;
+        }
+
+        .select2-results__option[aria-selected=true] {
+            background: #f5f3ff !important;
+            color: #7c3aed !important;
+            font-weight: 700 !important;
+        }
+
+        /* scrollbar */
+        .select2-results__options::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .select2-results__options::-webkit-scrollbar-thumb {
+            background: #c4b5fd;
+            border-radius: 20px;
+        }
+
+        /* placeholder */
+        .select2-selection__placeholder {
+            color: #94a3b8 !important;
+            font-size: .88rem;
+        }
+
+        /* no result */
+        .select2-results__message {
+            padding: 12px !important;
+            font-size: .85rem;
+            color: #94a3b8;
+        }
+
+        /* mobile responsive */
+        @media (max-width: 768px) {
+            .select2-container--default .select2-selection--multiple {
+                min-height: 50px !important;
+            }
+
+            .select2-results__option {
+                padding: 14px !important;
+            }
+        }
+
+
+
+        /* ════════════════════════════════════════
+                   GRID HELPERS
+                ════════════════════════════════════════ */
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -77,12 +228,13 @@
             gap: 12px;
         }
 
-        /* field group spacing */
         .fgroup {
             margin-bottom: 14px;
         }
 
-        /* radio gender */
+        /* ════════════════════════════════════════
+                   RADIO GENDER
+                ════════════════════════════════════════ */
         .radio-group {
             display: flex;
             gap: 8px;
@@ -135,7 +287,9 @@
             color: #ec4899;
         }
 
-        /* status toggle */
+        /* ════════════════════════════════════════
+                   TOGGLE SWITCH
+                ════════════════════════════════════════ */
         .toggle-wrap {
             display: flex;
             align-items: center;
@@ -191,7 +345,9 @@
             font-weight: 600;
         }
 
-        /* foto upload */
+        /* ════════════════════════════════════════
+                   FOTO UPLOAD
+                ════════════════════════════════════════ */
         .foto-upload {
             border: 2px dashed var(--border, #e2e8f0);
             border-radius: 12px;
@@ -242,7 +398,9 @@
             margin: 0 auto 8px;
         }
 
-        /* section divider */
+        /* ════════════════════════════════════════
+                   SECTION DIVIDER
+                ════════════════════════════════════════ */
         .section-head {
             display: flex;
             align-items: center;
@@ -274,7 +432,42 @@
             background: var(--border, #e2e8f0);
         }
 
-        /* action bar */
+        /* ════════════════════════════════════════
+                   PERMISSIONS GRID
+                ════════════════════════════════════════ */
+        .permissions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 10px;
+        }
+
+        .perm-card {
+            border: 1.5px solid var(--border, #e2e8f0);
+            border-radius: 10px;
+            padding: 12px;
+            background: #f8fafc;
+        }
+
+        .perm-title {
+            font-size: .78rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        /* select arrow */
+        select.form-input {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        /* ════════════════════════════════════════
+                   ACTION BAR
+                ════════════════════════════════════════ */
         .action-bar {
             position: fixed;
             bottom: var(--footer-h);
@@ -312,6 +505,11 @@
             transform: scale(.97);
         }
 
+        .ab-btn:disabled {
+            opacity: .65;
+            cursor: not-allowed;
+        }
+
         .ab-btn-back {
             background: #f1f5f9;
             color: #475569;
@@ -331,44 +529,13 @@
         .ab-btn-primary:hover {
             filter: brightness(1.08);
         }
-
-        /* select arrow */
-        select.form-input {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            padding-right: 32px;
-            appearance: none;
-            -webkit-appearance: none;
-        }
-
-        /* permissions grid */
-        .permissions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-        }
-
-        .perm-card {
-            border: 1.5px solid var(--border, #e2e8f0);
-            border-radius: 10px;
-            padding: 12px;
-            background: #f8fafc;
-        }
-
-        .perm-title {
-            font-size: .8rem;
-            font-weight: 700;
-            color: var(--text-main);
-            margin-bottom: 8px;
-        }
     </style>
 @endpush
 
 @section('content')
     <div class="izin-wrap" style="padding-bottom: calc(var(--footer-h) + 88px);">
 
-        {{-- Page Strip --}}
+        {{-- ── Page Strip ── --}}
         <div class="page-strip page-strip-izin">
             <div class="live-badge">
                 <span class="live-dot"></span>
@@ -378,7 +545,7 @@
             <p>Isi data GTK dengan lengkap dan benar</p>
         </div>
 
-        {{-- Validation errors --}}
+        {{-- ── Validation Errors ── --}}
         @if ($errors->any())
             <div class="alert a-err">
                 <i class="fas fa-exclamation-circle"></i>
@@ -404,25 +571,24 @@
                 </div>
                 <div class="c-body" style="padding:16px;">
 
-                    {{-- Kode Guru --}}
                     <div class="fgroup">
                         <label class="form-label" for="kd_guru">Kode Guru <span class="req">*</span></label>
                         <input type="text" id="kd_guru" name="kd_guru"
-                            class="form-input @error('kd_guru') is-error @enderror" value="{{ old('kd_guru') }}"
-                            placeholder="Kode unik guru" maxlength="10" required>
+                            class="form-input @error('kd_guru') is-error @enderror" value="{{ old('kd_guru', $generatedKdGuru) }}"
+                            placeholder="Kode unik guru" maxlength="10" readonly required>
+                        <div class="form-hint">Kode guru dibuat otomatis</div>
                         @error('kd_guru')
                             <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                         @enderror
                     </div>
 
-                    {{-- NIP + NUPTK --}}
                     <div class="grid-2">
                         <div class="fgroup">
                             <label class="form-label" for="nip">NIP</label>
                             <input type="text" id="nip" name="nip"
                                 class="form-input @error('nip') is-error @enderror" value="{{ old('nip') }}"
                                 placeholder="Nomor Induk Pegawai" maxlength="20">
-                            <div class="form-hint">Opsional</div>
+                            {{-- <div class="form-hint">Opsional</div> --}}
                             @error('nip')
                                 <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                             @enderror
@@ -449,7 +615,6 @@
                         </div>
                     </div>
 
-                    {{-- Nama Lengkap --}}
                     <div class="fgroup">
                         <label class="form-label" for="nama_lengkap">Nama Lengkap <span class="req">*</span></label>
                         <input type="text" id="nama_lengkap" name="nama_lengkap"
@@ -460,19 +625,18 @@
                         @enderror
                     </div>
 
-                    {{-- Jenis Kelamin --}}
                     <div class="fgroup">
                         <label class="form-label">Jenis Kelamin <span class="req">*</span></label>
                         <div class="radio-group">
                             <label class="radio-card">
                                 <input type="radio" name="jenis_kelamin" value="L"
                                     {{ old('jenis_kelamin') === 'L' ? 'checked' : '' }} required>
-                                <div class="radio-box"><i class="fas fa-mars"></i> L</div>
+                                <div class="radio-box"><i class="fas fa-mars"></i> Laki-laki</div>
                             </label>
                             <label class="radio-card fem">
                                 <input type="radio" name="jenis_kelamin" value="P"
                                     {{ old('jenis_kelamin') === 'P' ? 'checked' : '' }}>
-                                <div class="radio-box"><i class="fas fa-venus"></i> P</div>
+                                <div class="radio-box"><i class="fas fa-venus"></i> Perempuan</div>
                             </label>
                         </div>
                         @error('jenis_kelamin')
@@ -480,7 +644,6 @@
                         @enderror
                     </div>
 
-                    {{-- Status Aktif --}}
                     <div class="fgroup">
                         <label class="form-label">Status</label>
                         <div class="toggle-wrap">
@@ -519,156 +682,105 @@
             <div class="card">
                 <div class="c-head">
                     <div class="c-icon" style="background:#fef3c7; color:#b45309;"><i class="fas fa-book"></i></div>
-                    <h3>Mata Pelajaran & Jabatan</h3>
-                </div>
-                <div class="c-body" style="padding:16px;">
-                    <div class="grid-2">
-                        <div class="fgroup">
-                            <label class="form-label" for="mata_pelajaran">Mata Pelajaran</label>
-                            <input type="text" id="mata_pelajaran" name="mata_pelajaran"
-                                class="form-input @error('mata_pelajaran') is-error @enderror"
-                                value="{{ old('mata_pelajaran') }}" placeholder="Contoh: Matematika, Bahasa Indonesia" maxlength="255">
-                            <div class="form-hint">Opsional</div>
-                            @error('mata_pelajaran')
-                                <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="fgroup">
-                            <label class="form-label" for="jabatan">Jabatan <span class="req">*</span></label>
-                            <input type="text" id="jabatan" name="jabatan"
-                                class="form-input @error('jabatan') is-error @enderror" value="{{ old('jabatan') }}"
-                                placeholder="Contoh: Guru Kelas, Kepala Sekolah" maxlength="255" required>
-                            @error('jabatan')
-                                <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- ── ④ Akses & Permissions ── --}}
-            <div class="card">
-                <div class="c-head">
-                    <div class="c-icon" style="background:#dbeafe; color:#1d4ed8;"><i class="fas fa-shield-alt"></i></div>
-                    <h3>Akses & Permissions</h3>
+                    <h3>Mata Pelajaran &amp; Jabatan</h3>
                 </div>
                 <div class="c-body" style="padding:16px;">
 
-                    {{-- View Siswa --}}
+                    {{-- Mata Pelajaran — full width, Select2 --}}
                     <div class="fgroup">
-                        <label class="form-label">Akses Data Siswa <span class="req">*</span></label>
-                        <div class="radio-group">
-                            <label class="radio-card">
-                                <input type="radio" name="view_siswa" value="limit"
-                                    {{ old('view_siswa', 'limit') === 'limit' ? 'checked' : '' }} required>
-                                <div class="radio-box"><i class="fas fa-eye-slash"></i> Terbatas</div>
-                            </label>
-                            <label class="radio-card">
-                                <input type="radio" name="view_siswa" value="full"
-                                    {{ old('view_siswa') === 'full' ? 'checked' : '' }}>
-                                <div class="radio-box"><i class="fas fa-eye"></i> Lengkap</div>
-                            </label>
+                        <label class="form-label" for="mata_pelajaran">
+                            <i class="fas fa-book-open" style="color:#b45309;font-size:.75rem;"></i>
+                            Mata Pelajaran
+                        </label>
+
+                        <select id="mata_pelajaran" name="mata_pelajaran[]" multiple
+                            class="form-select-mapel @error('mata_pelajaran') select2-error @enderror">
+
+                            @foreach ($mataPelajarans as $mp)
+                                <option value="{{ $mp->id }}"
+                                    {{ in_array($mp->id, old('mata_pelajaran', [])) ? 'selected' : '' }}>
+                                    {{ $mp->nama_mapel }}
+                                </option>
+                            @endforeach
+
+                        </select>
+
+                        <div class="form-hint" style="margin-top:8px;">
+                            <i class="fas fa-search"></i>
+                            Ketik nama mata pelajaran untuk mencari
                         </div>
-                        @error('view_siswa')
+
+                        @error('mata_pelajaran')
+                            <div class="form-error">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+
+                    {{-- Jabatan --}}
+                    <div class="fgroup" style="margin-bottom:0;">
+                        <label class="form-label" for="jabatan">
+                            <i class="fas fa-briefcase" style="color:#b45309;font-size:.75rem;"></i>
+                            Jabatan <span class="req">*</span>
+                        </label>
+                        <input type="text" id="jabatan" name="jabatan"
+                            class="form-input @error('jabatan') is-error @enderror" value="{{ old('jabatan') }}"
+                            placeholder="cth: Guru Kelas, Kepala Sekolah, Wali Kelas …" maxlength="255" required>
+                        @error('jabatan')
                             <div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
                         @enderror
                     </div>
 
-                    {{-- Permissions --}}
-                    <div class="section-head">
-                        <div class="sh-icon" style="background:#e0e7ff; color:#3730a3;"><i class="fas fa-key"></i></div>
-                        <h4>Hak Akses</h4>
-                        <div class="section-line"></div>
-                    </div>
-
-                    <div class="permissions-grid">
-                        <div class="perm-card">
-                            <div class="perm-title">Absensi</div>
-                            <div class="toggle-wrap">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" name="acc_absen" value="1"
-                                        {{ old('acc_absen') ? 'checked' : '' }}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span class="toggle-label">Akses Absen</span>
-                            </div>
-                        </div>
-
-                        <div class="perm-card">
-                            <div class="perm-title">Kurikulum</div>
-                            <div class="toggle-wrap">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" name="acc_kurikulum" value="1"
-                                        {{ old('acc_kurikulum') ? 'checked' : '' }}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span class="toggle-label">Akses Kurikulum</span>
-                            </div>
-                        </div>
-
-                        <div class="perm-card">
-                            <div class="perm-title">Jurnal</div>
-                            <div class="toggle-wrap">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" name="acc_jurnal" value="1"
-                                        {{ old('acc_jurnal') ? 'checked' : '' }}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span class="toggle-label">Akses Jurnal</span>
-                            </div>
-                        </div>
-
-                        <div class="perm-card">
-                            <div class="perm-title">BK</div>
-                            <div class="toggle-wrap">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" name="acc_bk" value="1"
-                                        {{ old('acc_bk') ? 'checked' : '' }}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span class="toggle-label">Akses BK</span>
-                            </div>
-                        </div>
-
-                        <div class="perm-card">
-                            <div class="perm-title">Guru Piket</div>
-                            <div class="toggle-wrap">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" name="guru_piket" value="1"
-                                        {{ old('guru_piket') ? 'checked' : '' }}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span class="toggle-label">Guru Piket</span>
-                            </div>
-                        </div>
-
-                        <div class="perm-card">
-                            <div class="perm-title">Profil</div>
-                            <div class="toggle-wrap">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" name="acc_profil" value="1"
-                                        {{ old('acc_profil') ? 'checked' : '' }}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span class="toggle-label">Akses Profil</span>
-                            </div>
-                        </div>
-
-                        <div class="perm-card">
-                            <div class="perm-title">Group Access</div>
-                            <div class="toggle-wrap">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" name="group_acc" value="1"
-                                        {{ old('group_acc') ? 'checked' : '' }}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span class="toggle-label">Group Access</span>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
+
+            {{-- ── ④ Role Akun (superadmin only) ── --}}
+            @if(auth()->user()->hasRole('superadmin'))
+            <div class="card">
+                <div class="c-head">
+                    <div class="c-icon" style="background:#fef9c3; color:#854d0e;"><i class="fas fa-user-shield"></i></div>
+                    <h3>Role Akun</h3>
+                    <span class="hbadge" style="background:#fef3c7; color:#b45309;">
+                        <i class="fas fa-lock" style="font-size:.6rem;margin-right:3px;"></i>Superadmin Only
+                    </span>
+                </div>
+                <div class="c-body" style="padding:16px;">
+                    <div class="fgroup">
+                        <label class="form-label">Role User</label>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                            @foreach(\Spatie\Permission\Models\Role::orderBy('name')->pluck('name') as $r)
+                            @php $checked = old('roles') ? in_array($r, (array)old('roles')) : ($r === 'gtk'); @endphp
+                            <label style="display:flex;align-items:center;gap:9px;padding:10px 12px;
+                                border:1.5px solid {{ $checked ? '#6366f1' : '#e2e8f0' }};
+                                border-radius:10px;background:{{ $checked ? '#eef2ff' : '#f8fafc' }};
+                                cursor:pointer;transition:all .15s;" class="role-check-card">
+                                <input type="checkbox"
+                                    name="roles[]"
+                                    value="{{ $r }}"
+                                    {{ $checked ? 'checked' : '' }}
+                                    style="width:15px;height:15px;accent-color:#6366f1;flex-shrink:0;cursor:pointer;">
+                                <span style="font-size:.82rem;font-weight:700;color:{{ $checked ? '#3730a3' : '#334155' }};">
+                                    {{ $r }}
+                                </span>
+                            </label>
+                            @endforeach
+                        </div>
+                        @error('roles')
+                            <div class="form-error" style="margin-top:8px;"><i class="fas fa-exclamation-circle"></i>{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div style="margin-top:10px;padding:10px 13px;background:#fefce8;border:1px solid #fde68a;border-radius:10px;font-size:.78rem;color:#854d0e;display:flex;align-items:flex-start;gap:9px;">
+                        <i class="fas fa-info-circle" style="margin-top:1px;flex-shrink:0;"></i>
+                        <span>
+                            Default: role <strong>gtk</strong> sudah dicentang. GTK yang merangkap tugas lain
+                            (BK, admin tatib, dll) bisa dicentang lebih dari satu role sekaligus.
+                        </span>
+                    </div>
+                </div>
+            </div>
+            @endif
 
             {{-- ── ⑤ Foto ── --}}
             <div class="card">
@@ -695,28 +807,100 @@
         </form>
     </div>
 
-    {{-- Action Bar --}}
+    {{-- ── Action Bar ── --}}
     <div class="action-bar">
         <a href="{{ route('gtk.index') }}" class="ab-btn ab-btn-back">
             <i class="fas fa-times"></i> Batal
         </a>
-        <button type="submit" form="createGtkForm" class="ab-btn ab-btn-primary">
+        <button type="submit" form="createGtkForm" class="ab-btn ab-btn-primary" id="btnSimpan">
             <i class="fas fa-user-plus"></i> Simpan GTK
         </button>
     </div>
 @endsection
 
 @push('scripts')
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        // Preview foto
+        $(document).ready(function() {
+
+            /* ── Init Select2 ── */
+            $('#mata_pelajaran').select2({
+                placeholder: 'Cari & pilih mata pelajaran …',
+                allowClear: true,
+                closeOnSelect: false,
+                width: '100%',
+                minimumInputLength: 0,
+                ajax: {
+                    url: @json(route('gtk.mata-pelajaran.search')),
+                    dataType: 'json',
+                    delay: 180,
+                    cache: true,
+                    data: params => ({
+                        q: params.term || '',
+                        page: params.page || 1,
+                    }),
+                    processResults: data => data,
+                },
+                language: {
+                    noResults: () => 'Mata pelajaran tidak ditemukan',
+                    searching: () => 'Mencari…',
+                    inputTooShort: () => 'Ketik nama atau kode mata pelajaran',
+                    removeAllItems: () => 'Hapus semua',
+                },
+            });
+
+            /* ── Submit guard ── */
+            document.getElementById('createGtkForm').addEventListener('submit', function() {
+                const btn = document.getElementById('btnSimpan');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan…';
+            });
+
+            /* ── Toggle status label ── */
+            document.getElementById('statusAktif').addEventListener('change', function() {
+                document.getElementById('statusLabel').textContent = this.checked ? 'GTK Aktif' :
+                    'Non Aktif';
+            });
+
+            /* ── Validation errors SweetAlert ── */
+            @if ($errors->any())
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Periksa Input',
+                    html: `<ul style="text-align:left;padding-left:1.2rem;margin:0;font-size:.875rem;">
+                @foreach ($errors->all() as $err)
+                    <li>{{ $err }}</li>
+                @endforeach
+            </ul>`,
+                    confirmButtonColor: '#7c3aed',
+                    confirmButtonText: 'Oke, Saya Periksa',
+                });
+            @endif
+
+            /* ── Session success toast ── */
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: '{{ session('success') }}',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end',
+                });
+            @endif
+        });
+
+        /* ── Foto preview ── */
         function previewFoto(input) {
             const preview = document.getElementById('fotoPreview');
             const icon = document.getElementById('fotoIcon');
             const text = document.getElementById('fotoText');
-
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = e => {
                     preview.src = e.target.result;
                     preview.style.display = 'block';
                     icon.style.display = 'none';
@@ -725,10 +909,5 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
-
-        // Toggle label status aktif
-        document.getElementById('statusAktif').addEventListener('change', function() {
-            document.getElementById('statusLabel').textContent = this.checked ? 'GTK Aktif' : 'Non Aktif';
-        });
     </script>
 @endpush

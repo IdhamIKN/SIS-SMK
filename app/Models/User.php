@@ -7,12 +7,13 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Lab404\Impersonate\Models\Impersonate;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, Notifiable;
+    use HasFactory, HasRoles, Notifiable, Impersonate;
 
     /**
      * The attributes that are mass assignable.
@@ -27,6 +28,7 @@ class User extends Authenticatable
         'role_utama',
         'avatar',
         'siswa_id',
+        'device_id',
     ];
 
     /**
@@ -62,5 +64,33 @@ class User extends Authenticatable
     public function gtk()
     {
         return $this->hasOne(GTK::class);
+    }
+
+    // ── Impersonate: hanya developer (email di DEVELOPER_EMAIL) yang boleh impersonate ──
+
+    /**
+     * Hanya user dengan email developer yang boleh melakukan impersonate.
+     */
+    public function canImpersonate(): bool
+    {
+        $developerEmails = array_map(
+            'trim',
+            explode(',', env('DEVELOPER_EMAIL', ''))
+        );
+
+        return in_array($this->email, array_filter($developerEmails));
+    }
+
+    /**
+     * Semua user bisa di-impersonate KECALI developer itu sendiri.
+     */
+    public function canBeImpersonated(): bool
+    {
+        $developerEmails = array_map(
+            'trim',
+            explode(',', env('DEVELOPER_EMAIL', ''))
+        );
+
+        return ! in_array($this->email, array_filter($developerEmails));
     }
 }

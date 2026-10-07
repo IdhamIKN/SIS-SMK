@@ -1,8 +1,8 @@
 //Removing Preloader
-setTimeout(function(){
+setTimeout(function () {
     var preloader = document.getElementById('preloader')
-    if(preloader){preloader.classList.add('preloader-hide');}
-},150);
+    if (preloader) { preloader.classList.add('preloader-hide'); }
+}, 150);
 
 document.addEventListener('DOMContentLoaded', () => {
     'use strict'
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //Global Variables
     let isPWA = true;  // Enables or disables the service worker and PWA
     let isAJAX = true; // AJAX transitions. Requires local server or server
-    var pwaName = "Azures"; //Local Storage Names for PWA
+    var pwaName = "EduTech"; //Local Storage Names for PWA
     var pwaRemind = 1; //Days to re-remind to add to home
     var pwaNoCache = false; //Requires server and HTTPS/SSL. Will clear cache with each visit
 
@@ -19,41 +19,43 @@ document.addEventListener('DOMContentLoaded', () => {
     var pwaLocation = "/_service-worker.js";
 
     //Place all your custom Javascript functions and plugin calls below this line
-    function init_template(){
+    function init_template() {
         //Caching Global Variables
         var i, e, el; //https://www.w3schools.com/js/js_performance.asp
 
         //Greetig Heading
         var pageTitle = document.querySelectorAll('.page-title-large, .page-title-small, .menu-header a');
-        if(pageTitle){
+        if (pageTitle) {
             var greetingTime = new Date().getHours();
             var greetingMessage;
             var greetingExist = document.querySelectorAll('.greeting-text')[0]
-            if(greetingExist){
-            var greetingUser = document.querySelectorAll('.greeting-text')[0].getAttribute('data-username');
+            if (greetingExist) {
+                var greetingUser = document.querySelectorAll('.greeting-text')[0].getAttribute('data-username');
                 var greetingMorning = ('Good morning');
                 var greetingAfternoon = ('Good afternoon');
                 var greetingEvening = ('Good evening');
 
-                if (greetingTime >= 0 && greetingTime < 12) {greetingMessage = greetingMorning;
-                } else if (greetingTime >= 12 && greetingTime < 17) {greetingMessage = greetingAfternoon;
-                } else if (greetingTime >= 17 && greetingTime < 24) {greetingMessage = greetingEvening;}
-                document.querySelectorAll('.greeting-text')[0].insertAdjacentHTML('beforeend', greetingMessage + ',<br>' +greetingUser);
+                if (greetingTime >= 0 && greetingTime < 12) {
+                    greetingMessage = greetingMorning;
+                } else if (greetingTime >= 12 && greetingTime < 17) {
+                    greetingMessage = greetingAfternoon;
+                } else if (greetingTime >= 17 && greetingTime < 24) { greetingMessage = greetingEvening; }
+                document.querySelectorAll('.greeting-text')[0].insertAdjacentHTML('beforeend', greetingMessage + ',<br>' + greetingUser);
             }
         }
 
 
         //Attaching Menu Hider
-		var menuHider = document.getElementsByClassName('menu-hider');
-		if(!menuHider.length){var hider = document.createElement('div'); hider.setAttribute("class", "menu-hider");document.body.insertAdjacentElement('beforebegin', hider);}
-		setTimeout(function() {if(hider.classList.contains('menu-active')){hider.classList.remove('menu-active');}}, 50);
+        var menuHider = document.getElementsByClassName('menu-hider');
+        if (!menuHider.length) { var hider = document.createElement('div'); hider.setAttribute("class", "menu-hider"); document.body.insertAdjacentElement('beforebegin', hider); }
+        setTimeout(function () { if (hider.classList.contains('menu-active')) { hider.classList.remove('menu-active'); } }, 50);
 
         //Activating Menus
-        document.querySelectorAll('.menu').forEach(el=>{el.style.display='block'})
+        document.querySelectorAll('.menu').forEach(el => { el.style.display = 'block' })
 
         //Validator
         var inputField = document.querySelectorAll('input');
-        if(inputField.length){
+        if (inputField.length) {
             var mailValidator = /^[A-Z0-9._%+-]+@([A-Z0-9-]+\.)+[A-Z]{2,4}$/i;
             var phoneValidator = /^[(]{0,1}[0-9]{3}[)]{0,1}[-\s\.]{0,1}[0-9]{3}[-\s\.]{0,1}[0-9]{4}$/;
             var nameValidator = /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u;
@@ -62,15 +64,15 @@ document.addEventListener('DOMContentLoaded', () => {
             var linkValidator = /^(http|https)?:\/\/[a-zA-Z0-9-\.]+\.[a-z]{2,4}/;
             var textValidator = /[A-Za-z]{2}[A-Za-z]*[ ]?[A-Za-z]*/;
 
-            function valid(el){
+            function valid(el) {
                 el.parentElement.querySelectorAll('.valid')[0].classList.remove('disabled');
                 el.parentElement.querySelectorAll('.invalid')[0].classList.add('disabled');
             }
-            function invalid(el){
+            function invalid(el) {
                 el.parentElement.querySelectorAll('.valid')[0].classList.add('disabled');
                 el.parentElement.querySelectorAll('.invalid')[0].classList.remove('disabled');
             }
-            function unfilled(el){
+            function unfilled(el) {
                 el.parentElement.querySelectorAll('em')[0].classList.remove('disabled');
                 el.parentElement.querySelectorAll('.valid')[0].classList.add('disabled');
                 el.parentElement.querySelectorAll('.invalid')[0].classList.add('disabled');
@@ -78,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             var regularField = document.querySelectorAll('.input-style input:not([type="date"])')
             regularField.forEach(el => el.addEventListener('keyup', e => {
-                if(!el.value == ""){
+                if (!el.value == "") {
                     el.parentElement.classList.add('input-style-active');
                     el.parentElement.querySelector('em').classList.add('disabled');
                 } else {
@@ -91,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             var regularTextarea = document.querySelectorAll('.input-style textarea')
             regularTextarea.forEach(el => el.addEventListener('keyup', e => {
-                if(!el.value == ""){
+                if (!el.value == "") {
                     el.parentElement.classList.add('input-style-active');
                     el.parentElement.querySelector('em').classList.add('disabled');
                 } else {
@@ -102,12 +104,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             var selectField = document.querySelectorAll('.input-style select')
             selectField.forEach(el => el.addEventListener('change', e => {
-                if(el.value !== "default"){
+                if (el.value !== "default") {
                     el.parentElement.classList.add('input-style-active');
                     el.parentElement.querySelectorAll('.valid')[0].classList.remove('disabled');
                     el.parentElement.querySelectorAll('.invalid, em, span')[0].classList.add('disabled');
                 }
-                if(el.value == "default"){
+                if (el.value == "default") {
                     el.parentElement.querySelectorAll('span, .valid, em')[0].classList.add('disabled');
                     el.parentElement.querySelectorAll('.invalid')[0].classList.remove('disabled');
                     el.parentElement.classList.add('input-style-active');
@@ -122,10 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }));
 
             var validateField = document.querySelectorAll('.validate-field input, .validator-field textarea');
-            if(validateField.length){
+            if (validateField.length) {
                 validateField.forEach(el => el.addEventListener('keyup', e => {
                     var getAttribute = el.getAttribute('type');
-                    switch(getAttribute){
+                    switch (getAttribute) {
                         case 'name': nameValidator.test(el.value) ? valid(el) : invalid(el); break;
                         case 'number': numberValidator.test(el.value) ? valid(el) : invalid(el); break;
                         case 'email': mailValidator.test(el.value) ? valid(el) : invalid(el); break;
@@ -134,64 +136,64 @@ document.addEventListener('DOMContentLoaded', () => {
                         case 'tel': phoneValidator.test(el.value) ? valid(el) : invalid(el); break;
                         case 'password': passwordValidator.test(el.value) ? valid(el) : invalid(el); break;
                     }
-                    if(el.value === ""){unfilled(el);}
+                    if (el.value === "") { unfilled(el); }
                 }));
             }
         }
 
-		//OTP Boxes - Azures 3.9
-		var otp = document.querySelectorAll('.otp');
-		if(otp[0]){
-			otp.forEach(el => {
-				el.addEventListener('focus', (e) => {el.value = "";})
-				el.addEventListener('input', (e) => {el.nextElementSibling ? el.nextElementSibling.focus() : el.blur();});
-			});
-		}
+        //OTP Boxes - Azures 3.9
+        var otp = document.querySelectorAll('.otp');
+        if (otp[0]) {
+            otp.forEach(el => {
+                el.addEventListener('focus', (e) => { el.value = ""; })
+                el.addEventListener('input', (e) => { el.nextElementSibling ? el.nextElementSibling.focus() : el.blur(); });
+            });
+        }
 
         //Image Sliders
         var splide = document.getElementsByClassName('splide');
-        if(splide.length){
+        if (splide.length) {
             var singleSlider = document.querySelectorAll('.single-slider');
-            if(singleSlider.length){
-                singleSlider.forEach(function(e){
-                    var single = new Splide( '#'+e.id, {
-                        type:'loop',
-                        autoplay:true,
-                        interval:4000,
+            if (singleSlider.length) {
+                singleSlider.forEach(function (e) {
+                    var single = new Splide('#' + e.id, {
+                        type: 'loop',
+                        autoplay: true,
+                        interval: 4000,
                         perPage: 1,
                     }).mount();
                     var sliderNext = document.querySelectorAll('.slider-next');
                     var sliderPrev = document.querySelectorAll('.slider-prev');
-                    sliderNext.forEach(el => el.addEventListener('click', el => {single.go('>');}));
-                    sliderPrev.forEach(el => el.addEventListener('click', el => {single.go('<');}));
+                    sliderNext.forEach(el => el.addEventListener('click', el => { single.go('>'); }));
+                    sliderPrev.forEach(el => el.addEventListener('click', el => { single.go('<'); }));
                 });
             }
 
             var doubleSlider = document.querySelectorAll('.double-slider');
-            if(doubleSlider.length){
-                doubleSlider.forEach(function(e){
-                     var double = new Splide( '#'+e.id, {
-                        type:'loop',
-                        autoplay:true,
-                        interval:4000,
-                        arrows:false,
+            if (doubleSlider.length) {
+                doubleSlider.forEach(function (e) {
+                    var double = new Splide('#' + e.id, {
+                        type: 'loop',
+                        autoplay: true,
+                        interval: 4000,
+                        arrows: false,
                         perPage: 2,
                     }).mount();
                 });
             }
 
             var trippleSlider = document.querySelectorAll('.tripple-slider');
-            if(trippleSlider.length){
-                trippleSlider.forEach(function(e){
-                     var tripple = new Splide( '#'+e.id, {
-                        type:'loop',
-                        autoplay:true,
+            if (trippleSlider.length) {
+                trippleSlider.forEach(function (e) {
+                    var tripple = new Splide('#' + e.id, {
+                        type: 'loop',
+                        autoplay: true,
                         padding: {
-                            left   :'0px',
+                            left: '0px',
                             right: '80px',
                         },
-                        interval:4000,
-                        arrows:false,
+                        interval: 4000,
+                        arrows: false,
                         perPage: 2,
                         perMove: 1,
                     }).mount();
@@ -200,29 +202,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         var topicSlider = document.querySelectorAll('.topic-slider');
-        if(topicSlider.length){
-             var topic = new Splide( '.topic-slider', {
-                type:'loop',
-                autoplay:false,
+        if (topicSlider.length) {
+            var topic = new Splide('.topic-slider', {
+                type: 'loop',
+                autoplay: false,
                 padding: {
-                    left   :'15px',
+                    left: '15px',
                     right: '40px',
                 },
-                arrows:false,
+                arrows: false,
                 perPage: 3,
                 perMove: 1,
             }).mount();
         }
         var userSlider = document.querySelectorAll('.user-slider');
-        if(userSlider.length){
-             var topic = new Splide( '.user-slider', {
-                type:'loop',
-                autoplay:false,
+        if (userSlider.length) {
+            var topic = new Splide('.user-slider', {
+                type: 'loop',
+                autoplay: false,
                 padding: {
-                    left   :'0px',
+                    left: '0px',
                     right: '40px',
                 },
-                arrows:false,
+                arrows: false,
                 perPage: 4,
                 perMove: 1,
             }).mount();
@@ -238,24 +240,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Map Page
         var fullMap = document.querySelectorAll('.hide-map');
-        if(fullMap.length){
+        if (fullMap.length) {
             var mapActivator = document.querySelectorAll('.show-map');
             var mapDisabler = document.querySelectorAll('.hide-map');
-            mapActivator[0].addEventListener('click',function(e){
-               document.getElementsByClassName('map-overlay')[0].classList.add('disabled');
-               document.getElementsByClassName('card-center')[0].classList.add('disabled');
-               document.getElementsByClassName('hide-map')[0].classList.remove('disabled');
+            mapActivator[0].addEventListener('click', function (e) {
+                document.getElementsByClassName('map-overlay')[0].classList.add('disabled');
+                document.getElementsByClassName('card-center')[0].classList.add('disabled');
+                document.getElementsByClassName('hide-map')[0].classList.remove('disabled');
             })
-            mapDisabler[0].addEventListener('click',function(e){
-               document.getElementsByClassName('map-overlay')[0].classList.remove('disabled');
-               document.getElementsByClassName('card-center')[0].classList.remove('disabled');
-               document.getElementsByClassName('hide-map')[0].classList.add('disabled');
+            mapDisabler[0].addEventListener('click', function (e) {
+                document.getElementsByClassName('map-overlay')[0].classList.remove('disabled');
+                document.getElementsByClassName('card-center')[0].classList.remove('disabled');
+                document.getElementsByClassName('hide-map')[0].classList.add('disabled');
             })
         }
 
         var checkedCard = document.querySelectorAll('.check-card');
         checkedCard.forEach(el => el.addEventListener('click', e => {
-            if(el.querySelector('input').getAttribute('checked') =="checked"){
+            if (el.querySelector('input').getAttribute('checked') == "checked") {
                 el.querySelector('input').removeAttribute('checked');
             } else {
                 el.querySelector('input').setAttribute('checked', 'checked');
@@ -268,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
         var toDoList = document.querySelectorAll('.todo-list a');
         toDoList.forEach(el => el.addEventListener('click', e => {
             el.classList.toggle('opacity-80');
-            if(el.querySelector('input').getAttribute('checked') == "checked"){
+            if (el.querySelector('input').getAttribute('checked') == "checked") {
                 el.querySelector('input').removeAttribute('checked');
             } else {
                 el.querySelector('input').setAttribute('checked', 'checked');
@@ -277,24 +279,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Setting Sidebar Widths
         var menus = document.querySelectorAll('.menu');
-        function menuFunction(){
-            if(menus.length){
+        function menuFunction() {
+            if (menus.length) {
                 var menuSidebar = document.querySelectorAll('.menu-box-left, .menu-box-right');
-                menuSidebar.forEach(function(e){
-                    if(e.getAttribute('data-menu-width') === "cover"){
+                menuSidebar.forEach(function (e) {
+                    if (e.getAttribute('data-menu-width') === "cover") {
                         e.style.width = '100%'
                     } else {
-                        e.style.width = (e.getAttribute('data-menu-width')) +'px'
+                        e.style.width = (e.getAttribute('data-menu-width')) + 'px'
                     }
                 })
                 var menuSheets = document.querySelectorAll('.menu-box-bottom, .menu-box-top, .menu-box-modal');
-                menuSheets.forEach(function(e){
-                    if(e.getAttribute('data-menu-width') === "cover"){
+                menuSheets.forEach(function (e) {
+                    if (e.getAttribute('data-menu-width') === "cover") {
                         e.style.width = '100%'
                         e.style.height = '100%'
                     } else {
-                        e.style.width = (e.getAttribute('data-menu-width')) +'px'
-                        e.style.height = (e.getAttribute('data-menu-height')) +'px'
+                        e.style.width = (e.getAttribute('data-menu-width')) + 'px'
+                        e.style.height = (e.getAttribute('data-menu-height')) + 'px'
                     }
                 })
 
@@ -302,10 +304,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 var menuOpen = document.querySelectorAll('[data-menu]');
                 var wrappers = document.querySelectorAll('.header, #footer-bar, .page-content');
 
-                menuOpen.forEach(el => el.addEventListener('click',e =>{
+                menuOpen.forEach(el => el.addEventListener('click', e => {
                     //Close Existing Opened Menus
                     const activeMenu = document.querySelectorAll('.menu-active');
-                    for(let i=0; i < activeMenu.length; i++){activeMenu[i].classList.remove('menu-active');}
+                    for (let i = 0; i < activeMenu.length; i++) { activeMenu[i].classList.remove('menu-active'); }
                     //Open Clicked Menu
                     var menuData = el.getAttribute('data-menu');
                     document.getElementById(menuData).classList.add('menu-active');
@@ -321,58 +323,58 @@ document.addEventListener('DOMContentLoaded', () => {
                     var menuHeight = menu.offsetHeight;
                     var menuTimeout = menu.getAttribute('data-menu-hide');
 
-                    if(menuTimeout){
-                        setTimeout(function(){
+                    if (menuTimeout) {
+                        setTimeout(function () {
                             document.getElementById(menuData).classList.remove('menu-active');
                             document.getElementsByClassName('menu-hider')[0].classList.remove('menu-active');
-                        },menuTimeout)
+                        }, menuTimeout)
                     }
 
-                    if(menuEffect === "menu-push"){
+                    if (menuEffect === "menu-push") {
                         var menuWidth = document.getElementById(menuData).getAttribute('data-menu-width');
-                        if(menuLeft){for(let i=0; i < wrappers.length; i++){wrappers[i].style.transform = "translateX("+menuWidth+"px)"}}
-                        if(menuRight){for(let i=0; i < wrappers.length; i++){wrappers[i].style.transform = "translateX(-"+menuWidth+"px)"}}
-                        if(menuBottom){for(let i=0; i < wrappers.length; i++){wrappers[i].style.transform = "translateY(-"+menuHeight+"px)"}}
-                        if(menuTop){for(let i=0; i < wrappers.length; i++){wrappers[i].style.transform = "translateY("+menuHeight+"px)"}}
+                        if (menuLeft) { for (let i = 0; i < wrappers.length; i++) { wrappers[i].style.transform = "translateX(" + menuWidth + "px)" } }
+                        if (menuRight) { for (let i = 0; i < wrappers.length; i++) { wrappers[i].style.transform = "translateX(-" + menuWidth + "px)" } }
+                        if (menuBottom) { for (let i = 0; i < wrappers.length; i++) { wrappers[i].style.transform = "translateY(-" + menuHeight + "px)" } }
+                        if (menuTop) { for (let i = 0; i < wrappers.length; i++) { wrappers[i].style.transform = "translateY(" + menuHeight + "px)" } }
                     }
-                    if(menuEffect === "menu-parallax"){
+                    if (menuEffect === "menu-parallax") {
                         var menuWidth = document.getElementById(menuData).getAttribute('data-menu-width');
-                        if(menuLeft){for(let i=0; i < wrappers.length; i++){wrappers[i].style.transform = "translateX("+menuWidth/10+"px)"}}
-                        if(menuRight){for(let i=0; i < wrappers.length; i++){wrappers[i].style.transform = "translateX(-"+menuWidth/10+"px)"}}
-                        if(menuBottom){for(let i=0; i < wrappers.length; i++){wrappers[i].style.transform = "translateY(-"+menuHeight/5+"px)"}}
-                        if(menuTop){for(let i=0; i < wrappers.length; i++){wrappers[i].style.transform = "translateY("+menuHeight/5+"px)"}}
+                        if (menuLeft) { for (let i = 0; i < wrappers.length; i++) { wrappers[i].style.transform = "translateX(" + menuWidth / 10 + "px)" } }
+                        if (menuRight) { for (let i = 0; i < wrappers.length; i++) { wrappers[i].style.transform = "translateX(-" + menuWidth / 10 + "px)" } }
+                        if (menuBottom) { for (let i = 0; i < wrappers.length; i++) { wrappers[i].style.transform = "translateY(-" + menuHeight / 5 + "px)" } }
+                        if (menuTop) { for (let i = 0; i < wrappers.length; i++) { wrappers[i].style.transform = "translateY(" + menuHeight / 5 + "px)" } }
                     }
                 }));
 
                 //Closing Menus
                 const menuClose = document.querySelectorAll('.close-menu, .menu-hider');
-                menuClose.forEach(el => el.addEventListener('click',e =>{
+                menuClose.forEach(el => el.addEventListener('click', e => {
                     const activeMenu = document.querySelectorAll('.menu-active');
-                    for(let i=0; i < activeMenu.length; i++){activeMenu[i].classList.remove('menu-active');}
-                    for(let i=0; i < wrappers.length; i++){wrappers[i].style.transform = "translateX(-"+0+"px)"}
+                    for (let i = 0; i < activeMenu.length; i++) { activeMenu[i].classList.remove('menu-active'); }
+                    for (let i = 0; i < wrappers.length; i++) { wrappers[i].style.transform = "translateX(-" + 0 + "px)" }
                 }));
             }
         }
         menuFunction();
 
 
-        function activateMenus(){
+        function activateMenus() {
             const menuActive = document.querySelectorAll('[data-menu-active]')[0];
-            if(menuActive){
+            if (menuActive) {
                 var selectedMenu = menuActive.getAttribute('data-menu-active');
-                document.querySelectorAll('#'+selectedMenu)[0].classList.add('nav-item-active');
-                if(document.querySelectorAll('#'+selectedMenu)[0].parentNode.getAttribute('class') === "submenu"){
-                   var subId = '#' + document.querySelectorAll('#'+selectedMenu)[0].parentNode.getAttribute('id')
-                   var subData = document.querySelectorAll('#'+selectedMenu)[0].parentNode.getAttribute('id')
+                document.querySelectorAll('#' + selectedMenu)[0].classList.add('nav-item-active');
+                if (document.querySelectorAll('#' + selectedMenu)[0].parentNode.getAttribute('class') === "submenu") {
+                    var subId = '#' + document.querySelectorAll('#' + selectedMenu)[0].parentNode.getAttribute('id')
+                    var subData = document.querySelectorAll('#' + selectedMenu)[0].parentNode.getAttribute('id')
                     var subSize = document.querySelectorAll(subId)[0].children.length;
                     var subHeight = document.querySelectorAll(subId)[0].offsetHeight;
                     document.querySelectorAll(subId)[0].style.transition = "all 250ms";
-                    document.querySelectorAll(subId)[0].style.height = (subSize*50)+26+'px';
-                    document.querySelectorAll('[data-submenu="'+subData+'"]')[0].classList.add('nav-item-active')
+                    document.querySelectorAll(subId)[0].style.height = (subSize * 50) + 26 + 'px';
+                    document.querySelectorAll('[data-submenu="' + subData + '"]')[0].classList.add('nav-item-active')
                 }
             }
 
-            document.querySelectorAll('[data-submenu]').forEach(function(e){
+            document.querySelectorAll('[data-submenu]').forEach(function (e) {
                 var subID = e.getAttribute('data-submenu');
                 var subChildren = document.getElementById(subID).children.length;
                 var subtest = e.querySelectorAll('strong')[0];
@@ -380,16 +382,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             var submenuLink = document.querySelectorAll('[data-submenu]');
-            submenuLink.forEach(el => el.addEventListener('click',e =>{
-               el.classList.toggle('nav-item-active');
+            submenuLink.forEach(el => el.addEventListener('click', e => {
+                el.classList.toggle('nav-item-active');
                 var subData = el.getAttribute('data-submenu');
-                var subId = '#'+subData
+                var subId = '#' + subData
                 var subSize = document.querySelectorAll(subId)[0].children.length;
                 var subHeight = document.querySelectorAll(subId)[0].offsetHeight;
-                if(subHeight === 0){
+                if (subHeight === 0) {
                     console.log('true')
                     document.querySelectorAll(subId)[0].style.transition = "all 250ms";
-                    document.querySelectorAll(subId)[0].style.height = (subSize*50)+26+'px';
+                    document.querySelectorAll(subId)[0].style.height = (subSize * 50) + 26 + 'px';
                 } else {
                     console.log('false')
                     document.querySelectorAll(subId)[0].style.transition = "all 250ms";
@@ -400,8 +402,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Back Button
         const backButton = document.querySelectorAll('[data-back-button]');
-        if(backButton.length){
-            backButton.forEach(el => el.addEventListener('click',e =>{
+        if (backButton.length) {
+            backButton.forEach(el => el.addEventListener('click', e => {
                 e.stopPropagation;
                 e.preventDefault;
                 window.history.go(-1);
@@ -410,10 +412,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         //Back to Top
-        function backUp(){
+        function backUp() {
             const backToTop = document.querySelectorAll('.back-to-top-icon, .back-to-top-badge, .back-to-top');
-            if(backToTop){
-                backToTop.forEach(el => el.addEventListener('click',e =>{
+            if (backToTop) {
+                backToTop.forEach(el => el.addEventListener('click', e => {
                     window.scrollTo({ top: 0, behavior: `smooth` })
                 }));
             }
@@ -421,20 +423,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Check iOS Version and add min-ios15 class if higher or equal to iOS15
         function iOSversion() {
-          let d, v;
-          if (/iP(hone|od|ad)/.test(navigator.platform)) {
-            v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
-            d = {status: true, version: parseInt(v[1], 10), info: parseInt(v[1], 10)+'.'+parseInt(v[2], 10)+'.'+parseInt(v[3] || 0, 10)};
-          }else{d = {status:false, version: false, info:''}}
-          return d;
+            let d, v;
+            if (/iP(hone|od|ad)/.test(navigator.platform)) {
+                v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
+                d = { status: true, version: parseInt(v[1], 10), info: parseInt(v[1], 10) + '.' + parseInt(v[2], 10) + '.' + parseInt(v[3] || 0, 10) };
+            } else { d = { status: false, version: false, info: '' } }
+            return d;
         }
         let iosVer = iOSversion();
-        if (iosVer.version > 14) {document.querySelectorAll('#page')[0].classList.add('min-ios15');}
+        if (iosVer.version > 14) { document.querySelectorAll('#page')[0].classList.add('min-ios15'); }
 
 
         //Card Extender
         const cards = document.getElementsByClassName('card');
-        function card_extender(){
+        function card_extender() {
             var headerHeight, footerHeight, headerOnPage;
             var headerOnPage = document.querySelectorAll('.header:not(.header-transparent)')[0];
             var footerOnPage = document.querySelectorAll('#footer-bar')[0];
@@ -443,78 +445,78 @@ document.addEventListener('DOMContentLoaded', () => {
             footerOnPage ? footerHeight = document.querySelectorAll('#footer-bar')[0].offsetHeight : footerHeight = 0
 
             for (let i = 0; i < cards.length; i++) {
-                if(cards[i].getAttribute('data-card-height') === "cover"){
-                    if (window.matchMedia('(display-mode: fullscreen)').matches) {var windowHeight = window.outerHeight;}
-                    if (!window.matchMedia('(display-mode: fullscreen)').matches) {var windowHeight = window.innerHeight;}
+                if (cards[i].getAttribute('data-card-height') === "cover") {
+                    if (window.matchMedia('(display-mode: fullscreen)').matches) { var windowHeight = window.outerHeight; }
+                    if (!window.matchMedia('(display-mode: fullscreen)').matches) { var windowHeight = window.innerHeight; }
                     //Fix for iOS 15 pages with data-height="cover"
                     var coverHeight = windowHeight + 'px';
                     // - Remove this for iOS 14 issues - var coverHeight = windowHeight - headerHeight - footerHeight + 'px';
                 }
-                if(cards[i].getAttribute('data-card-height') === "cover-card"){
+                if (cards[i].getAttribute('data-card-height') === "cover-card") {
                     var windowHeight = window.innerHeight;
                     var coverHeight = windowHeight - 173 + 'px';
-                    cards[i].style.height =  coverHeight
+                    cards[i].style.height = coverHeight
                 }
-                if(cards[i].getAttribute('data-card-height') === "cover-full"){
-                    if (window.matchMedia('(display-mode: fullscreen)').matches) {var windowHeight = window.outerHeight;}
-                    if (!window.matchMedia('(display-mode: fullscreen)').matches) {var windowHeight = window.innerHeight;}
+                if (cards[i].getAttribute('data-card-height') === "cover-full") {
+                    if (window.matchMedia('(display-mode: fullscreen)').matches) { var windowHeight = window.outerHeight; }
+                    if (!window.matchMedia('(display-mode: fullscreen)').matches) { var windowHeight = window.innerHeight; }
                     var coverHeight = windowHeight + 'px';
-                    cards[i].style.height =  coverHeight
+                    cards[i].style.height = coverHeight
                 }
-                if(cards[i].hasAttribute('data-card-height')){
+                if (cards[i].hasAttribute('data-card-height')) {
                     var getHeight = cards[i].getAttribute('data-card-height');
-                    cards[i].style.height= getHeight +'px';
-                    if(getHeight === "cover"){
+                    cards[i].style.height = getHeight + 'px';
+                    if (getHeight === "cover") {
                         var totalHeight = getHeight
-                        cards[i].style.height =  coverHeight
+                        cards[i].style.height = coverHeight
                     }
                 }
             }
         }
 
-        if(cards.length){
+        if (cards.length) {
             card_extender();
             window.addEventListener("resize", card_extender);
         }
 
         //Activate Remembered Highlight
-        function selectHighlight(){
-            var rememberHighlight = localStorage.getItem(pwaName+'-Highlight');
-            if(rememberHighlight){
-                document.querySelectorAll('[data-change-highlight="'+rememberHighlight+'"]')[0].classList.add('highlight-active');
+        function selectHighlight() {
+            var rememberHighlight = localStorage.getItem(pwaName + '-Highlight');
+            if (rememberHighlight) {
+                document.querySelectorAll('[data-change-highlight="' + rememberHighlight + '"]')[0].classList.add('highlight-active');
                 document.body.setAttribute('data-highlight', rememberHighlight);
             }
         }
 
         //Page Highlights
-        function highlightColors(){
+        function highlightColors() {
             var highlightData = document.querySelectorAll('[data-change-highlight]');
-            highlightData.forEach(el => el.addEventListener('click', e =>{
+            highlightData.forEach(el => el.addEventListener('click', e => {
                 const activeHighlight = document.querySelectorAll('.highlight-active');
-                for(let i=0; i < activeHighlight.length; i++){activeHighlight[i].classList.remove('highlight-active');}
+                for (let i = 0; i < activeHighlight.length; i++) { activeHighlight[i].classList.remove('highlight-active'); }
                 el.classList.add('highlight-active');
                 var highlight = el.getAttribute('data-change-highlight');
                 var pageHighlight = document.querySelectorAll('.page-highlight');
-                if(pageHighlight.length){pageHighlight.forEach(function(e){e.remove();});}
+                if (pageHighlight.length) { pageHighlight.forEach(function (e) { e.remove(); }); }
                 var loadHighlight = document.createElement("link");
                 loadHighlight.rel = "stylesheet";
                 loadHighlight.className = "page-highlight";
                 loadHighlight.type = "text/css";
-                loadHighlight.href = 'styles/highlights/highlight_' + highlight +'.css';
+                loadHighlight.href = 'styles/highlights/highlight_' + highlight + '.css';
                 document.getElementsByTagName("head")[0].appendChild(loadHighlight);
-                document.body.setAttribute('data-highlight', 'highlight-'+highlight)
-                localStorage.setItem(pwaName+'-Highlight', highlight)
+                document.body.setAttribute('data-highlight', 'highlight-' + highlight)
+                localStorage.setItem(pwaName + '-Highlight', highlight)
             }))
-            var rememberHighlight = localStorage.getItem(pwaName+'-Highlight');
-            if(rememberHighlight){
+            var rememberHighlight = localStorage.getItem(pwaName + '-Highlight');
+            if (rememberHighlight) {
                 var loadHighlight = document.createElement("link");
                 loadHighlight.rel = "stylesheet";
                 loadHighlight.className = "page-highlight";
                 loadHighlight.type = "text/css";
-                loadHighlight.href = 'styles/highlights/highlight_' + rememberHighlight +'.css';
-                if(!document.querySelectorAll('.page-highlight').length){
+                loadHighlight.href = 'styles/highlights/highlight_' + rememberHighlight + '.css';
+                if (!document.querySelectorAll('.page-highlight').length) {
                     document.getElementsByTagName("head")[0].appendChild(loadHighlight);
-                    document.body.setAttribute('data-highlight', 'highlight-'+rememberHighlight)
+                    document.body.setAttribute('data-highlight', 'highlight-' + rememberHighlight)
                 }
             }
         }
@@ -523,34 +525,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Background Gradient Color
         var gradientData = document.querySelectorAll('[data-change-background]');
-        gradientData.forEach(el => el.addEventListener('click',e =>{
+        gradientData.forEach(el => el.addEventListener('click', e => {
             var gradient = el.getAttribute('data-change-background');
-            document.body.setAttribute('data-gradient', 'body-'+gradient+'');
-            localStorage.setItem(pwaName+'-Gradient', gradient)
+            document.body.setAttribute('data-gradient', 'body-' + gradient + '');
+            localStorage.setItem(pwaName + '-Gradient', gradient)
         }));
 
         //Set Background and Highlight
-        var pageBackground = localStorage.getItem(pwaName+'-Gradient');
-        if(pageBackground){document.body.setAttribute('data-gradient', 'body-'+pageBackground+'');}
+        var pageBackground = localStorage.getItem(pwaName + '-Gradient');
+        if (pageBackground) { document.body.setAttribute('data-gradient', 'body-' + pageBackground + ''); }
 
 
         //Dark Mode
-        function checkDarkMode(){
+        function checkDarkMode() {
             const toggleDark = document.querySelectorAll('[data-toggle-theme]');
-            function activateDarkMode(){
+            function activateDarkMode() {
                 document.body.classList.add('theme-dark');
                 document.body.classList.remove('theme-light', 'detect-theme');
-                for(let i = 0; i < toggleDark.length; i++){toggleDark[i].checked="checked"};
-                localStorage.setItem(pwaName+'-Theme', 'dark-mode');
+                for (let i = 0; i < toggleDark.length; i++) { toggleDark[i].checked = "checked" };
+                localStorage.setItem(pwaName + '-Theme', 'dark-mode');
             }
-            function activateLightMode(){
+            function activateLightMode() {
                 document.body.classList.add('theme-light');
-                document.body.classList.remove('theme-dark','detect-theme');
-                for(let i = 0; i < toggleDark.length; i++){toggleDark[i].checked=false};
-                localStorage.setItem(pwaName+'-Theme', 'light-mode');
+                document.body.classList.remove('theme-dark', 'detect-theme');
+                for (let i = 0; i < toggleDark.length; i++) { toggleDark[i].checked = false };
+                localStorage.setItem(pwaName + '-Theme', 'light-mode');
             }
-            function removeTransitions(){var falseTransitions = document.querySelectorAll('.btn, .header, #footer-bar, .menu-box, .menu-active'); for(let i = 0; i < falseTransitions.length; i++) {falseTransitions[i].style.transition = "all 0s ease";}}
-            function addTransitions(){var trueTransitions = document.querySelectorAll('.btn, .header, #footer-bar, .menu-box, .menu-active'); for(let i = 0; i < trueTransitions.length; i++) {trueTransitions[i].style.transition = "";}}
+            function removeTransitions() { var falseTransitions = document.querySelectorAll('.btn, .header, #footer-bar, .menu-box, .menu-active'); for (let i = 0; i < falseTransitions.length; i++) { falseTransitions[i].style.transition = "all 0s ease"; } }
+            function addTransitions() { var trueTransitions = document.querySelectorAll('.btn, .header, #footer-bar, .menu-box, .menu-active'); for (let i = 0; i < trueTransitions.length; i++) { trueTransitions[i].style.transition = ""; } }
 
             function setColorScheme() {
                 const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -558,37 +560,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isNoPreference = window.matchMedia("(prefers-color-scheme: no-preference)").matches
                 window.matchMedia("(prefers-color-scheme: dark)").addListener(e => e.matches && activateDarkMode())
                 window.matchMedia("(prefers-color-scheme: light)").addListener(e => e.matches && activateLightMode())
-                if(isDarkMode) activateDarkMode();
-                if(isLightMode) activateLightMode();
+                if (isDarkMode) activateDarkMode();
+                if (isLightMode) activateLightMode();
             }
 
             //Activating Dark Mode
             var darkModeSwitch = document.querySelectorAll('[data-toggle-theme]')
-            darkModeSwitch.forEach(el => el.addEventListener('click',e =>{
-                if(document.body.className == "theme-light"){ removeTransitions(); activateDarkMode();}
-                else if(document.body.className == "theme-dark"){ removeTransitions(); activateLightMode();}
-                setTimeout(function(){addTransitions();},350);
+            darkModeSwitch.forEach(el => el.addEventListener('click', e => {
+                if (document.body.className == "theme-light") { removeTransitions(); activateDarkMode(); }
+                else if (document.body.className == "theme-dark") { removeTransitions(); activateLightMode(); }
+                setTimeout(function () { addTransitions(); }, 350);
             }));
 
             //Set Color Based on Remembered Preference.
-            if(localStorage.getItem(pwaName+'-Theme') == "dark-mode"){for(let i = 0; i < toggleDark.length; i++){toggleDark[i].checked="checked"};document.body.className = 'theme-dark';}
-            if(localStorage.getItem(pwaName+'-Theme') == "light-mode"){document.body.className = 'theme-light';} if(document.body.className == "detect-theme"){setColorScheme();}
+            if (localStorage.getItem(pwaName + '-Theme') == "dark-mode") { for (let i = 0; i < toggleDark.length; i++) { toggleDark[i].checked = "checked" }; document.body.className = 'theme-dark'; }
+            if (localStorage.getItem(pwaName + '-Theme') == "light-mode") { document.body.className = 'theme-light'; } if (document.body.className == "detect-theme") { setColorScheme(); }
 
             //Detect Dark/Light Mode
             const darkModeDetect = document.querySelectorAll('.detect-dark-mode');
-            darkModeDetect.forEach(el => el.addEventListener('click',e =>{
+            darkModeDetect.forEach(el => el.addEventListener('click', e => {
                 document.body.classList.remove('theme-light', 'theme-dark');
                 document.body.classList.add('detect-theme')
-                setTimeout(function(){setColorScheme();},50)
+                setTimeout(function () { setColorScheme(); }, 50)
             }))
         }
-        if(localStorage.getItem(pwaName+'-Theme') == "dark-mode"){document.body.className = 'theme-dark';}
-        if(localStorage.getItem(pwaName+'-Theme') == "light-mode"){document.body.className = 'theme-light';}
+        if (localStorage.getItem(pwaName + '-Theme') == "dark-mode") { document.body.className = 'theme-dark'; }
+        if (localStorage.getItem(pwaName + '-Theme') == "light-mode") { document.body.className = 'theme-light'; }
 
 
         //Accordion Rotate
         const accordionBtn = document.querySelectorAll('.accordion-btn');
-        if(accordionBtn.length){
+        if (accordionBtn.length) {
             accordionBtn.forEach(el => el.addEventListener('click', event => {
                 el.querySelector('i:last-child').classList.toggle('fa-rotate-180');
             }));
@@ -596,107 +598,107 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //File Upload
         const inputArray = document.getElementsByClassName('upload-file');
-        if(inputArray.length){
-            inputArray[0].addEventListener('change',prepareUpload,false);
-                function prepareUpload(event){
-                  if (this.files && this.files[0]) {
-                  var img = document.getElementById('image-data');
-                  img.src = URL.createObjectURL(this.files[0]);
-              }
+        if (inputArray.length) {
+            inputArray[0].addEventListener('change', prepareUpload, false);
+            function prepareUpload(event) {
+                if (this.files && this.files[0]) {
+                    var img = document.getElementById('image-data');
+                    img.src = URL.createObjectURL(this.files[0]);
+                }
                 const files = event.target.files;
                 const fileName = files[0].name;
                 document.getElementsByClassName('file-data')[0].classList.add('disabled');
                 document.getElementsByClassName('upload-file-data')[0].classList.remove('disabled');
                 document.getElementsByClassName('upload-file-name')[0].innerHTML = files[0].name;
                 document.getElementsByClassName('upload-file-modified')[0].innerHTML = files[0].lastModifiedDate;
-                document.getElementsByClassName('upload-file-size')[0].innerHTML = files[0].size/1000+'kb';
+                document.getElementsByClassName('upload-file-size')[0].innerHTML = files[0].size / 1000 + 'kb';
                 document.getElementsByClassName('upload-file-type')[0].innerHTML = files[0].type;
             }
 
         }
         var locationBut = document.querySelectorAll('.get-location');
-        if(locationBut.length){
+        if (locationBut.length) {
             var locationSupport = document.getElementsByClassName('location-support')[0]
-            if (typeof(locationSupport) != 'undefined' && locationSupport != null){
+            if (typeof (locationSupport) != 'undefined' && locationSupport != null) {
                 //Geo Location
-                if ("geolocation" in navigator){
+                if ("geolocation" in navigator) {
                     locationSupport.innerHTML = 'Your browser and device <strong class="color-green2-dark">support</strong> Geolocation.';
-                }else{
+                } else {
                     locationSupport.innerHTML = 'Your browser and device <strong class="color-red2-dark">support</strong> Geolocation.';
                 }
             }
             function geoLocate() {
                 const locationCoordinates = document.querySelector('.location-coordinates');
                 function success(position) {
-                    const latitude  = position.coords.latitude;
+                    const latitude = position.coords.latitude;
                     const longitude = position.coords.longitude;
-                    locationCoordinates.innerHTML = '<strong>Longitude:</strong> ' + longitude + '<br><strong>Latitude:</strong> '+ latitude;
+                    locationCoordinates.innerHTML = '<strong>Longitude:</strong> ' + longitude + '<br><strong>Latitude:</strong> ' + latitude;
                     var mapL1 = 'https://www.google.com/maps/embed/v1/view?key=AIzaSyAM3nxDVrkjyKwdIZp8QOplmBKLRVI5S_Y&center=';
-                    var mapL2 = latitude+',';
+                    var mapL2 = latitude + ',';
                     var mapL3 = longitude;
                     var mapL4 = '&zoom=16&maptype=satellite'
                     var mapL5 = ''
-                    document.getElementsByClassName('location-map')[0].setAttribute('src',mapLinkEmbed);
-                    document.getElementsByClassName('location-button')[0].setAttribute('href',mapLinkAddress);
+                    document.getElementsByClassName('location-map')[0].setAttribute('src', mapLinkEmbed);
+                    document.getElementsByClassName('location-button')[0].setAttribute('href', mapLinkAddress);
                     document.getElementsByClassName('location-button')[0].classList.remove('disabled');
                 }
-                function error() {locationCoordinates.textContent = 'Unable to retrieve your location';}
-                if (!navigator.geolocation) {locationCoordinates.textContent = 'Geolocation is not supported by your browser';}
-                else {locationCoordinates.textContent = 'Locating';navigator.geolocation.getCurrentPosition(success, error);}
+                function error() { locationCoordinates.textContent = 'Unable to retrieve your location'; }
+                if (!navigator.geolocation) { locationCoordinates.textContent = 'Geolocation is not supported by your browser'; }
+                else { locationCoordinates.textContent = 'Locating'; navigator.geolocation.getCurrentPosition(success, error); }
             }
             var getLocation = document.getElementsByClassName('get-location')[0]
-            if (typeof(getLocation) != 'undefined' && getLocation != null){
-                getLocation.addEventListener('click',function(){this.classList.add('disabled'); geoLocate();})
+            if (typeof (getLocation) != 'undefined' && getLocation != null) {
+                getLocation.addEventListener('click', function () { this.classList.add('disabled'); geoLocate(); })
             }
         }
 
         //Card Effects
         const cardScale = document.querySelectorAll('.card-scale');
-        if(cardScale.length){
-            cardScale.forEach(el => el.addEventListener('mouseenter', event => {el.querySelectorAll('img')[0].classList.add('card-scale-image');}));
-            cardScale.forEach(el => el.addEventListener('mouseleave', event => {el.querySelectorAll('img')[0].classList.remove('card-scale-image');}));
+        if (cardScale.length) {
+            cardScale.forEach(el => el.addEventListener('mouseenter', event => { el.querySelectorAll('img')[0].classList.add('card-scale-image'); }));
+            cardScale.forEach(el => el.addEventListener('mouseleave', event => { el.querySelectorAll('img')[0].classList.remove('card-scale-image'); }));
         }
 
         const cardHide = document.querySelectorAll('.card-hide');
-        if(cardHide.length){
-            cardHide.forEach(el => el.addEventListener('mouseenter', event => {el.querySelectorAll('.card-center, .card-bottom, .card-top, .card-overlay')[0].classList.add('card-hide-image');}));
-            cardHide.forEach(el => el.addEventListener('mouseleave', event => {el.querySelectorAll('.card-center, .card-bottom, .card-top, .card-overlay')[0].classList.remove('card-hide-image');}));
+        if (cardHide.length) {
+            cardHide.forEach(el => el.addEventListener('mouseenter', event => { el.querySelectorAll('.card-center, .card-bottom, .card-top, .card-overlay')[0].classList.add('card-hide-image'); }));
+            cardHide.forEach(el => el.addEventListener('mouseleave', event => { el.querySelectorAll('.card-center, .card-bottom, .card-top, .card-overlay')[0].classList.remove('card-hide-image'); }));
         }
 
         const cardRotate = document.querySelectorAll('.card-rotate');
-        if(cardRotate.length){
-            cardRotate.forEach(el => el.addEventListener('mouseenter', event => {el.querySelectorAll('img')[0].classList.add('card-rotate-image');}));
-            cardRotate.forEach(el => el.addEventListener('mouseleave', event => {el.querySelectorAll('img')[0].classList.remove('card-rotate-image');}));
+        if (cardRotate.length) {
+            cardRotate.forEach(el => el.addEventListener('mouseenter', event => { el.querySelectorAll('img')[0].classList.add('card-rotate-image'); }));
+            cardRotate.forEach(el => el.addEventListener('mouseleave', event => { el.querySelectorAll('img')[0].classList.remove('card-rotate-image'); }));
         }
 
         const cardGray = document.querySelectorAll('.card-grayscale');
-        if (cardGray.length){
-            cardGray.forEach(el => el.addEventListener('mouseenter', event => {el.querySelectorAll('img')[0].classList.add('card-grayscale-image');}));
-            cardGray.forEach(el => el.addEventListener('mouseleave', event => {el.querySelectorAll('img')[0].classList.remove('card-grayscale-image');}));
+        if (cardGray.length) {
+            cardGray.forEach(el => el.addEventListener('mouseenter', event => { el.querySelectorAll('img')[0].classList.add('card-grayscale-image'); }));
+            cardGray.forEach(el => el.addEventListener('mouseleave', event => { el.querySelectorAll('img')[0].classList.remove('card-grayscale-image'); }));
         }
 
         const cardBlur = document.querySelectorAll('.card-blur');
-        if(cardBlur.length){
-            cardBlur.forEach(el => el.addEventListener('mouseenter', event => {el.querySelectorAll('img')[0].classList.add('card-blur-image');}));
-            cardBlur.forEach(el => el.addEventListener('mouseleave', event => {el.querySelectorAll('img')[0].classList.remove('card-blur-image');}));
+        if (cardBlur.length) {
+            cardBlur.forEach(el => el.addEventListener('mouseenter', event => { el.querySelectorAll('img')[0].classList.add('card-blur-image'); }));
+            cardBlur.forEach(el => el.addEventListener('mouseleave', event => { el.querySelectorAll('img')[0].classList.remove('card-blur-image'); }));
         }
 
         //Adding Local Storage for Visited Links
         var checkVisited = document.querySelectorAll('.check-visited');
-            if(checkVisited.length){
-            function check_visited_links(){
-                var visited_links = JSON.parse(localStorage.getItem(pwaName+'_Visited_Links')) || [];
+        if (checkVisited.length) {
+            function check_visited_links() {
+                var visited_links = JSON.parse(localStorage.getItem(pwaName + '_Visited_Links')) || [];
                 var links = document.querySelectorAll('.check-visited a');
                 for (let i = 0; i < links.length; i++) {
                     var that = links[i];
-                    that.addEventListener('click',function(e){
+                    that.addEventListener('click', function (e) {
                         var clicked_url = this.href;
-                        if (visited_links.indexOf(clicked_url)==-1) {
+                        if (visited_links.indexOf(clicked_url) == -1) {
                             visited_links.push(clicked_url);
-                            localStorage.setItem(pwaName+'_Visited_Links', JSON.stringify(visited_links));
+                            localStorage.setItem(pwaName + '_Visited_Links', JSON.stringify(visited_links));
                         }
                     })
-                    if (visited_links.indexOf(that.href)!== -1) {
+                    if (visited_links.indexOf(that.href) !== -1) {
                         that.className += ' visited-link';
                     }
                 }
@@ -709,7 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         var footerBar = document.querySelectorAll('.footer-bar-5')[0];
-        if(footerBar){
+        if (footerBar) {
             var footerBar_select = document.querySelectorAll('#footer-bar .active-nav')[0];
             footerBar_select.insertAdjacentHTML('beforeend', '<strong></strong>');
         }
@@ -717,12 +719,12 @@ document.addEventListener('DOMContentLoaded', () => {
         //Detect Ad Block
 
         var adblockMessage = document.getElementById('adblock-message')
-        if(adblockMessage){
+        if (adblockMessage) {
             var adblockEnabled = false;
             document.body.innerHTML += '<div class="adsbygoogle" id="ad-detector"></div>';
             var adElement = document.getElementById('ad-detector');
             var adElementStyle = getComputedStyle(adElement, null);
-            if(adElementStyle.display === 'none') {document.getElementById('adblock-message').classList.remove('disabled');}
+            if (adElementStyle.display === 'none') { document.getElementById('adblock-message').classList.remove('disabled'); }
         }
 
         //Ads
@@ -730,27 +732,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Scroll Ads
         var scrollItems = document.querySelectorAll('.scroll-ad, .header-auto-show')
-        if(scrollItems.length){
+        if (scrollItems.length) {
             var scrollAd = document.querySelectorAll('.scroll-ad');
             var scrollHeader = document.querySelectorAll('.header-auto-show');
             var pageTitle = document.querySelectorAll('.page-title');
-            window.addEventListener('scroll', function() {
+            window.addEventListener('scroll', function () {
                 if (document.querySelectorAll('.scroll-ad, .header-auto-show').length) {
-                    function showScrollAd(){scrollAd[0].classList.add('scroll-ad-visible');}
-                    function hideScrollAd(){scrollAd[0].classList.remove('scroll-ad-visible');}
-                    function showHeader(){scrollHeader[0].classList.add('header-active');}
-                    function hideHeader(){scrollHeader[0].classList.remove('header-active');}
+                    function showScrollAd() { scrollAd[0].classList.add('scroll-ad-visible'); }
+                    function hideScrollAd() { scrollAd[0].classList.remove('scroll-ad-visible'); }
+                    function showHeader() { scrollHeader[0].classList.add('header-active'); }
+                    function hideHeader() { scrollHeader[0].classList.remove('header-active'); }
                     var window_height = window.outerWidth;
                     var total_scroll_height = document.documentElement.scrollTop
                     let inside_header = total_scroll_height <= 80;
                     var passed_header = total_scroll_height >= 80;
                     let inside_footer = (window_height - total_scroll_height + 500) <= 150
-                    if(scrollAd.length){
+                    if (scrollAd.length) {
                         inside_header ? hideScrollAd() : null
                         passed_header ? showScrollAd() : null
                         inside_footer ? hideScrollAd() : null
                     }
-                    if(scrollHeader.length){
+                    if (scrollHeader.length) {
                         inside_header ? hideHeader() : null
                         passed_header ? showHeader() : null
                     }
@@ -761,7 +763,7 @@ document.addEventListener('DOMContentLoaded', () => {
         //Stepper
         var stepperAdd = document.querySelectorAll('.stepper-add');
         var stepperSub = document.querySelectorAll('.stepper-sub');
-        if(stepperAdd.length){
+        if (stepperAdd.length) {
             stepperAdd.forEach(el => el.addEventListener('click', event => {
                 var currentValue = el.parentElement.querySelector('input').value
                 el.parentElement.querySelector('input').value = +currentValue + 1
@@ -775,7 +777,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Link List Toggle
         var linkListToggle = document.querySelectorAll('[data-trigger-switch]:not([data-toggle-theme])');
-        if(linkListToggle.length){
+        if (linkListToggle.length) {
             linkListToggle.forEach(el => el.addEventListener('click', event => {
                 var switchData = el.getAttribute('data-trigger-switch');
                 var getCheck = document.getElementById(switchData);
@@ -785,8 +787,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Classic Toggle
         var classicToggle = document.querySelectorAll('.classic-toggle');
-        if(classicToggle.length){
-            classicToggle.forEach(el => el.addEventListener('click', event=>{
+        if (classicToggle.length) {
+            classicToggle.forEach(el => el.addEventListener('click', event => {
                 el.querySelector('i:last-child').classList.toggle('fa-rotate-180');
                 el.querySelector('i:last-child').style.transition = "all 250ms ease"
             }))
@@ -794,7 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Toasts
         var toastTrigger = document.querySelectorAll('[data-toast]');
-        if(toastTrigger.length){
+        if (toastTrigger.length) {
             toastTrigger.forEach(el => el.addEventListener('click', event => {
                 var toastData = el.getAttribute('data-toast')
                 var notificationToast = document.getElementById(toastData);
@@ -818,15 +820,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Dropdown
         var dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'))
-        if(dropdownElementList.length){
+        if (dropdownElementList.length) {
             var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
-            return new bootstrap.Dropdown(dropdownToggleEl);
+                return new bootstrap.Dropdown(dropdownToggleEl);
             })
         }
 
 
         var workingHours = document.querySelectorAll('.show-business-opened, .show-business-closed, .working-hours');
-        if(workingHours.length){
+        if (workingHours.length) {
             //Working Hours
             var d = new Date();
             var n = d.getDay();
@@ -845,26 +847,26 @@ document.addEventListener('DOMContentLoaded', () => {
             var closeClass = document.querySelectorAll('.show-business-closed');
 
             if (now > day[1] && now < day[2] || now > day[3] && now < day[4]) {
-                openClass.forEach(function(e){e.classList.remove('disabled');})
-                closeClass.forEach(function(e){e.classList.add('disabled');})
+                openClass.forEach(function (e) { e.classList.remove('disabled'); })
+                closeClass.forEach(function (e) { e.classList.add('disabled'); })
             }
-             else {
-                openClass.forEach(function(e){e.classList.add('disabled');})
-                closeClass.forEach(function(e){e.classList.remove('disabled');})
+            else {
+                openClass.forEach(function (e) { e.classList.add('disabled'); })
+                closeClass.forEach(function (e) { e.classList.remove('disabled'); })
             }
 
             var workingHours = document.querySelectorAll('.working-hours[data-day]');
-            workingHours.forEach(function(entry) {
+            workingHours.forEach(function (entry) {
                 var matchDay = entry.getAttribute('data-day');
-                if (matchDay === day[0]){
-                    var matchData = '[data-day="'+day[0]+'"]'
+                if (matchDay === day[0]) {
+                    var matchData = '[data-day="' + day[0] + '"]'
                     if (now > day[1] && now < day[2] || now > day[3] && now < day[4]) {
                         document.querySelectorAll(matchData)[0].classList.add('bg-green-dark');
-                        document.querySelectorAll(matchData +' p').forEach(function(whiteText){whiteText.classList.add('color-white')});
+                        document.querySelectorAll(matchData + ' p').forEach(function (whiteText) { whiteText.classList.add('color-white') });
                     }
-                     else {
+                    else {
                         document.querySelectorAll(matchData)[0].classList.add('bg-red-dark');
-                        document.querySelectorAll(matchData +' p').forEach(function(whiteText){whiteText.classList.add('color-white')});
+                        document.querySelectorAll(matchData + ' p').forEach(function (whiteText) { whiteText.classList.add('color-white') });
                     }
                 }
             });
@@ -874,18 +876,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Vibrate API
         var vibrateButton = document.querySelectorAll('[data-vibrate]');
-        if(vibrateButton.length){
+        if (vibrateButton.length) {
             var startVibrating = document.getElementsByClassName('start-vibrating')[0];
             var stopVibrating = document.getElementsByClassName('stop-vibrating')[0];
 
-            startVibrating.addEventListener('click',function(){
+            startVibrating.addEventListener('click', function () {
                 var vibrateTime = document.getElementsByClassName('vibrate-demo')[0].value;
                 window.navigator.vibrate(vibrateTime);
             })
-            stopVibrating.addEventListener('click',function(){
+            stopVibrating.addEventListener('click', function () {
                 window.navigator.vibrate(0);
             })
-            vibrateButton.forEach(el => el.addEventListener('click',e =>{
+            vibrateButton.forEach(el => el.addEventListener('click', e => {
                 var vibrateTime = el.getAttribute('data-vibrate');
                 window.navigator.vibrate(vibrateTime);
             }));
@@ -893,32 +895,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Time Ads
         var timedAd = document.querySelectorAll('[data-timed-ad]');
-        if(timedAd.length){
-            timedAd.forEach(el => el.addEventListener('click',e =>{
+        if (timedAd.length) {
+            timedAd.forEach(el => el.addEventListener('click', e => {
                 var timedAdTime = el.getAttribute('data-timed-ad');
                 var timedAdData = el.getAttribute('data-menu');
                 var timedAdTimer = timedAdTime;
-                var timerAdFunction = setInterval(function(){
-                  if(timedAdTimer <= 1){
+                var timerAdFunction = setInterval(function () {
+                    if (timedAdTimer <= 1) {
                         clearInterval(timerAdFunction);
                         document.getElementById(timedAdData).querySelectorAll('.fa-times')[0].classList.remove('disabled');
                         document.getElementById(timedAdData).querySelectorAll('.close-menu')[0].classList.remove('no-click');
-                        document.getElementById(timedAdData).querySelectorAll('span')[0].style.display ="none";
-                  } else {
-                      //console.log(timedAdTimer);
-                  }
-                  document.getElementById(timedAdData).querySelectorAll('span')[0].innerHTML = timedAdTimer -= 1;
+                        document.getElementById(timedAdData).querySelectorAll('span')[0].style.display = "none";
+                    } else {
+                        //console.log(timedAdTimer);
+                    }
+                    document.getElementById(timedAdData).querySelectorAll('span')[0].innerHTML = timedAdTimer -= 1;
                 }, 1000);
             }));
         }
 
         //Auto Show Ads
         var autoAd = document.querySelectorAll('[data-auto-show-ad]');
-        if(autoAd.length){
+        if (autoAd.length) {
             var autoAdTime = autoAd[0].getAttribute('data-auto-show-ad');
-            var timerAdFunction = setInterval(function(){
-                if(autoAdTime <= 1)
-                {
+            var timerAdFunction = setInterval(function () {
+                if (autoAdTime <= 1) {
                     clearInterval(timerAdFunction);
                     var autoAdId = autoAd[0].getAttribute('data-menu');
                     document.getElementById(autoAdId).classList.add('menu-active');
@@ -928,7 +929,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             clearInterval(downloadTimer);
                             document.getElementById(autoAdId).querySelectorAll('.fa-times')[0].classList.remove('disabled');
                             document.getElementById(autoAdId).querySelectorAll('.close-menu')[0].classList.remove('no-click');
-                            document.getElementById(autoAdId).querySelectorAll('span')[0].style.display ="none";
+                            document.getElementById(autoAdId).querySelectorAll('span')[0].style.display = "none";
                         }
                         document.getElementById(autoAdId).querySelectorAll('span')[0].innerHTML = autoAdCloseTime -= 1;
                     }, 1000);
@@ -939,30 +940,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Visit Detection
         var visitDetection = document.querySelectorAll('.visit-detection')[0];
-        if(visitDetection){
+        if (visitDetection) {
             var neverVisited = document.querySelectorAll('.never-visited')[0];
             var beforeVisited = document.querySelectorAll('.before-visited')[0];
             var visitBeforeTime = document.querySelectorAll('.visit-before-time')[0];
-            var lastVisitValue = localStorage.getItem(pwaName+'-Last-Visited');
+            var lastVisitValue = localStorage.getItem(pwaName + '-Last-Visited');
             var d = new Date();
-            var strDate = d.getFullYear() + "/" + (d.getMonth()+1) + "/" + d.getDate();
+            var strDate = d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate();
             var strTime = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
-            if(!lastVisitValue){
-                neverVisited.style.display="block";
-                beforeVisited.style.display="none";
-                localStorage.setItem(pwaName+'-Last-Visited', 'Your last visit was ' + strDate +' at '+ strTime)
+            if (!lastVisitValue) {
+                neverVisited.style.display = "block";
+                beforeVisited.style.display = "none";
+                localStorage.setItem(pwaName + '-Last-Visited', 'Your last visit was ' + strDate + ' at ' + strTime)
             } else {
-                neverVisited.style.display="none"
-                beforeVisited.style.display="block"
+                neverVisited.style.display = "none"
+                beforeVisited.style.display = "block"
                 visitBeforeTime.append(lastVisitValue)
-                localStorage.setItem(pwaName+'-Last-Visited', 'Your last visit was ' + strDate +' at '+ strTime)
+                localStorage.setItem(pwaName + '-Last-Visited', 'Your last visit was ' + strDate + ' at ' + strTime)
             }
         }
 
 
         //Reading Time
         var readingTextDiv = document.querySelectorAll('#reading-progress-text');
-        if(readingTextDiv.length){
+        if (readingTextDiv.length) {
             var readingWords = readingTextDiv[0].innerHTML.split(' ').length;
             var readingMinutes = Math.floor(readingWords / 250);
             var readingSeconds = readingWords % 60
@@ -972,25 +973,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Text Resizer
         var textSizeChanger = document.querySelectorAll('.text-size-changer');
-        if(textSizeChanger.length){
+        if (textSizeChanger.length) {
             var textSizeIncrease = document.querySelectorAll('.text-size-increase');
             var textSizeDecrease = document.querySelectorAll('.text-size-decrease');
             var textSizeDefault = document.querySelectorAll('.text-size-default');
-            textSizeIncrease[0].addEventListener('click',function(){
-                textSizeChanger[0].querySelectorAll('*').forEach(function(element) {
-                    const getFontSize = window.getComputedStyle(element).fontSize.split("px",2)[0]
-                    element.style.fontSize = (+getFontSize +1) +'px';
+            textSizeIncrease[0].addEventListener('click', function () {
+                textSizeChanger[0].querySelectorAll('*').forEach(function (element) {
+                    const getFontSize = window.getComputedStyle(element).fontSize.split("px", 2)[0]
+                    element.style.fontSize = (+getFontSize + 1) + 'px';
                 });
             })
-            textSizeDecrease[0].addEventListener('click',function(){
-                textSizeChanger[0].querySelectorAll('*').forEach(function(element) {
-                    const getFontSize = window.getComputedStyle(element).fontSize.split("px",2)[0]
-                    element.style.fontSize = (+getFontSize -1) +'px';
+            textSizeDecrease[0].addEventListener('click', function () {
+                textSizeChanger[0].querySelectorAll('*').forEach(function (element) {
+                    const getFontSize = window.getComputedStyle(element).fontSize.split("px", 2)[0]
+                    element.style.fontSize = (+getFontSize - 1) + 'px';
                 });
             })
-            textSizeDefault[0].addEventListener('click',function(){
-                textSizeChanger[0].querySelectorAll('*').forEach(function(element) {
-                    const getFontSize = window.getComputedStyle(element).fontSize.split("px",2)[0]
+            textSizeDefault[0].addEventListener('click', function () {
+                textSizeChanger[0].querySelectorAll('*').forEach(function (element) {
+                    const getFontSize = window.getComputedStyle(element).fontSize.split("px", 2)[0]
                     element.style.fontSize = "";
                 });
             })
@@ -998,38 +999,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //QR Generator
         var qr_image = document.querySelectorAll('.qr-image');
-        if(qr_image.length){
+        if (qr_image.length) {
             var qr_this = window.location.href;
             var qr_auto = document.getElementsByClassName('generate-qr-auto')[0];
             var qr_api_address = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=';
-            if(qr_auto){qr_auto.setAttribute('src', qr_api_address+qr_this)        }
+            if (qr_auto) { qr_auto.setAttribute('src', qr_api_address + qr_this) }
             var qr_btn = document.getElementsByClassName('generate-qr-button')[0];
-            if(qr_btn){
-                qr_btn.addEventListener('click',function(){
+            if (qr_btn) {
+                qr_btn.addEventListener('click', function () {
                     var get_qr_url = document.getElementsByClassName('qr-url')[0].value;
                     var qr_api_address = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=';
-                    var qr_img = '<img class="mx-auto polaroid-effect shadow-l mt-4 delete-qr" width="200" src="'+qr_api_address+get_qr_url+'" alt="img"><p class="font-11 text-center mb-0">'+get_qr_url+'</p>'
+                    var qr_img = '<img class="mx-auto polaroid-effect shadow-l mt-4 delete-qr" width="200" src="' + qr_api_address + get_qr_url + '" alt="img"><p class="font-11 text-center mb-0">' + get_qr_url + '</p>'
                     document.getElementsByClassName('generate-qr-result')[0].innerHTML = qr_img
                     qr_btn.innerHTML = "Generate New Button"
                 })
             }
         }
 
-        if (window.location.protocol === "file:"){
+        if (window.location.protocol === "file:") {
             var linksLocal = document.querySelectorAll('a');
             linksLocal.forEach(el => el.addEventListener('mouseover', event => {
-               // console.log("You are seeing these errors because your file is on your local computer. For real life simulations please use a Live Server or a Local Server such as AMPPS or WAMPP or simulate a  Live Preview using a Code Editor like http://brackets.io (it's 100% free) - PWA functions and AJAX Page Transitions will only work in these scenarios.");
+                // console.log("You are seeing these errors because your file is on your local computer. For real life simulations please use a Live Server or a Local Server such as AMPPS or WAMPP or simulate a  Live Preview using a Code Editor like http://brackets.io (it's 100% free) - PWA functions and AJAX Page Transitions will only work in these scenarios.");
             }));
         }
 
         //Search Page
         var searchField = document.querySelectorAll('[data-search]');
-        if(searchField.length){
+        if (searchField.length) {
             var searchResults = document.querySelectorAll('.search-results')
             var searchNoResults = document.querySelectorAll('.search-no-results');
             var searchTotal = document.querySelectorAll(".search-results div")[0].childElementCount;
             var searchTrending = document.querySelectorAll('.search-trending');
-            function searchFunction(){
+            function searchFunction() {
                 var searchStr = searchField[0].value;
                 var searchVal = searchStr.toLowerCase();
                 if (searchVal != '') {
@@ -1037,79 +1038,79 @@ document.addEventListener('DOMContentLoaded', () => {
                     var searchFilterItem = document.querySelectorAll('[data-filter-item]');
                     for (let i = 0; i < searchFilterItem.length; i++) {
                         var searchData = searchFilterItem[i].getAttribute('data-filter-name');
-                        if(searchData.includes(searchVal)){
+                        if (searchData.includes(searchVal)) {
                             searchFilterItem[i].classList.remove('disabled');
-                            if(searchTrending.length){searchTrending[0].classList.add('disabled');}
+                            if (searchTrending.length) { searchTrending[0].classList.add('disabled'); }
                         } else {
                             searchFilterItem[i].classList.add('disabled');
-                            if(searchTrending.length){searchTrending[0].classList.remove('disabled');}
+                            if (searchTrending.length) { searchTrending[0].classList.remove('disabled'); }
                         }
                         var disabledResults = document.querySelectorAll(".search-results div")[0].getElementsByClassName("disabled").length;
-                        if(disabledResults === searchTotal){
+                        if (disabledResults === searchTotal) {
                             searchNoResults[0].classList.remove('disabled');
-                            if(searchTrending.length){searchTrending[0].classList.add('disabled');}
+                            if (searchTrending.length) { searchTrending[0].classList.add('disabled'); }
                         } else {
                             searchNoResults[0].classList.add('disabled');
-                            if(searchTrending.length){searchTrending[0].classList.add('disabled');}
+                            if (searchTrending.length) { searchTrending[0].classList.add('disabled'); }
                         }
                     }
                 }
                 if (searchVal === '') {
                     searchResults[0].classList.add('disabled-search-list');
                     searchNoResults[0].classList.add('disabled');
-                    if(searchTrending.length){searchTrending[0].classList.remove('disabled');}
+                    if (searchTrending.length) { searchTrending[0].classList.remove('disabled'); }
                 }
             };
 
-            searchField[0].addEventListener('keyup', function() {searchFunction();})
-            searchField[0].addEventListener('click', function() {searchFunction();})
+            searchField[0].addEventListener('keyup', function () { searchFunction(); })
+            searchField[0].addEventListener('click', function () { searchFunction(); })
 
             var searchClick = document.querySelectorAll('.search-trending a');
             searchClick.forEach(el => el.addEventListener('click', event => {
                 var trendingResult = el.querySelectorAll('span')[0].textContent.toLowerCase();
-                searchField[0].value  = trendingResult;
+                searchField[0].value = trendingResult;
                 searchField[0].click();
             }));
 
         }
 
         //Sharing
-        function shareLinks(){
+        function shareLinks() {
             var shareTitle = document.title;
             var shareText = document.title;
             var shareLink = window.location.href;
-            if(document.querySelectorAll('.shareToFacebook, .shareToTwitter, .shareToLinkedIn')[0]){
-                document.querySelectorAll('.shareToFacebook, .shareToTwitter, .shareToLinkedIn, .shareToWhatsApp, .shareToMail').forEach(x => {x.setAttribute('target','_blank');});
-                document.querySelectorAll('.shareToFacebook').forEach( x=> x.setAttribute("href", "https://www.facebook.com/sharer/sharer.php?u="+shareLink));
-                document.querySelectorAll('.shareToTwitter').forEach( x=> x.setAttribute("href", "http://twitter.com/share?text="+shareTitle+"%20"+shareLink));
-                document.querySelectorAll('.shareToPinterest').forEach( x=> x.setAttribute("href", "https://pinterest.com/pin/create/button/?url=" + shareLink));
-                document.querySelectorAll('.shareToWhatsApp').forEach( x=> x.setAttribute("href", "whatsapp://send?text=" + shareLink));
-                document.querySelectorAll('.shareToMail').forEach( x=> x.setAttribute("href", "mailto:?body=" + shareLink));
-                document.querySelectorAll('.shareToLinkedIn').forEach( x=> x.setAttribute("href", "https://www.linkedin.com/shareArticle?mini=true&url="+shareLink+"&title="+shareTitle+"&summary=&source="));
+            if (document.querySelectorAll('.shareToFacebook, .shareToTwitter, .shareToLinkedIn')[0]) {
+                document.querySelectorAll('.shareToFacebook, .shareToTwitter, .shareToLinkedIn, .shareToWhatsApp, .shareToMail').forEach(x => { x.setAttribute('target', '_blank'); });
+                document.querySelectorAll('.shareToFacebook').forEach(x => x.setAttribute("href", "https://www.facebook.com/sharer/sharer.php?u=" + shareLink));
+                document.querySelectorAll('.shareToTwitter').forEach(x => x.setAttribute("href", "http://twitter.com/share?text=" + shareTitle + "%20" + shareLink));
+                document.querySelectorAll('.shareToPinterest').forEach(x => x.setAttribute("href", "https://pinterest.com/pin/create/button/?url=" + shareLink));
+                document.querySelectorAll('.shareToWhatsApp').forEach(x => x.setAttribute("href", "whatsapp://send?text=" + shareLink));
+                document.querySelectorAll('.shareToMail').forEach(x => x.setAttribute("href", "mailto:?body=" + shareLink));
+                document.querySelectorAll('.shareToLinkedIn').forEach(x => x.setAttribute("href", "https://www.linkedin.com/shareArticle?mini=true&url=" + shareLink + "&title=" + shareTitle + "&summary=&source="));
 
                 //Menu Share Web API
-                if (navigator.canShare){
-                    const shareData = {title: shareTitle, text: shareText, url: shareLink}
+                if (navigator.canShare) {
+                    const shareData = { title: shareTitle, text: shareText, url: shareLink }
                     var shareMenu = document.querySelectorAll('[data-menu="menu-share"], [data-show-share]');
-                    if(shareMenu){shareMenu.forEach(el => {el.addEventListener('click', async () => {menu('menu-share', 'hide',0); try {await navigator.share(shareData)} catch(err){}});});}
+                    if (shareMenu) { shareMenu.forEach(el => { el.addEventListener('click', async () => { menu('menu-share', 'hide', 0); try { await navigator.share(shareData) } catch (err) { } }); }); }
                 }
 
                 var copyLink = document.querySelectorAll('.shareToCopyLink')[0];
-                copyLink.addEventListener('click',function(e){
+                copyLink.addEventListener('click', function (e) {
                     navigator.clipboard.writeText(shareLink);
                     copyLink.querySelector('.not-copied').classList.add('disabled')
                     copyLink.querySelector('.copied').classList.remove('disabled')
-                    setTimeout(function(){
+                    setTimeout(function () {
                         copyLink.querySelector('.not-copied').classList.remove('disabled')
                         copyLink.querySelector('.copied').classList.add('disabled')
-                    },1000)
+                    }, 1000)
                 });
             }
         }
 
         //Contact Form
         var contactForm = document.querySelectorAll('.contact-form');
-        if(contactForm.length){
+        if (contactForm.length) {
             var form = document.getElementById('contactForm');
             form.onsubmit = function (e) {
                 // Stop the regular form submission
@@ -1120,42 +1121,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 var mailField = document.getElementById('contactEmailField');
                 var textField = document.getElementById('contactMessageTextarea');
                 var validateMail = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
-                if(nameField.value === ''){
-                    form.setAttribute('data-form','invalid');
+                if (nameField.value === '') {
+                    form.setAttribute('data-form', 'invalid');
                     nameField.classList.add('border-red-dark');
                     document.getElementById('validator-name').classList.remove('disabled');
                 } else {
-                    form.setAttribute('data-form','valid');
+                    form.setAttribute('data-form', 'valid');
                     document.getElementById('validator-name').classList.add('disabled');
                     nameField.classList.remove('border-red-dark');
                 }
-                if(mailField.value === ''){
-                    form.setAttribute('data-form','invalid');
+                if (mailField.value === '') {
+                    form.setAttribute('data-form', 'invalid');
                     mailField.classList.add('border-red-dark');
                     document.getElementById('validator-mail1').classList.remove('disabled');
                 } else {
                     document.getElementById('validator-mail1').classList.add('disabled');
-                    if(!validateMail.test(mailField.value)){
-                        form.setAttribute('data-form','invalid');
+                    if (!validateMail.test(mailField.value)) {
+                        form.setAttribute('data-form', 'invalid');
                         mailField.classList.add('border-red-dark');
                         document.getElementById('validator-mail2').classList.remove('disabled');
-                    } else{
-                        form.setAttribute('data-form','valid');
+                    } else {
+                        form.setAttribute('data-form', 'valid');
                         document.getElementById('validator-mail2').classList.add('disabled');
                         mailField.classList.remove('border-red-dark');
                     }
                 }
-                if(textField.value === ''){
-                    form.setAttribute('data-form','invalid');
+                if (textField.value === '') {
+                    form.setAttribute('data-form', 'invalid');
                     textField.classList.add('border-red-dark');
                     document.getElementById('validator-text').classList.remove('disabled');
-                } else{
-                    form.setAttribute('data-form','valid');
+                } else {
+                    form.setAttribute('data-form', 'valid');
                     document.getElementById('validator-text').classList.add('disabled');
                     textField.classList.remove('border-red-dark')
                 }
 
-                if(form.getAttribute('data-form') === 'valid'){
+                if (form.getAttribute('data-form') === 'valid') {
                     document.querySelectorAll('.form-sent')[0].classList.remove('disabled');
                     document.querySelectorAll('.contact-form')[0].classList.add('disabled');
                     // Collect the form data while iterating over the inputs
@@ -1174,16 +1175,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Send the collected data as JSON
                     xhr.send(JSON.stringify(data));
                     // Callback function
-                    xhr.onloadend = function (response) {if (response.target.status === 200) {console.log('Form Submitted')}};
+                    xhr.onloadend = function (response) { if (response.target.status === 200) { console.log('Form Submitted') } };
                 }
             };
         }
 
         //Collapse Flip Icon
         var collapseBtn = document.querySelectorAll('[data-bs-toggle="collapse"]:not(.no-effect)');
-        if(collapseBtn.length){
-            collapseBtn.forEach(el => el.addEventListener('click',e =>{
-                if(el.querySelectorAll('i').length){
+        if (collapseBtn.length) {
+            collapseBtn.forEach(el => el.addEventListener('click', e => {
+                if (el.querySelectorAll('i').length) {
                     el.querySelector('i').classList.toggle('fa-rotate-180')
                 };
             }));
@@ -1191,18 +1192,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Tabs
         var tabTrigger = document.querySelectorAll('.tab-controls a');
-            if(tabTrigger.length){
-            tabTrigger.forEach(function(e){
-                if(e.hasAttribute('data-active')){
+        if (tabTrigger.length) {
+            tabTrigger.forEach(function (e) {
+                if (e.hasAttribute('data-active')) {
                     var highlightColor = e.parentNode.getAttribute('data-highlight');
                     e.classList.add(highlightColor);
                     e.classList.add('no-click');
                 }
             });
-            tabTrigger.forEach(el => el.addEventListener('click',e =>{
+            tabTrigger.forEach(el => el.addEventListener('click', e => {
                 var highlightColor = el.parentNode.getAttribute('data-highlight');
                 var tabParentGroup = el.parentNode.querySelectorAll('a');
-                tabParentGroup.forEach(function(e){
+                tabParentGroup.forEach(function (e) {
                     e.classList.remove(highlightColor);
                     e.classList.remove('no-click');
                 });
@@ -1213,32 +1214,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         //Extending Menu Functions
-        function menu(menuName, menuFunction, menuTimeout){
-            setTimeout(function(){
-                if(menuFunction === "show"){
+        function menu(menuName, menuFunction, menuTimeout) {
+            setTimeout(function () {
+                if (menuFunction === "show") {
                     return document.getElementById(menuName).classList.add('menu-active'),
-                    document.querySelectorAll('.menu-hider')[0].classList.add('menu-active')
+                        document.querySelectorAll('.menu-hider')[0].classList.add('menu-active')
                 } else {
                     return document.getElementById(menuName).classList.remove('menu-active'),
-                    document.querySelectorAll('.menu-hider')[0].classList.remove('menu-active')
+                        document.querySelectorAll('.menu-hider')[0].classList.remove('menu-active')
                 }
-            },menuTimeout)
+            }, menuTimeout)
         }
 
         var autoActivate = document.querySelectorAll('[data-auto-activate]');
-        if(autoActivate.length){
+        if (autoActivate.length) {
             var autoActivateData = autoActivate[0].getAttribute('data-auto-activate');
-            var autoActivateTime = autoActivateData*1000
-            setTimeout(function(){
+            var autoActivateTime = autoActivateData * 1000
+            setTimeout(function () {
                 autoActivate[0].classList.add('menu-active');
                 menuHider[0].classList.add('menu-active');
-            },autoActivateTime);
+            }, autoActivateTime);
         }
 
         //Copyright Year
-        function copyright_year(){
+        function copyright_year() {
             var copyrightYear = document.getElementById('copyright-year');
-            if(copyrightYear){
+            if (copyrightYear) {
                 var dteNow = new Date();
                 const intYear = dteNow.getFullYear();
                 copyrightYear.textContent = intYear;
@@ -1248,18 +1249,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Check Age
         var checkAge = document.querySelectorAll('.check-age');
-        if(checkAge.length){
-            checkAge[0].addEventListener('click',function(){
+        if (checkAge.length) {
+            checkAge[0].addEventListener('click', function () {
                 var dateBirthday = document.querySelectorAll("#date-birth-day")[0].value;
                 var dateBirthMonth = document.querySelectorAll("#date-birth-month")[0].value;
                 var dateBirthYear = document.querySelectorAll("#date-birth-year")[0].value;
                 var age = 18;
                 var mydate = new Date();
-                mydate.setFullYear(dateBirthYear, dateBirthMonth-1, dateBirthday);
+                mydate.setFullYear(dateBirthYear, dateBirthMonth - 1, dateBirthday);
 
                 var currdate = new Date();
                 var setDate = new Date();
-                setDate.setFullYear(mydate.getFullYear() + age, dateBirthMonth-1, dateBirthday);
+                setDate.setFullYear(mydate.getFullYear() + age, dateBirthMonth - 1, dateBirthday);
 
                 var menuAge = document.querySelectorAll('#menu-age');
                 var menuAgeFail = document.querySelectorAll('#menu-age-fail');
@@ -1268,11 +1269,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log(currdate);
                 console.log(setDate);
                 console.log(dateBirthMonth);
-                if ((currdate - setDate) > 0){
+                if ((currdate - setDate) > 0) {
                     console.log("above 18");
                     menuAge[0].classList.remove('menu-active')
                     menuAgeOkay[0].classList.add('menu-active');
-                }else{
+                } else {
                     menuAge[0].classList.remove('menu-active')
                     menuAgeFail[0].classList.add('menu-active');
                 }
@@ -1281,9 +1282,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         feather.replace();
-        function featherIcons(){
+        function featherIcons() {
             var featherIcon = document.querySelectorAll('.feather');
-            featherIcon.forEach(el=>{
+            featherIcon.forEach(el => {
                 var strokeWidth = el.getAttribute('data-feather-line');
                 var featherSize = el.getAttribute('data-feather-size');
 
@@ -1294,16 +1295,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         featherIcons();
 
-        function shapeChanger(){
-        var shapeCutLeft = document.getElementById('shape-cut-left');
+        function shapeChanger() {
+            var shapeCutLeft = document.getElementById('shape-cut-left');
             var shapeCutRight = document.querySelectorAll('#shape-cut-right')[0];
             var shapeCutRound = document.querySelectorAll('#shape-rounded')[0];
             var headerCard = document.querySelectorAll('.header-card')[0];
             var colorCard = document.querySelectorAll('.color-card')[0];
             var footerCard = document.querySelectorAll('.footer-card')[0];
 
-            if(shapeCutLeft){
-                shapeCutLeft.addEventListener('click',function(e){
+            if (shapeCutLeft) {
+                shapeCutLeft.addEventListener('click', function (e) {
                     headerCard.classList.remove('shape-rounded', 'shape-cut-right')
                     headerCard.classList.add('shape-cut-left')
                     footerCard.classList.remove('shape-rounded', 'shape-cut-right')
@@ -1312,7 +1313,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     colorCard.classList.add('shape-cut-left')
                 })
 
-                shapeCutRight.addEventListener('click',function(){
+                shapeCutRight.addEventListener('click', function () {
                     headerCard.classList.remove('shape-rounded', 'shape-cut-left')
                     headerCard.classList.add('shape-cut-right')
                     footerCard.classList.remove('shape-rounded', 'shape-cut-left')
@@ -1321,7 +1322,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     colorCard.classList.add('shape-cut-right')
                 })
 
-                shapeCutRound.addEventListener('click',function(){
+                shapeCutRound.addEventListener('click', function () {
                     headerCard.classList.remove('shape-cut-left', 'shape-cut-right')
                     headerCard.classList.add('shape-rounded')
                     footerCard.classList.remove('shape-cut-left', 'shape-cut-right')
@@ -1335,48 +1336,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Calling Functions Required After External Menus are Loaded
         var dataMenuLoad = document.querySelectorAll('[data-menu-load]')
-        dataMenuLoad.forEach(function(e){
+        dataMenuLoad.forEach(function (e) {
             var menuLoad = e.getAttribute('data-menu-load')
             fetch(menuLoad)
-            .then(data => data.text())
-            .then(html => e.innerHTML = html)
-            .then(data => {
-                setTimeout(function(){
-                    if(dataMenuLoad[dataMenuLoad.length-1] === e){
-                        menuFunction();
-                        checkDarkMode();
-                        activateMenus();
-                        shareLinks();
-                        highlightColors();
-                        selectHighlight();
-                        card_extender();
-                        backUp();
-                        shapeChanger();
-                        copyright_year();
-                        feather.replace();
-                        featherIcons();
-                    }
-                },500);
-            })
+                .then(data => data.text())
+                .then(html => e.innerHTML = html)
+                .then(data => {
+                    setTimeout(function () {
+                        if (dataMenuLoad[dataMenuLoad.length - 1] === e) {
+                            menuFunction();
+                            checkDarkMode();
+                            activateMenus();
+                            shareLinks();
+                            highlightColors();
+                            selectHighlight();
+                            card_extender();
+                            backUp();
+                            shapeChanger();
+                            copyright_year();
+                            feather.replace();
+                            featherIcons();
+                        }
+                    }, 500);
+                })
         })
 
         //Detecting Mobile OS
         let isMobile = {
-            Android: function() {return navigator.userAgent.match(/Android/i);},
-            iOS: function() {return navigator.userAgent.match(/iPhone|iPad|iPod/i);},
-            any: function() {return (isMobile.Android() || isMobile.iOS());}
+            Android: function () { return navigator.userAgent.match(/Android/i); },
+            iOS: function () { return navigator.userAgent.match(/iPhone|iPad|iPod/i); },
+            any: function () { return (isMobile.Android() || isMobile.iOS()); }
         };
 
         const androidDev = document.getElementsByClassName('show-android');
         const iOSDev = document.getElementsByClassName('show-ios');
         const noDev = document.getElementsByClassName('show-no-device');
-        if(!isMobile.any()){   for (let i = 0; i < iOSDev.length; i++) {iOSDev[i].classList.add('disabled');} for (let i = 0; i < androidDev.length; i++) {androidDev[i].classList.add('disabled');}}
-        if(isMobile.iOS()){    document.querySelectorAll('#page')[0].classList.add('device-is-ios'); for (let i = 0; i < noDev.length; i++) {noDev[i].classList.add('disabled');}for (let i = 0; i < androidDev.length; i++) {androidDev[i].classList.add('disabled');}}
-        if(isMobile.Android()){document.querySelectorAll('#page')[0].classList.add('device-is-android'); for (let i = 0; i < iOSDev.length; i++) {iOSDev[i].classList.add('disabled');}for (let i = 0; i < noDev.length; i++) {noDev[i].classList.add('disabled');}}
+        if (!isMobile.any()) { for (let i = 0; i < iOSDev.length; i++) { iOSDev[i].classList.add('disabled'); } for (let i = 0; i < androidDev.length; i++) { androidDev[i].classList.add('disabled'); } }
+        if (isMobile.iOS()) { document.querySelectorAll('#page')[0].classList.add('device-is-ios'); for (let i = 0; i < noDev.length; i++) { noDev[i].classList.add('disabled'); } for (let i = 0; i < androidDev.length; i++) { androidDev[i].classList.add('disabled'); } }
+        if (isMobile.Android()) { document.querySelectorAll('#page')[0].classList.add('device-is-android'); for (let i = 0; i < iOSDev.length; i++) { iOSDev[i].classList.add('disabled'); } for (let i = 0; i < noDev.length; i++) { noDev[i].classList.add('disabled'); } }
 
         //Creating Offline Alert Messages
         var addOfflineClasses = document.querySelectorAll('.offline-message');
-        if(!addOfflineClasses.length){
+        if (!addOfflineClasses.length) {
             const offlineAlert = document.createElement('p');
             const onlineAlert = document.createElement('p');
             offlineAlert.className = 'offline-message bg-red-dark color-white';
@@ -1389,24 +1390,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Online / Offline Settings
         //Activating and Deactivating Links Based on Online / Offline State
-        function offlinePage(){
-			//Enable the code below to disable offline mode.
-			//var anchorsDisabled = document.querySelectorAll('a');
-			//anchorsDisabled.forEach(function(e){
-			//    var hrefs = e.getAttribute('href');
-			//    if(hrefs.match(/.html/)){e.classList.add('show-offline'); e.setAttribute('data-link',hrefs); e.setAttribute('href','#');}
-			//});
+        function offlinePage() {
+            //Enable the code below to disable offline mode.
+            //var anchorsDisabled = document.querySelectorAll('a');
+            //anchorsDisabled.forEach(function(e){
+            //    var hrefs = e.getAttribute('href');
+            //    if(hrefs.match(/.html/)){e.classList.add('show-offline'); e.setAttribute('data-link',hrefs); e.setAttribute('href','#');}
+            //});
             var showOffline = document.querySelectorAll('.show-offline');
             showOffline.forEach(el => el.addEventListener('click', event => {
                 document.getElementsByClassName('offline-message')[0].classList.add('offline-message-active');
-                setTimeout(function(){document.getElementsByClassName('offline-message')[0].classList.remove('offline-message-active');},1500)
+                setTimeout(function () { document.getElementsByClassName('offline-message')[0].classList.remove('offline-message-active'); }, 1500)
             }));
         }
-        function onlinePage(){
+        function onlinePage() {
             var anchorsEnabled = document.querySelectorAll('[data-link]');
             anchorsEnabled.forEach(function (e) {
                 var hrefs = e.getAttribute('data-link');
-                if (hrefs.match(/.html/)) {e.setAttribute('href', hrefs); e.removeAttribute('data-link', '');}
+                if (hrefs.match(/.html/)) { e.setAttribute('href', hrefs); e.removeAttribute('data-link', ''); }
             });
         }
 
@@ -1416,96 +1417,96 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         //Online / Offine Status
-        function isOnline(){
+        function isOnline() {
             onlinePage(); onlineMessage.classList.add('online-message-active');
-            setTimeout(function(){onlineMessage.classList.remove('online-message-active'); },2000)
-            console.info( 'Connection: Online');
+            setTimeout(function () { onlineMessage.classList.remove('online-message-active'); }, 2000)
+            console.info('Connection: Online');
         }
 
-        function isOffline(){
+        function isOffline() {
             offlinePage(); offlineMessage.classList.add('offline-message-active');
-            setTimeout(function(){offlineMessage.classList.remove('offline-message-active'); },2000)
-            console.info( 'Connection: Offline');
+            setTimeout(function () { offlineMessage.classList.remove('offline-message-active'); }, 2000)
+            console.info('Connection: Offline');
         }
 
         var simulateOffline = document.querySelectorAll('.simulate-offline');
         var simulateOnline = document.querySelectorAll('.simulate-online');
-        if(simulateOffline.length){
-            simulateOffline[0].addEventListener('click',function(){isOffline()});
-            simulateOnline[0].addEventListener('click',function(){isOnline()});
+        if (simulateOffline.length) {
+            simulateOffline[0].addEventListener('click', function () { isOffline() });
+            simulateOnline[0].addEventListener('click', function () { isOnline() });
         }
 
         //Check if Online / Offline
-        function updateOnlineStatus(event) {var condition = navigator.onLine ? "online" : "offline"; isOnline(); }
-        function updateOfflineStatus(event) {isOffline();}
-        window.addEventListener('online',  updateOnlineStatus);
+        function updateOnlineStatus(event) { var condition = navigator.onLine ? "online" : "offline"; isOnline(); }
+        function updateOfflineStatus(event) { isOffline(); }
+        window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOfflineStatus);
 
         //iOS Badge
         const iOSBadge = document.querySelectorAll('.simulate-iphone-badge');
-        iOSBadge.forEach(el => el.addEventListener('click',e =>{
+        iOSBadge.forEach(el => el.addEventListener('click', e => {
             document.getElementsByClassName('add-to-home')[0].classList.add('add-to-home-visible', 'add-to-home-ios');
             document.getElementsByClassName('add-to-home')[0].classList.remove('add-to-home-android');
         }));
 
         //Android Badge
         const AndroidBadge = document.querySelectorAll('.simulate-android-badge');
-        AndroidBadge.forEach(el => el.addEventListener('click',e =>{
+        AndroidBadge.forEach(el => el.addEventListener('click', e => {
             document.getElementsByClassName('add-to-home')[0].classList.add('add-to-home-visible', 'add-to-home-android');
             document.getElementsByClassName('add-to-home')[0].classList.remove('add-to-home-ios');
         }));
 
         //Remove Add to Home Badge
         const addToHomeBadgeClose = document.querySelectorAll('.add-to-home');
-        addToHomeBadgeClose.forEach(el => el.addEventListener('click',e =>{
+        addToHomeBadgeClose.forEach(el => el.addEventListener('click', e => {
             document.getElementsByClassName('add-to-home')[0].classList.remove('add-to-home-visible');
         }));
 
 
         //PWA Settings
-        if(isPWA === true){
+        if (isPWA === true) {
             var checkPWA = document.getElementsByTagName('html')[0];
-            if(!checkPWA.classList.contains('isPWA')){
+            if (!checkPWA.classList.contains('isPWA')) {
                 if ('serviceWorker' in navigator) {
-                  window.addEventListener('load', function() {
-                    navigator.serviceWorker.register(pwaLocation, {scope: pwaScope}).then(function(registration){registration.update();})
-                  });
+                    window.addEventListener('load', function () {
+                        navigator.serviceWorker.register(pwaLocation, { scope: pwaScope }).then(function (registration) { registration.update(); })
+                    });
                 }
 
                 //Setting Timeout Before Prompt Shows Again if Dismissed
                 var hours = pwaRemind * 24; // Reset when storage is more than 24hours
                 var now = Date.now();
-                var setupTime = localStorage.getItem(pwaName+'-PWA-Timeout-Value');
+                var setupTime = localStorage.getItem(pwaName + '-PWA-Timeout-Value');
                 if (setupTime == null) {
-                    localStorage.setItem(pwaName+'-PWA-Timeout-Value', now);
-                } else if (now - setupTime > hours*60*60*1000) {
-                    localStorage.removeItem(pwaName+'-PWA-Prompt')
-                    localStorage.setItem(pwaName+'-PWA-Timeout-Value', now);
+                    localStorage.setItem(pwaName + '-PWA-Timeout-Value', now);
+                } else if (now - setupTime > hours * 60 * 60 * 1000) {
+                    localStorage.removeItem(pwaName + '-PWA-Prompt')
+                    localStorage.setItem(pwaName + '-PWA-Timeout-Value', now);
                 }
 
 
                 const pwaClose = document.querySelectorAll('.pwa-dismiss');
-                pwaClose.forEach(el => el.addEventListener('click',e =>{
+                pwaClose.forEach(el => el.addEventListener('click', e => {
                     const pwaWindows = document.querySelectorAll('#menu-install-pwa-android, #menu-install-pwa-ios');
-                    for(let i=0; i < pwaWindows.length; i++){pwaWindows[i].classList.remove('menu-active');}
-                    localStorage.setItem(pwaName+'-PWA-Timeout-Value', now);
-                    localStorage.setItem(pwaName+'-PWA-Prompt', 'install-rejected');
-                    console.log('PWA Install Rejected. Will Show Again in '+ (pwaRemind)+' Days')
+                    for (let i = 0; i < pwaWindows.length; i++) { pwaWindows[i].classList.remove('menu-active'); }
+                    localStorage.setItem(pwaName + '-PWA-Timeout-Value', now);
+                    localStorage.setItem(pwaName + '-PWA-Prompt', 'install-rejected');
+                    console.log('PWA Install Rejected. Will Show Again in ' + (pwaRemind) + ' Days')
                 }));
 
                 //Trigger Install Prompt for Android
                 const pwaWindows = document.querySelectorAll('#menu-install-pwa-android, #menu-install-pwa-ios');
-                if(pwaWindows.length){
+                if (pwaWindows.length) {
                     if (isMobile.Android()) {
-                        if (localStorage.getItem(pwaName+'-PWA-Prompt') != "install-rejected") {
+                        if (localStorage.getItem(pwaName + '-PWA-Prompt') != "install-rejected") {
                             function showInstallPrompt() {
-                                setTimeout(function(){
+                                setTimeout(function () {
                                     if (!window.matchMedia('(display-mode: fullscreen)').matches) {
                                         console.log('Triggering PWA Window for Android')
                                         document.getElementById('menu-install-pwa-android').classList.add('menu-active');
                                         document.querySelectorAll('.menu-hider')[0].classList.add('menu-active');
                                     }
-                                },3500);
+                                }, 3500);
                             }
                             var deferredPrompt;
                             window.addEventListener('beforeinstallprompt', (e) => {
@@ -1522,14 +1523,14 @@ document.addEventListener('DOMContentLoaded', () => {
                                     if (choiceResult.outcome === 'accepted') {
                                         console.log('Added');
                                     } else {
-                                        localStorage.setItem(pwaName+'-PWA-Timeout-Value', now);
-                                        localStorage.setItem(pwaName+'-PWA-Prompt', 'install-rejected');
-                                        setTimeout(function(){
+                                        localStorage.setItem(pwaName + '-PWA-Timeout-Value', now);
+                                        localStorage.setItem(pwaName + '-PWA-Prompt', 'install-rejected');
+                                        setTimeout(function () {
                                             if (!window.matchMedia('(display-mode: fullscreen)').matches) {
                                                 document.getElementById('menu-install-pwa-android').classList.remove('menu-active');
                                                 document.querySelectorAll('.menu-hider')[0].classList.remove('menu-active');
                                             }
-                                        },50);
+                                        }, 50);
                                     }
                                     deferredPrompt = null;
                                 });
@@ -1541,30 +1542,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     //Trigger Install Guide iOS
                     if (isMobile.iOS()) {
-                        if (localStorage.getItem(pwaName+'-PWA-Prompt') != "install-rejected") {
-                            setTimeout(function(){
+                        if (localStorage.getItem(pwaName + '-PWA-Prompt') != "install-rejected") {
+                            setTimeout(function () {
                                 if (!window.matchMedia('(display-mode: fullscreen)').matches) {
                                     console.log('Triggering PWA Window for iOS');
                                     document.getElementById('menu-install-pwa-ios').classList.add('menu-active');
                                     document.querySelectorAll('.menu-hider')[0].classList.add('menu-active');
                                 }
-                            },3500);
+                            }, 3500);
                         }
                     }
                 }
             }
-            checkPWA.setAttribute('class','isPWA');
+            checkPWA.setAttribute('class', 'isPWA');
         }
 
 
         //End of isPWA
-        if(pwaNoCache === true){
-            caches.delete('workbox-runtime').then(function() {});
+        if (pwaNoCache === true) {
+            caches.delete('workbox-runtime').then(function () { });
             sessionStorage.clear()
             caches.keys().then(cacheNames => {
-              cacheNames.forEach(cacheName => {
-                caches.delete(cacheName);
-              });
+                cacheNames.forEach(cacheName => {
+                    caches.delete(cacheName);
+                });
             });
         }
 
@@ -1578,112 +1579,112 @@ document.addEventListener('DOMContentLoaded', () => {
         var plugLoc = "plugins/"
 
         let plugins = [
-          {
-            id: 'uniqueID', // to detect if loaded and unload if needed
-            plug: 'pluginName/plugin.js', // the main plugin javascript file
-            call: 'pluginName/pluginName-call.js', // the plugin call functions
-            style: 'pluginName/pluginName-style.css', // the plugin stylesheet
-            trigger: '.pluginTriggerClass' // the trigger that will activate the loading and initializing of the plugin
-          },
-          {
-            id: 'chart',
-            plug: 'charts/charts.js',
-            call: 'charts/charts-call-charts.js',
-            trigger: '.chart'
-          },
-          {
-            id: 'chart',
-            plug: 'charts/charts.js',
-            call: 'charts/charts-call-wallet.js',
-            trigger: '.wallet-chart'
-          },
-          {
-            id: 'chart',
-            plug: 'charts/charts.js',
-            call: 'charts/charts-call-dashboard.js',
-            trigger: '.dashboard-chart'
-          },
-          {
-            id: 'graph',
-            plug: 'charts/charts.js',
-            call: 'charts/charts-call-graphs.js',
-            trigger: '.graph'
-          },
-          {
-            id: 'count',
-            plug: 'countdown/countdown.js',
-            trigger: '.countdown'
-          },
-          {
-            id: 'gallery',
-            plug: 'glightbox/glightbox.js',
-            call: 'glightbox/glightbox-call.js',
-            style: 'glightbox/glightbox.css',
-            trigger: '[data-gallery]'
-          },
-          {
-            id: 'gallery-views',
-            plug: 'galleryViews/gallery-views.js',
-            trigger: '.gallery-view-controls'
-          },
-          {
-            id: 'filter',
-            plug: 'filterizr/filterizr.js',
-            call: 'filterizr/filterizr-call.js',
-            style: 'filterizr/filterizr.css',
-            trigger: '.gallery-filter'
-          },
-          {
-            id: 'embedly',
-            plug: 'embedly/embedly.js',
-            trigger: '.embedly-card'
-          }
+            {
+                id: 'uniqueID', // to detect if loaded and unload if needed
+                plug: 'pluginName/plugin.js', // the main plugin javascript file
+                call: 'pluginName/pluginName-call.js', // the plugin call functions
+                style: 'pluginName/pluginName-style.css', // the plugin stylesheet
+                trigger: '.pluginTriggerClass' // the trigger that will activate the loading and initializing of the plugin
+            },
+            {
+                id: 'chart',
+                plug: 'charts/charts.js',
+                call: 'charts/charts-call-charts.js',
+                trigger: '.chart'
+            },
+            {
+                id: 'chart',
+                plug: 'charts/charts.js',
+                call: 'charts/charts-call-wallet.js',
+                trigger: '.wallet-chart'
+            },
+            {
+                id: 'chart',
+                plug: 'charts/charts.js',
+                call: 'charts/charts-call-dashboard.js',
+                trigger: '.dashboard-chart'
+            },
+            {
+                id: 'graph',
+                plug: 'charts/charts.js',
+                call: 'charts/charts-call-graphs.js',
+                trigger: '.graph'
+            },
+            {
+                id: 'count',
+                plug: 'countdown/countdown.js',
+                trigger: '.countdown'
+            },
+            {
+                id: 'gallery',
+                plug: 'glightbox/glightbox.js',
+                call: 'glightbox/glightbox-call.js',
+                style: 'glightbox/glightbox.css',
+                trigger: '[data-gallery]'
+            },
+            {
+                id: 'gallery-views',
+                plug: 'galleryViews/gallery-views.js',
+                trigger: '.gallery-view-controls'
+            },
+            {
+                id: 'filter',
+                plug: 'filterizr/filterizr.js',
+                call: 'filterizr/filterizr-call.js',
+                style: 'filterizr/filterizr.css',
+                trigger: '.gallery-filter'
+            },
+            {
+                id: 'embedly',
+                plug: 'embedly/embedly.js',
+                trigger: '.embedly-card'
+            }
         ];
 
 
         for (let i = 0; i < plugins.length; i++) {
             //Remove Previous Calls
-            if(document.querySelectorAll('.'+plugins[i].id+'-c').length){document.querySelectorAll('.'+plugins[i].id+'-c')[0].remove();                }
+            if (document.querySelectorAll('.' + plugins[i].id + '-c').length) { document.querySelectorAll('.' + plugins[i].id + '-c')[0].remove(); }
 
             //Load Plugins
             var plugTrigger = document.querySelectorAll(plugins[i].trigger)
-            if(plugTrigger.length){
+            if (plugTrigger.length) {
                 var loadScript = document.getElementsByTagName('script')[1],
                     loadScriptJS = document.createElement('script');
                 loadScriptJS.type = 'text/javascript'
-                loadScriptJS.className = plugins[i].id+'-p'
+                loadScriptJS.className = plugins[i].id + '-p'
                 loadScriptJS.src = plugLoc + plugins[i].plug
-                loadScriptJS.addEventListener('load',function(){
+                loadScriptJS.addEventListener('load', function () {
                     //Once plugin is loaded, load the call.
-                    if(plugins[i].call !== undefined){
+                    if (plugins[i].call !== undefined) {
                         var callFn = document.getElementsByTagName('script')[2],
                             callJS = document.createElement('script');
                         callJS.type = 'text/javascript'
-                        callJS.className = plugins[i].id+'-c'
-                        callJS.src =  plugLoc + plugins[i].call
+                        callJS.className = plugins[i].id + '-c'
+                        callJS.src = plugLoc + plugins[i].call
                         callFn.parentNode.insertBefore(callJS, callFn);
                     }
                 });
                 //If plugin doesn't exist, load it
-                if(!document.querySelectorAll('.'+plugins[i].id+'-p').length){
+                if (!document.querySelectorAll('.' + plugins[i].id + '-p').length) {
                     loadScript.parentNode.insertBefore(loadScriptJS, loadScript);
                 } else {
                     //If plugin doesn't exist, only load the call function
-                    setTimeout(function(){
-                    var loadScript = document.getElementsByTagName('script')[1],
-                        loadScriptJS = document.createElement('script');
-                    loadScriptJS.type = 'text/javascript'
-                    loadScriptJS.className = plugins[i].id+'-c'
-                    loadScriptJS.src = plugLoc + plugins[i].call;
-                    loadScript.parentNode.insertBefore(loadScriptJS, loadScript);
-                    },50);
+                    setTimeout(function () {
+                        var loadScript = document.getElementsByTagName('script')[1],
+                            loadScriptJS = document.createElement('script');
+                        loadScriptJS.type = 'text/javascript'
+                        loadScriptJS.className = plugins[i].id + '-c'
+                        loadScriptJS.src = plugLoc + plugins[i].call;
+                        loadScript.parentNode.insertBefore(loadScriptJS, loadScript);
+                    }, 50);
                 }
                 //If Style doesn't exist in array, don't do anything
-                if(plugins[i].style !== undefined){
+                if (plugins[i].style !== undefined) {
                     //if style already exists, don't re-add to page.
-                    if(!document.querySelectorAll('.'+plugins[i].id+'-s').length){
+                    if (!document.querySelectorAll('.' + plugins[i].id + '-s').length) {
                         var loadCSS = document.createElement("link");
-                        loadCSS.className = plugins[i].id+'-s';
+                        loadCSS.className = plugins[i].id + '-s';
                         loadCSS.rel = "stylesheet";
                         loadCSS.type = "text/css";
                         loadCSS.href = plugLoc + plugins[i].style;
@@ -1699,19 +1700,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
 
     //End of Init Template
-    if(isAJAX === true){
-        if(window.location.protocol !== "file:"){
+    if (isAJAX === true) {
+        if (window.location.protocol !== "file:") {
             const options = {
                 containers: ["#page"],
-                cache:false,
+                cache: false,
                 animateHistoryBrowsing: false,
                 plugins: [
                     new SwupPreloadPlugin()
                 ],
-                linkSelector:'a:not(.external-link):not(.default-link):not([href^="https"]):not([href^="http"]):not([data-gallery])'
+                linkSelector: 'a:not(.external-link):not(.default-link):not([href^="https"]):not([href^="http"]):not([data-gallery])'
             };
             const swup = new Swup(options);
-            document.addEventListener('swup:pageView',(e) => { init_template(); })
+            document.addEventListener('swup:pageView', (e) => { init_template(); })
         }
     }
 

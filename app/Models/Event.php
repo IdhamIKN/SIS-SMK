@@ -10,12 +10,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Event extends Model
 {
-    use HasFactory, SoftDeletes;
 
     protected $table = 'events';
 
     protected $fillable = [
         'created_by',
+        'event_category_id',
         'nama_event',
         'deskripsi',
         'tanggal_mulai',
@@ -32,6 +32,24 @@ class Event extends Model
         'barcode_value',
         'barcode_updated_at',
         'idevent_legacy',
+        'recurrence_parent_id',
+        'recurrence_rule_id',
+        'recurrence_sequence',
+        'auto_point_pelanggaran',
+        'pasal_pelanggaran_id',
+        'poin_pelanggaran_event',
+        'auto_point_processed_at',
+        'auto_penghargaan',
+        'pasal_penghargaan_id',
+        'poin_penghargaan_event',
+        'auto_penghargaan_processed_at',
+        // Ekstrakurikuler
+        'is_ekstrakurikuler',
+        'pelatih_1',
+        'pelatih_2',
+        'pelatih_3',
+        'pembina_nama',
+        'pembina_nip',
     ];
 
     protected $casts = [
@@ -41,6 +59,14 @@ class Event extends Model
         'ada_absen_masuk' => 'boolean',
         'ada_absen_pulang' => 'boolean',
         'berlaku_untuk_semua' => 'boolean',
+        'recurrence_sequence' => 'integer',
+        'auto_point_pelanggaran' => 'boolean',
+        'auto_point_processed_at' => 'datetime',
+        'poin_pelanggaran_event' => 'integer',
+        'auto_penghargaan' => 'boolean',
+        'auto_penghargaan_processed_at' => 'datetime',
+        'poin_penghargaan_event' => 'integer',
+        'is_ekstrakurikuler' => 'boolean',
     ];
 
     /**
@@ -56,6 +82,26 @@ class Event extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(EventCategory::class, 'event_category_id');
+    }
+
+    public function recurrenceRule(): BelongsTo
+    {
+        return $this->belongsTo(EventRecurrenceRule::class, 'recurrence_rule_id');
+    }
+
+    public function recurringParent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'recurrence_parent_id');
+    }
+
+    public function recurringChildren(): HasMany
+    {
+        return $this->hasMany(self::class, 'recurrence_parent_id');
+    }
+
     public function kelas()
     {
         return $this->belongsToMany(Kelas::class, 'event_kelas', 'event_id', 'kelas_id');
@@ -64,6 +110,26 @@ class Event extends Model
     public function absenEvent(): HasMany
     {
         return $this->hasMany(AbsenEvent::class);
+    }
+
+    public function pasalPelanggaran(): BelongsTo
+    {
+        return $this->belongsTo(SubPasal::class, 'pasal_pelanggaran_id', 'idpasal');
+    }
+
+    public function pasalPenghargaan(): BelongsTo
+    {
+        return $this->belongsTo(SubPasal::class, 'pasal_penghargaan_id', 'idpasal');
+    }
+
+    public function absenEventGuru(): HasMany
+    {
+        return $this->hasMany(AbsenEventGuru::class);
+    }
+
+    public function photos(): HasMany
+    {
+        return $this->hasMany(EventPhoto::class)->orderBy('urutan')->orderBy('id');
     }
 
     /**
@@ -112,7 +178,7 @@ class Event extends Model
             return true;
         }
         if ($this->mode_peserta === 'siswa') {
-            return $this->siswa()->whereHas('kelas', fn ($q) => $q->where('id', $kelasId))->exists();
+            return $this->siswa()->whereHas('kelas', fn($q) => $q->where('id', $kelasId))->exists();
         }
 
         return $this->kelas()->where('kelas_id', $kelasId)->exists();
@@ -179,11 +245,36 @@ class Event extends Model
     }
 
     /**
+     * Boot model — daftarkan event hooks.
+     */
+    protected static function booted(): void
+    {
+        // Saat child event dihapus, catat tombstone agar tidak dibuat ulang saat master di-edit.
+        static::deleting(function (Event $event) {
+            if (! $event->recurrence_parent_id) {
+                return; // hanya child event
+            }
+
+            EventDeletedOccurrence::updateOrInsert(
+                [
+                    'master_event_id' => $event->recurrence_parent_id,
+                    'occurrence_date' => $event->tanggal_mulai->toDateString(),
+                ],
+                [
+                    'deleted_event_id' => $event->id,
+                    'deleted_at'       => now(),
+                    'deleted_by'       => auth()->id(),
+                ]
+            );
+        });
+    }
+
+    /**
      * Generate barcode value baru
      */
     public function rotateBarcode(): string
     {
-        $this->barcode_value = hash('sha256', $this->id.microtime().random_bytes(16));
+        $this->barcode_value = hash('sha256', $this->id . microtime() . random_bytes(16));
         $this->barcode_updated_at = now();
         $this->save();
 

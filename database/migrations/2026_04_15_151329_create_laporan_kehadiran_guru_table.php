@@ -24,7 +24,7 @@ return new class extends Migration
             $table->text('catatan')->nullable();
             $table->timestamps();
 
-            $table->index(['jadwal_kbm_id', 'tanggal']);
+            $table->unique(['jadwal_kbm_id', 'tanggal']);
             $table->index(['gtk_id', 'tanggal']);
             $table->index(['kelas_id', 'tanggal']);
             $table->index(['tanggal', 'status']);
@@ -36,12 +36,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('kelas_id')->constrained('kelas')->onDelete('cascade');
             $table->foreignId('siswa_id')->constrained('siswas')->onDelete('cascade');
-            $table->date('tanggal');
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->timestamps();
 
-            $table->unique(['kelas_id', 'tanggal']);
-            $table->index(['siswa_id', 'tanggal']);
+            $table->unique(['kelas_id', 'siswa_id']);
+            $table->index('siswa_id');
         });
     }
 
@@ -50,6 +49,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('siswa_petugas_laporan');
         Schema::dropIfExists('laporan_kehadiran_guru');
     }
 };

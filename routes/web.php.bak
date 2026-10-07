@@ -1,0 +1,420 @@
+<?php
+
+use App\Http\Controllers\AbsenEventController;
+use App\Http\Controllers\AbsenEventGuruController;
+use App\Http\Controllers\Admin\AcademicYearController;
+use App\Http\Controllers\Admin\IzinController as AdminIzinController;
+use App\Http\Controllers\Admin\JadwalKBMController;
+use App\Http\Controllers\Admin\JurnalTatibController;
+use App\Http\Controllers\Admin\KelasController;
+use App\Http\Controllers\Admin\MataPelajaranController;
+use App\Http\Controllers\Admin\PasalController;
+use App\Http\Controllers\Admin\PelanggaranController;
+use App\Http\Controllers\Admin\PenghargaanController;
+use App\Http\Controllers\Admin\RekapPoinController;
+use App\Http\Controllers\Admin\SetJamController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventGuruController;
+use App\Http\Controllers\GTK\GTKController;
+use App\Http\Controllers\Guru\JurnalMengajarController;
+use App\Http\Controllers\RealtimePanelController;
+use App\Http\Controllers\GTK\LaporanKehadiranController;
+use App\Http\Controllers\Siswa\AbsenController;
+use App\Http\Controllers\Siswa\IzinController;
+use App\Http\Controllers\Siswa\RekapController;
+use App\Http\Controllers\Siswa\SiswaController;
+use App\Http\Controllers\Admin\SchoolConfigController;
+use App\Http\Controllers\Admin\SiswaPetugasLaporanController;
+use App\Http\Controllers\Admin\SuratPanggilanController;
+use App\Http\Controllers\UserProfileController;
+use App\Models\Sekolah;
+use App\Models\User;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return redirect()->route('login');
+});
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
+});
+
+
+
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // User Profile
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [UserProfileController::class, 'index'])->name('index');
+        Route::put('/', [UserProfileController::class, 'update'])->name('update');
+        Route::post('/change-password', [UserProfileController::class, 'changePassword'])->name('change-password');
+    });
+
+    // Test route for debugging
+    Route::get('/test-profile', function () {
+        return 'Profile route works for role: ' . auth()->user()->getRoleNames()->first();
+    })->middleware('auth');
+
+    // Emergency route to reset admin email
+    Route::get('/reset-admin-email', function () {
+        $admin = User::where('email', 'superadmin@smkn5.id')->first();
+        if (!$admin) {
+            $admin = User::where('role_utama', 'superadmin')->first();
+            if ($admin) {
+                $admin->update(['email' => 'superadmin@smkn5.id']);
+                return 'Admin email reset to: superadmin@smkn5.id';
+            }
+            return 'Admin user not found';
+        }
+        return 'Admin email is already correct: ' . $admin->email;
+    });
+
+    // Debug route to check admin user status
+    Route::get('/check-admin', function () {
+        $admin = User::where('role_utama', 'superadmin')->first();
+        if ($admin) {
+            return [
+                'id' => $admin->id,
+                'name' => $admin->name,
+                'email' => $admin->email,
+                'phone' => $admin->phone,
+                'avatar' => $admin->avatar,
+                'role_utama' => $admin->role_utama,
+                'roles' => $admin->getRoleNames(),
+                'created_at' => $admin->created_at,
+                'updated_at' => $admin->updated_at,
+            ];
+        }
+        return 'Admin user not found';
+    });
+
+    // Route to view recent logs
+    Route::get('/debug-logs', function () {
+        $logPath = storage_path('logs/laravel.log');
+        if (file_exists($logPath)) {
+            $logs = file($logPath);
+            $recentLogs = array_slice($logs, -20); // Get last 20 lines
+            return '<pre>' . implode('', $recentLogs) . '</pre>';
+        }
+        return 'Log file not found';
+    });
+
+    // Emergency route to reset admin password
+    Route::get('/reset-admin-password', function () {
+        $admin = User::where('role_utama', 'superadmin')->first();
+        if ($admin) {
+            $admin->update(['password' => \Illuminate\Support\Facades\Hash::make('admin123')]);
+            return 'Admin password reset to: admin123 for user: ' . $admin->email;
+        }
+        return 'Admin user not found';
+    });
+
+    // Route to list all admin users
+    Route::get('/list-admins', function () {
+        $admins = User::whereIn('role_utama', ['superadmin', 'admin_tatib'])->get();
+        $result = [];
+        foreach ($admins as $admin) {
+            $result[] = [
+                'id' => $admin->id,
+                'name' => $admin->name,
+                'email' => $admin->email,
+                'role_utama' => $admin->role_utama,
+                'roles' => $admin->getRoleNames(),
+            ];
+        }
+        return $result;
+    });
+
+    // Test route for school config
+    Route::get('/test-school-config', function () {
+        try {
+            $sekolah = Sekolah::aktif();
+            return [
+                'sekolah' => $sekolah->toArray(),
+                'timestamps_enabled' => $sekolah->timestamps,
+                'fillable' => $sekolah->getFillable(),
+                'app_name' => config('app.name'),
+                'system_name' => $sekolah->system_name,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ];
+        }
+    });
+
+
+
+    // Academic Year Management
+    Route::resource('academic-years', AcademicYearController::class)->middleware('role:superadmin|admin_tatib');
+    Route::patch('academic-years/{academicYear}/set-active', [AcademicYearController::class, 'setActive'])->name('academic-years.set-active')->middleware('role:superadmin|admin_tatib');
+    Route::post('academic-years/{academicYear}/initialize-waves', [AcademicYearController::class, 'initializePromotionWaves'])->name('academic-years.initialize-waves')->middleware('role:superadmin|admin_tatib');
+
+    // Kelas Management
+    Route::resource('kelas', KelasController::class)->middleware('role:superadmin|admin_tatib');
+    Route::get('kelas/{kela}/promote', [KelasController::class, 'promote'])->name('kelas.promote')->middleware('role:superadmin|admin_tatib');
+    Route::post('kelas/{kela}/promote', [KelasController::class, 'executePromotion'])->name('kelas.execute-promotion')->middleware('role:superadmin|admin_tatib');
+
+    // GTK Management
+    Route::get('gtk/import', [GTKController::class, 'import'])->name('gtk.import')->middleware('role:superadmin|admin_tatib');
+    Route::post('gtk/import', [GTKController::class, 'importProcess'])->name('gtk.import.process')->middleware('role:superadmin|admin_tatib');
+    Route::get('gtk/template', [GTKController::class, 'downloadTemplate'])->name('gtk.template')->middleware('role:superadmin|admin_tatib');
+    Route::get('gtk/mata-pelajaran/search', [GTKController::class, 'searchMataPelajaran'])->name('gtk.mata-pelajaran.search')->middleware('role:superadmin|admin_tatib');
+    Route::resource('gtk', GTKController::class)->middleware('role:superadmin|admin_tatib');
+
+    // Mata Pelajaran Management
+    Route::resource('mata-pelajaran', MataPelajaranController::class)->middleware('role:superadmin|admin_tatib')->names([
+        'index' => 'admin.mata-pelajaran.index',
+        'create' => 'admin.mata-pelajaran.create',
+        'store' => 'admin.mata-pelajaran.store',
+        'show' => 'admin.mata-pelajaran.show',
+        'edit' => 'admin.mata-pelajaran.edit',
+        'update' => 'admin.mata-pelajaran.update',
+        'destroy' => 'admin.mata-pelajaran.destroy',
+    ]);
+
+    // Set Jam Pelajaran Management
+    Route::resource('set-jam', SetJamController::class)->middleware('role:superadmin|admin_tatib')->names([
+        'index' => 'admin.set-jam.index',
+        'create' => 'admin.set-jam.create',
+        'store' => 'admin.set-jam.store',
+        'show' => 'admin.set-jam.show',
+        'edit' => 'admin.set-jam.edit',
+        'update' => 'admin.set-jam.update',
+        'destroy' => 'admin.set-jam.destroy',
+    ]);
+
+    // Jadwal KBM Management — route manual harus di ATAS Route::resource
+    // agar tidak tertimpa oleh wildcard {jadwal_kbm}
+    Route::middleware('role:superadmin|admin_tatib')->group(function () {
+        Route::get('jadwal-kbm/import',    [JadwalKBMController::class, 'import'])->name('admin.jadwal-kbm.import');
+        Route::post('jadwal-kbm/import',   [JadwalKBMController::class, 'importProcess'])->name('admin.jadwal-kbm.import.process');
+        Route::get('jadwal-kbm/template',  [JadwalKBMController::class, 'downloadTemplate'])->name('admin.jadwal-kbm.template');
+        Route::get('jadwal-kbm/guru/search', [JadwalKBMController::class, 'searchGuru'])->name('admin.jadwal-kbm.guru.search');
+    });
+
+    Route::resource('jadwal-kbm', JadwalKBMController::class)->middleware('role:superadmin|admin_tatib')->names([
+        'index' => 'admin.jadwal-kbm.index',
+        'create' => 'admin.jadwal-kbm.create',
+        'store' => 'admin.jadwal-kbm.store',
+        'show' => 'admin.jadwal-kbm.show',
+        'edit' => 'admin.jadwal-kbm.edit',
+        'update' => 'admin.jadwal-kbm.update',
+        'destroy' => 'admin.jadwal-kbm.destroy',
+    ]);
+
+    Route::get('jadwal-kbm-guru', [JadwalKBMController::class, 'jadwalGuru'])->name('admin.jadwal-kbm.guru')->middleware('role:gtk|superadmin|admin_tatib');
+    Route::get('api/mata-pelajaran-by-guru', [JadwalKBMController::class, 'getMataPelajaranByGuru'])->name('admin.jadwal-kbm.api.mata-pelajaran-by-guru')->middleware('role:superadmin|admin_tatib');
+
+
+    // Siswa Management
+    Route::get('siswa/import', [SiswaController::class, 'showImportForm'])->name('siswa.import.form')->middleware('role:superadmin|admin_tatib');
+    Route::post('siswa/import', [SiswaController::class, 'previewImport'])->name('siswa.import.preview')->middleware('role:superadmin|admin_tatib');
+    Route::post('siswa/import/process', [SiswaController::class, 'importProcess'])->name('siswa.import.process')->middleware('role:superadmin|admin_tatib');
+    Route::get('siswa/export/excel', [SiswaController::class, 'export'])->name('siswa.export')->middleware('role:superadmin|admin_tatib');
+    Route::get('siswa/template', [SiswaController::class, 'downloadTemplate'])->name('siswa.template')->middleware('role:superadmin|admin_tatib');
+    Route::post('siswa/bulk-archive', [SiswaController::class, 'bulkArchive'])->name('siswa.bulk-archive')->middleware('role:superadmin|admin_tatib');
+    Route::post('siswa/bulk-restore', [SiswaController::class, 'bulkRestore'])->name('siswa.bulk-restore')->middleware('role:superadmin|admin_tatib');
+    Route::patch('siswa/{siswa}/restore', [SiswaController::class, 'restore'])->name('siswa.restore')->middleware('role:superadmin|admin_tatib');
+    Route::resource('siswa', SiswaController::class)->middleware('role:superadmin|admin_tatib|bk|wali_kelas');
+    Route::get('siswa/{siswa}/export-cv', [SiswaController::class, 'exportCV'])->name('siswa.export-cv')->middleware('role:superadmin|admin_tatib|bk|wali_kelas');
+
+    // Petugas laporan kehadiran guru dari siswa
+    Route::prefix('admin/petugas-laporan-guru')->as('admin.petugas-laporan-guru.')
+        ->middleware('role:superadmin|admin_tatib')
+        ->group(function () {
+            Route::get('/', [SiswaPetugasLaporanController::class, 'index'])->name('index');
+            Route::put('/kelas/{kelas}', [SiswaPetugasLaporanController::class, 'update'])->name('update');
+        });
+
+    // GTK Laporan Kehadiran
+    Route::prefix('kehadiran-guru')->name('kehadiran-guru.')->group(function () {
+        Route::get('/laporan', [LaporanKehadiranController::class, 'index'])->name('laporan')->middleware('role:gtk|superadmin|admin_tatib|bk');
+        Route::get('/create', [LaporanKehadiranController::class, 'create'])->name('create')->middleware('role:gtk');
+        Route::post('/laporan', [LaporanKehadiranController::class, 'store'])->name('store')->middleware('role:gtk');
+        Route::get('/{laporanKehadiran}', [LaporanKehadiranController::class, 'show'])->name('show')->middleware('role:gtk|superadmin|admin_tatib|bk');
+        Route::get('/{laporanKehadiran}/edit', [LaporanKehadiranController::class, 'edit'])->name('edit')->middleware('role:gtk');
+        Route::put('/{laporanKehadiran}', [LaporanKehadiranController::class, 'update'])->name('update')->middleware('role:gtk');
+        Route::delete('/{laporanKehadiran}', [LaporanKehadiranController::class, 'destroy'])->name('destroy')->middleware('role:gtk');
+        Route::get('/rekap', [LaporanKehadiranController::class, 'rekap'])->name('rekap');
+        Route::post('/siswa', [LaporanKehadiranController::class, 'laporOlehSiswa'])->name('lapor-siswa')->middleware('role:siswa');
+        Route::patch('/siswa/{laporanKehadiran}', [LaporanKehadiranController::class, 'updateOlehSiswa'])->name('update-siswa')->middleware('role:siswa');
+    });
+
+    // Guru Jurnal Mengajar
+    Route::prefix('guru/jurnal-mengajar')
+        ->as('guru.jurnal-mengajar.')
+        ->middleware('role:gtk|superadmin|waka|kepala_sekolah')
+        ->group(function () {
+            Route::get('/', [JurnalMengajarController::class, 'index'])->name('index');
+
+            Route::middleware('role:gtk|superadmin')->group(function () {
+                Route::get('/create', [JurnalMengajarController::class, 'create'])->name('create');
+                Route::post('/', [JurnalMengajarController::class, 'store'])->name('store');
+                Route::get('/{jurnal}/edit', [JurnalMengajarController::class, 'edit'])->name('edit');
+                Route::put('/{jurnal}', [JurnalMengajarController::class, 'update'])->name('update');
+                Route::delete('/{jurnal}', [JurnalMengajarController::class, 'destroy'])->name('destroy');
+            });
+        });
+
+    // Absen Siswa (Unified)
+    Route::prefix('absen')->name('absen.')->group(function () {
+        Route::get('/', [AbsenController::class, 'index'])->name('index')->middleware('role:siswa');
+        Route::get('/masuk', fn() => redirect()->route('absen.index'))->name('masuk');
+        Route::get('/pulang', fn() => redirect()->route('absen.index'))->name('pulang');
+        Route::post('/{jenis}', [AbsenController::class, 'store'])->name('store')->where(['jenis' => 'masuk|pulang'])->middleware('role:siswa');
+        Route::post('/distance-check', [AbsenController::class, 'distanceCheck'])->name('distance-check')->middleware('role:siswa');
+        Route::get('/status-hari-ini', [AbsenController::class, 'statusHariIni'])->name('status-hari-ini')->middleware('role:siswa');
+        Route::get('/rekap', [RekapController::class, 'index'])->name('rekap')->middleware('role:siswa|gtk|superadmin|admin_tatib|bk|wali_kelas');
+        Route::get('/rekap/export', [RekapController::class, 'export'])->name('rekap.export')->middleware('role:gtk|superadmin|admin_tatib|bk|wali_kelas');
+        Route::patch('/{absen}/manual', [AbsenController::class, 'updateManual'])->name('manual.update')->middleware('role:superadmin|admin_tatib|bk|wali_kelas');
+        Route::post('/manual/{jenis}', [AbsenController::class, 'manual'])->name('manual')->where(['jenis' => 'masuk|pulang'])->middleware('role:bk|superadmin');
+    });
+
+    // Pengajuan Izin Siswa
+    Route::prefix('izin')->as('siswa.izin.')->middleware('role:siswa')->group(function () {
+        Route::get('/', [IzinController::class, 'index'])->name('index');
+        Route::get('/create', [IzinController::class, 'create'])->name('create');
+        Route::post('/', [IzinController::class, 'store'])->name('store');
+        Route::get('/{izin}', [IzinController::class, 'show'])->name('show');
+        Route::get('/{izin}/edit', [IzinController::class, 'edit'])->name('edit');
+        Route::put('/{izin}', [IzinController::class, 'update'])->name('update');
+        Route::delete('/{izin}', [IzinController::class, 'destroy'])->name('destroy');
+    });
+
+    // Admin Verifikasi Izin
+    Route::prefix('admin/izin')->as('admin.izin.')->middleware('role:superadmin|admin_tatib|bk')->group(function () {
+        Route::get('/', [AdminIzinController::class, 'index'])->name('index');
+        Route::patch('/{izin}', [AdminIzinController::class, 'updateStatus'])->name('update');
+    });
+
+    // Surat Panggilan Orang Tua
+    Route::prefix('admin/tatib/surat-panggilan')->as('admin.surat-panggilan.')
+        ->middleware('role:superadmin|admin_tatib|bk')
+        ->group(function () {
+            Route::get('/', [SuratPanggilanController::class, 'index'])->name('index');
+            Route::get('/create', [SuratPanggilanController::class, 'create'])->name('create');
+            Route::post('/', [SuratPanggilanController::class, 'store'])->name('store');
+            Route::get('/api/panggilan-ke', [SuratPanggilanController::class, 'panggilanKe'])->name('api.panggilan-ke');
+            Route::get('/api/preview-poin', [SuratPanggilanController::class, 'previewPoin'])->name('api.preview-poin');
+            Route::get('/{suratPanggilan}/preview', [SuratPanggilanController::class, 'preview'])->name('preview');
+            Route::delete('/{suratPanggilan}', [SuratPanggilanController::class, 'destroy'])->name('destroy');
+        });
+
+    // Tata tertib: pelanggaran, penghargaan, dan rekap poin
+    Route::prefix('admin/tatib')->as('admin.')->middleware('role:superadmin|admin_tatib|bk|gtk|wali_kelas')->group(function () {
+        Route::middleware('role:superadmin|admin_tatib|bk')->group(function () {
+            Route::get('pasal/import', [PasalController::class, 'import'])->name('pasal.import');
+            Route::post('pasal/import', [PasalController::class, 'importProcess'])->name('pasal.import.process');
+            Route::get('pasal/template', [PasalController::class, 'template'])->name('pasal.template');
+            Route::patch('pasal/{pasal}/toggle', [PasalController::class, 'toggle'])->name('pasal.toggle');
+            Route::resource('pasal', PasalController::class)->except(['show']);
+        });
+
+        Route::resource('pelanggaran', PelanggaranController::class)->except(['show']);
+        Route::resource('penghargaan', PenghargaanController::class)->except(['show']);
+        
+        // Routes untuk approval/rejection penghargaan
+        Route::post('penghargaan/{penghargaan}/approve', [PenghargaanController::class, 'approve'])->name('penghargaan.approve');
+        Route::post('penghargaan/{penghargaan}/reject', [PenghargaanController::class, 'reject'])->name('penghargaan.reject');
+        Route::post('penghargaan/{penghargaan}/revoke', [PenghargaanController::class, 'revoke'])->name('penghargaan.revoke');
+
+        // Jurnal laporan cetak (khusus BK / admin tatib / superadmin)
+        Route::get('jurnal', [JurnalTatibController::class, 'index'])->name('tatib.jurnal.index');
+        Route::get('jurnal/cetak', [JurnalTatibController::class, 'cetak'])->name('tatib.jurnal.cetak');
+    });
+
+    Route::prefix('tatib')->as('admin.')->middleware('role:siswa|gtk|superadmin|admin_tatib|bk|wali_kelas|waka|kepala_sekolah')->group(function () {
+        Route::get('/rekap-poin', [RekapPoinController::class, 'index'])->name('rekap-poin.index');
+        Route::get('/rekap-poin/{siswa}', [RekapPoinController::class, 'show'])->name('rekap-poin.show');
+        Route::get('/siswa-search', [PenghargaanController::class, 'siswaSearch'])->name('tatib.siswa-search');
+        Route::get('/chart', [RekapPoinController::class, 'chart'])
+            ->name('tatib.chart')
+            ->middleware('role:superadmin|admin_tatib|bk|waka|kepala_sekolah');
+    });
+
+    // School Configuration
+    Route::prefix('admin/school-config')->as('admin.school-config.')->middleware('role:superadmin|admin_tatib')->group(function () {
+        Route::get('/', [SchoolConfigController::class, 'index'])->name('index');
+        Route::put('/', [SchoolConfigController::class, 'update'])->name('update');
+    });
+
+    // Role & Permission Management (superadmin only)
+    Route::prefix('admin/roles')->as('admin.roles.')->middleware('role:superadmin')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\RoleController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Admin\RoleController::class, 'store'])->name('store');
+        Route::put('/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'update'])->name('update');
+        Route::delete('/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'destroy'])->name('destroy');
+    });
+    Route::prefix('admin/permissions')->as('admin.permissions.')->middleware('role:superadmin')->group(function () {
+        Route::post('/', [\App\Http\Controllers\Admin\RoleController::class, 'storePermission'])->name('store');
+        Route::delete('/{permission}', [\App\Http\Controllers\Admin\RoleController::class, 'destroyPermission'])->name('destroy');
+    });
+
+    // Halaman khusus siswa lapor guru tidak hadir
+    Route::get('/lapor-guru-tidak-hadir', [LaporanKehadiranController::class, 'laporSiswa'])
+        ->name('siswa.lapor-guru')
+        ->middleware('role:siswa');
+
+    // Validasi: hanya bisa mengirim laporan jika jam pelajaran telah dimulai
+    Route::middleware(['auth'])->group(function () {
+        // placeholder for potential middleware if needed
+    });
+
+    // Realtime Panel for Kepala Sekolah & Waka
+    Route::prefix('panel')->name('panel.')->middleware('role:kepala_sekolah|waka|superadmin')->group(function () {
+        Route::get('/realtime', [RealtimePanelController::class, 'index'])->name('realtime');
+        Route::get('/api/status', [RealtimePanelController::class, 'getStatus'])->name('api.status');
+        Route::get('/api/rekap-bulan', [RealtimePanelController::class, 'getRekapBulan'])->name('api.rekap-bulan');
+    });
+
+    // Event Absen
+    Route::prefix('event')->name('event.')->middleware('role:siswa|gtk|superadmin|admin_tatib|bk|wali_kelas')->group(function () {
+        Route::get('/', [EventController::class, 'index'])->name('index');
+        Route::get('/create', [EventController::class, 'create'])->name('create')->middleware('role:superadmin|admin_tatib|bk');
+        Route::post('/', [EventController::class, 'store'])->name('store')->middleware('role:superadmin|admin_tatib|bk');
+        Route::get('/{event}', [EventController::class, 'show'])->name('show');
+        Route::get('/{event}/edit', [EventController::class, 'edit'])->name('edit')->middleware('role:superadmin|admin_tatib|bk');
+        Route::put('/{event}', [EventController::class, 'update'])->name('update')->middleware('role:superadmin|admin_tatib|bk');
+        Route::delete('/{event}', [EventController::class, 'destroy'])->name('destroy')->middleware('role:superadmin|admin_tatib|bk');
+        Route::post('/{event}/rotate-barcode', [EventController::class, 'rotateBarcode'])->name('rotateBarcode')->middleware('role:superadmin|admin_tatib|bk');
+        Route::get('/{event}/barcode', [EventController::class, 'getBarcode'])->name('barcode');
+        Route::post('/{event}/barcode', [EventController::class, 'updateBarcode'])->name('updateBarcode');
+        Route::get('/{event}/barcode-stream', [EventController::class, 'barcodeStream'])->name('barcodeStream');
+        Route::get('/search/kelas', [EventController::class, 'searchKelas'])->name('search.kelas');
+        Route::get('/search/siswa', [EventController::class, 'searchSiswa'])->name('search.siswa');
+
+        Route::get('/{event}/scan', [AbsenEventController::class, 'scan'])->name('scan')->middleware('role:siswa');
+        Route::post('/{event}/scan', [AbsenEventController::class, 'processScan'])->name('processScan')->middleware('role:siswa');
+        Route::get('/{event}/rekap', [AbsenEventController::class, 'rekap'])->name('rekap');
+        Route::get('/{event}/export', [AbsenEventController::class, 'export'])->name('export')->middleware('role:superadmin|admin_tatib|bk');
+        Route::get('/{event}/jurnal', [AbsenEventController::class, 'jurnal'])->name('jurnal')->middleware('role:gtk|superadmin|admin_tatib|bk|wali_kelas');
+
+    });
+
+    // Event Guru (sistem absensi guru terpisah dari event siswa)
+    Route::prefix('event-guru')->name('event-guru.')->middleware('role:gtk|superadmin|admin_tatib|bk|wali_kelas')->group(function () {
+        Route::get('/', [EventGuruController::class, 'index'])->name('index');
+        Route::get('/create', [EventGuruController::class, 'create'])->name('create')->middleware('role:superadmin|admin_tatib|bk');
+        Route::post('/', [EventGuruController::class, 'store'])->name('store')->middleware('role:superadmin|admin_tatib|bk');
+        Route::get('/rekap', [AbsenEventGuruController::class, 'rekapIndex'])->name('rekap.index')->middleware('role:superadmin|admin_tatib|bk|wali_kelas');
+        Route::get('/{eventGuru}', [EventGuruController::class, 'show'])->name('show');
+        Route::get('/{eventGuru}/edit', [EventGuruController::class, 'edit'])->name('edit')->middleware('role:superadmin|admin_tatib|bk');
+        Route::put('/{eventGuru}', [EventGuruController::class, 'update'])->name('update')->middleware('role:superadmin|admin_tatib|bk');
+        Route::delete('/{eventGuru}', [EventGuruController::class, 'destroy'])->name('destroy')->middleware('role:superadmin|admin_tatib|bk');
+        Route::post('/{eventGuru}/rotate-barcode', [EventGuruController::class, 'rotateBarcode'])->name('rotateBarcode')->middleware('role:superadmin|admin_tatib|bk');
+        Route::get('/{eventGuru}/barcode', [EventGuruController::class, 'getBarcode'])->name('barcode');
+        Route::post('/{eventGuru}/barcode', [EventGuruController::class, 'updateBarcode'])->name('updateBarcode');
+        Route::get('/{eventGuru}/barcode-stream', [EventGuruController::class, 'barcodeStream'])->name('barcodeStream');
+        Route::get('/{eventGuru}/scan', [AbsenEventGuruController::class, 'scan'])->name('scan')->middleware('role:gtk');
+        Route::post('/{eventGuru}/scan', [AbsenEventGuruController::class, 'processScan'])->name('processScan')->middleware('role:gtk');
+        Route::get('/{eventGuru}/rekap', [AbsenEventGuruController::class, 'rekap'])->name('rekap')->middleware('role:gtk|superadmin|admin_tatib|bk|wali_kelas');
+        Route::get('/{eventGuru}/export', [AbsenEventGuruController::class, 'export'])->name('export')->middleware('role:superadmin|admin_tatib|bk');
+    });
+});

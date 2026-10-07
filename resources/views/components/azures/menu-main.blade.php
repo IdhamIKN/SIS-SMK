@@ -1,31 +1,18 @@
-{{--
-    Komponen: Side Menu (Slide dari kanan)
-    Penggunaan: @include('components.azures.menu-main')
-    Dipanggil via: data-menu="menu-main" di header
---}}
+<div id="menu-main" class="menu menu-box-right menu-box-detached rounded-m"
+    data-menu-width="270" data-menu-effect="menu-over">
 
-<div id="menu-main" class="menu menu-box-right menu-box-detached rounded-m" data-menu-width="260"
-    data-menu-effect="menu-over">
-
-    {{-- Header Menu --}}
+    {{-- Header --}}
     <div class="menu-header">
-        {{-- <a href="#" data-toggle-theme class="border-right-0">
-            <i class="fa font-12 color-yellow-dark fa-lightbulb"></i>
-        </a>
-        <a href="#" data-menu="menu-highlights" class="border-right-0">
-            <i class="fa font-12 color-green-dark fa-brush"></i>
-        </a> --}}
         <a href="#" class="close-menu border-right-0">
             <i class="fa font-12 color-red-dark fa-times"></i>
         </a>
     </div>
 
-    {{-- Logo / Avatar --}}
+    {{-- Avatar & Identitas --}}
     <div class="menu-logo text-center">
         @if (auth()->user()?->avatar)
             <a href="{{ route('profile.index') }}">
-                <img class="rounded-circle shadow-l" width="80" src="{{ Storage::url(auth()->user()->avatar) }}"
-                    alt="Foto Profil">
+                <img class="rounded-circle shadow-l" width="80" src="{{ Storage::url(auth()->user()->avatar) }}" alt="Foto Profil">
             </a>
         @else
             <a href="{{ route('profile.index') }}">
@@ -33,180 +20,264 @@
                     <i class="fas fa-user font-30 color-white"></i>
                 </div>
             </a>
-        @endif
-        <h1 class="pt-2 font-700 font-18">{{ config('app.name', 'SIS SMKN 5 Madiun') }}</h1>
+        @endif>
+        <h1 class="pt-2 font-700 font-18">{{ sekolah_data()['system_name'] ?? config('app.name', 'SIS SMKN 5 Madiun') }}</h1>
         <h2 class="pt-1 font-600 font-16">{{ auth()->user()?->name ?? 'Pengguna' }}</h2>
-        <p class="font-11 mt-n1 opacity-60">
-            {{ auth()->user()?->getRoleNames()->first() ?? '' }}
-        </p>
+        <p class="font-11 mt-n1 opacity-60">{{ auth()->user()?->getRoleNames()->first() ?? '' }}</p>
     </div>
 
-    {{-- Menu Items --}}
     <div class="menu-items mb-4">
 
-        {{-- ===== MENU SEMUA ROLE ===== --}}
-        <h5 class="text-uppercase opacity-20 font-12 pl-3">Menu Utama</h5>
-
+        {{-- BERANDA --}}
+        <h5 class="text-uppercase opacity-20 font-12 pl-3">Beranda</h5>
         <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active-nav' : '' }}">
-            <i data-feather="home" data-feather-line="1" data-feather-size="16" data-feather-color="blue-dark"
-                data-feather-bg="blue-fade-light"></i>
+            <i data-feather="home" data-feather-line="1" data-feather-size="17" data-feather-color="blue-dark" data-feather-bg="blue-fade-light"></i>
             <span>Dashboard</span>
             <i class="fa fa-angle-right"></i>
         </a>
 
-        {{-- ===== MENU SISWA ===== --}}
+
+        {{-- SISWA --}}
         @hasrole('siswa')
+            <h5 class="text-uppercase opacity-20 font-12 pl-3 mt-3">Absensi Saya</h5>
+
             <a href="{{ route('absen.index') }}" class="{{ request()->routeIs('absen.index') ? 'active-nav' : '' }}">
-                <i data-feather="check-circle" data-feather-line="1" data-feather-size="16" data-feather-color="green-dark"
-                    data-feather-bg="green-fade-light"></i>
-                <span>Absen</span>
-                <i class="fa fa-angle-right"></i>
-            </a>
-            <a href="{{ route('absen.rekap') }}" class="{{ request()->routeIs('absen.rekap') ? 'active-nav' : '' }}">
-                <i data-feather="bar-chart-2" data-feather-line="1" data-feather-size="16" data-feather-color="blue-dark"
-                    data-feather-bg="blue-fade-light"></i>
-                <span>Rekap Kehadiran</span>
-                <i class="fa fa-angle-right"></i>
-            </a>
-            <a href="{{ route('event.index') }}" class="{{ request()->routeIs('event.*') ? 'active-nav' : '' }}">
-                <i data-feather="calendar" data-feather-line="1" data-feather-size="16" data-feather-color="red-dark"
-                    data-feather-bg="red-fade-light"></i>
-                <span>Event</span>
-                <i class="fa fa-angle-right"></i>
-            </a>
-            <a href="{{ route('siswa.izin.index') }}" class="{{ request()->routeIs('siswa.izin.*') ? 'active-nav' : '' }}">
-                <i data-feather="file-text" data-feather-line="1" data-feather-size="16" data-feather-color="teal-dark"
-                    data-feather-bg="teal-fade-light"></i>
-                <span>Izin</span>
+                <i data-feather="log-in" data-feather-line="1" data-feather-size="17" data-feather-color="green-dark" data-feather-bg="green-fade-light"></i>
+                <span>Absen Masuk / Pulang</span>
                 <i class="fa fa-angle-right"></i>
             </a>
 
-            <a href="{{ route('siswa.lapor-guru') }}" class="{{ request()->routeIs('siswa.lapor-guru') ? 'active-nav' : '' }}">
-                <i data-feather="alert-triangle" data-feather-line="1" data-feather-size="16" data-feather-color="orange-dark"
-                    data-feather-bg="orange-fade-light"></i>
-                <span>Lapor Guru Tidak Hadir</span>
+            <a href="{{ route('absen.rekap') }}" class="{{ request()->routeIs('absen.rekap') ? 'active-nav' : '' }}">
+                <i data-feather="bar-chart-2" data-feather-line="1" data-feather-size="17" data-feather-color="blue-dark" data-feather-bg="blue-fade-light"></i>
+                <span>Rekap Kehadiran Saya</span>
+                <i class="fa fa-angle-right"></i>
+            </a>
+
+            <a href="{{ route('admin.rekap-poin.index') }}" class="{{ request()->routeIs('admin.rekap-poin.*') ? 'active-nav' : '' }}">
+                <i data-feather="award" data-feather-line="1" data-feather-size="17" data-feather-color="amber-dark" data-feather-bg="amber-fade-light"></i>
+                <span>Rekap Poin Saya</span>
+                <i class="fa fa-angle-right"></i>
+            </a>
+
+            {{-- <a href="{{ route('siswa.izin.index') }}" class="{{ request()->routeIs('siswa.izin.*') ? 'active-nav' : '' }}">
+                <i data-feather="clipboard-list" data-feather-line="1" data-feather-size="17" data-feather-color="teal-dark" data-feather-bg="teal-fade-light"></i>
+                <span>Pengajuan Izin</span>
+                <i class="fa fa-angle-right"></i>
+            </a> --}}
+
+            <a href="{{ route('event.index') }}" class="{{ request()->routeIs('event.*') ? 'active-nav' : '' }}">
+                <i data-feather="calendar" data-feather-line="1" data-feather-size="17" data-feather-color="red-dark" data-feather-bg="red-fade-light"></i>
+                <span>Event & Absensi Event</span>
+                <i class="fa fa-angle-right"></i>
+            </a>
+
+            @if (auth()->user()?->siswa?->isPetugasLaporanGuru())
+                <a href="{{ route('siswa.lapor-guru') }}" class="{{ request()->routeIs('siswa.lapor-guru') ? 'active-nav' : '' }}">
+                    <i data-feather="alert-triangle" data-feather-line="1" data-feather-size="17" data-feather-color="orange-dark" data-feather-bg="orange-fade-light"></i>
+                    <span>Lapor Guru Tidak Hadir</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            @endif
+
+            {{-- PKL — hanya tampil jika siswa punya penugasan aktif atau selesai --}}
+            @php
+                $_pklAktif   = auth()->user()?->siswa?->penugasanPkl()->where('status','aktif')->exists() ?? false;
+                $_pklSelesai = !$_pklAktif && (auth()->user()?->siswa?->penugasanPkl()->where('status','selesai')->exists() ?? false);
+            @endphp
+            @if ($_pklAktif || $_pklSelesai)
+                <h5 class="text-uppercase opacity-20 font-12 pl-3 mt-3">PKL</h5>
+
+                @if ($_pklAktif)
+                    <a href="{{ route('siswa.pkl.dashboard') }}" class="{{ request()->routeIs('siswa.pkl.dashboard') ? 'active-nav' : '' }}">
+                        <i data-feather="hard-drive" data-feather-line="1" data-feather-size="17" data-feather-color="yellow-dark" data-feather-bg="yellow-fade-light"></i>
+                        <span>Dashboard PKL</span>
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                    <a href="{{ route('siswa.pkl.jurnal.create') }}" class="{{ request()->routeIs('siswa.pkl.jurnal.create') ? 'active-nav' : '' }}">
+                        <i data-feather="edit-3" data-feather-line="1" data-feather-size="17" data-feather-color="blue-dark" data-feather-bg="blue-fade-light"></i>
+                        <span>Isi Jurnal Hari Ini</span>
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                    <a href="{{ route('siswa.pkl.jurnal.index') }}" class="{{ request()->routeIs('siswa.pkl.jurnal.index') ? 'active-nav' : '' }}">
+                        <i data-feather="book-open" data-feather-line="1" data-feather-size="17" data-feather-color="indigo-dark" data-feather-bg="indigo-fade-light"></i>
+                        <span>Riwayat Jurnal PKL</span>
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                @endif
+
+                @if ($_pklSelesai)
+                    <a href="{{ route('siswa.pkl.jurnal.rekap') }}" class="{{ request()->routeIs('siswa.pkl.jurnal.rekap') ? 'active-nav' : '' }}">
+                        <i data-feather="archive" data-feather-line="1" data-feather-size="17" data-feather-color="teal-dark" data-feather-bg="teal-fade-light"></i>
+                        <span>Rekap Jurnal PKL Saya</span>
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                @endif
+            @endif
+        @endhasrole
+
+
+        {{-- GTK --}}
+        @hasrole('gtk')
+            <h5 class="text-uppercase opacity-20 font-12 pl-3 mt-3">Tugas Mengajar</h5>
+
+            <a href="{{ route('admin.jadwal-kbm.guru') }}" class="{{ request()->routeIs('admin.jadwal-kbm.guru') ? 'active-nav' : '' }}">
+                <i data-feather="calendar" data-feather-line="1" data-feather-size="17" data-feather-color="orange-dark" data-feather-bg="orange-fade-light"></i>
+                <span>Jadwal Mengajar Saya</span>
+                <i class="fa fa-angle-right"></i>
+            </a>
+
+            <a href="{{ route('guru.jurnal-mengajar.index') }}" class="{{ request()->routeIs('guru.jurnal-mengajar.*') ? 'active-nav' : '' }}">
+                <i data-feather="book-open" data-feather-line="1" data-feather-size="17" data-feather-color="blue-dark" data-feather-bg="blue-fade-light"></i>
+                <span>Jurnal Mengajar</span>
+                <i class="fa fa-angle-right"></i>
+            </a>
+
+            <a href="{{ route('kehadiran-guru.laporan') }}" class="{{ request()->routeIs('kehadiran-guru.*') ? 'active-nav' : '' }}">
+                <i data-feather="clipboard-check" data-feather-line="1" data-feather-size="17" data-feather-color="emerald-dark" data-feather-bg="emerald-fade-light"></i>
+                <span>Laporan Kehadiran KBM</span>
                 <i class="fa fa-angle-right"></i>
             </a>
         @endhasrole
 
-        {{-- ===== MENU ADMIN / STAFF ===== --}}
-        @hasanyrole('superadmin|admin_tatib|bk|waka|kepala_sekolah|gtk')
-            <h5 class="text-uppercase opacity-20 font-12 pl-3 mt-3">Manajemen</h5>
+
+        {{-- TATA TERTIB & LAINNYA --}}
+        @hasanyrole('superadmin|admin_tatib|bk|gtk|wali_kelas')
+            <h5 class="text-uppercase opacity-20 font-12 pl-3 mt-3">Tata Tertib</h5>
+
+            <a href="{{ route('admin.pelanggaran.index') }}" class="{{ request()->routeIs('admin.pelanggaran.*') ? 'active-nav' : '' }}">
+                <i data-feather="alert-octagon" data-feather-line="1" data-feather-size="17" data-feather-color="red-dark" data-feather-bg="red-fade-light"></i>
+                <span>Pelanggaran Siswa</span>
+                <i class="fa fa-angle-right"></i>
+            </a>
+
+            <a href="{{ route('admin.penghargaan.index') }}" class="{{ request()->routeIs('admin.penghargaan.*') ? 'active-nav' : '' }}">
+                <i data-feather="award" data-feather-line="1" data-feather-size="17" data-feather-color="emerald-dark" data-feather-bg="emerald-fade-light"></i>
+                <span>Penghargaan Siswa</span>
+                <i class="fa fa-angle-right"></i>
+            </a>
+
+            <a href="{{ route('admin.rekap-poin.index') }}" class="{{ request()->routeIs('admin.rekap-poin.*') ? 'active-nav' : '' }}">
+                <i data-feather="bar-chart-2" data-feather-line="1" data-feather-size="17" data-feather-color="blue-dark" data-feather-bg="blue-fade-light"></i>
+                <span>Rekap Poin Siswa</span>
+                <i class="fa fa-angle-right"></i>
+            </a>
+        @endhasanyrole
+
+
+        {{-- MANAJEMEN DATA --}}
+        @hasanyrole('superadmin|admin_tatib|bk|waka|kepala_sekolah|kepsek')
+            <h5 class="text-uppercase opacity-20 font-12 pl-3 mt-3">Manajemen Data</h5>
+
+            @can('dashboard-laporan.view')
+            <a href="{{ route('admin.dashboard-laporan.index') }}" class="{{ request()->routeIs('admin.dashboard-laporan.*') ? 'active-nav' : '' }}">
+                <i data-feather="activity" data-feather-line="1" data-feather-size="17" data-feather-color="purple-dark" data-feather-bg="purple-fade-light"></i>
+                <span>Dashboard Laporan</span>
+                <i class="fa fa-angle-right"></i>
+            </a>
+            @endcan
 
             <a href="{{ route('siswa.index') }}" class="{{ request()->routeIs('siswa.*') ? 'active-nav' : '' }}">
-                <i data-feather="users" data-feather-line="1" data-feather-size="16" data-feather-color="blue-dark"
-                    data-feather-bg="blue-fade-light"></i>
+                <i data-feather="users" data-feather-line="1" data-feather-size="17" data-feather-color="blue-dark" data-feather-bg="blue-fade-light"></i>
                 <span>Data Siswa</span>
                 <i class="fa fa-angle-right"></i>
             </a>
 
             <a href="{{ route('gtk.index') }}" class="{{ request()->routeIs('gtk.*') && !request()->routeIs('kehadiran-guru.*') ? 'active-nav' : '' }}">
-                <i data-feather="briefcase" data-feather-line="1" data-feather-size="16" data-feather-color="teal-dark"
-                    data-feather-bg="teal-fade-light"></i>
+                <i data-feather="briefcase" data-feather-line="1" data-feather-size="17" data-feather-color="teal-dark" data-feather-bg="teal-fade-light"></i>
                 <span>Data GTK</span>
                 <i class="fa fa-angle-right"></i>
             </a>
 
-            <a href="{{ route('kehadiran-guru.laporan') }}" class="{{ request()->routeIs('kehadiran-guru.*') ? 'active-nav' : '' }}">
-                <i data-feather="clipboard-check" data-feather-line="1" data-feather-size="16" data-feather-color="green-dark"
-                    data-feather-bg="green-fade-light"></i>
-                <span>Laporan Kehadiran</span>
-                <i class="fa fa-angle-right"></i>
-            </a>
-
-
             <a href="{{ route('kelas.index') }}" class="{{ request()->routeIs('kelas.*') ? 'active-nav' : '' }}">
-                <i data-feather="grid" data-feather-line="1" data-feather-size="16" data-feather-color="purple-dark"
-                    data-feather-bg="purple-fade-light"></i>
+                <i data-feather="grid" data-feather-line="1" data-feather-size="17" data-feather-color="purple-dark" data-feather-bg="purple-fade-light"></i>
                 <span>Data Kelas</span>
                 <i class="fa fa-angle-right"></i>
             </a>
 
-            <a href="{{ route('absen.rekap') }}" class="{{ request()->routeIs('absen.rekap') ? 'active-nav' : '' }}">
-                <i data-feather="check-square" data-feather-line="1" data-feather-size="16" data-feather-color="green-dark"
-                    data-feather-bg="green-fade-light"></i>
-                <span>Rekap Absensi Siswa</span>
-                <i class="fa fa-angle-right"></i>
-            </a>
-
-            <h5 class="text-uppercase opacity-20 font-12 pl-3 mt-3">Laporan</h5>
-
-            <a href="#" class="">
-                <i data-feather="file-text" data-feather-line="1" data-feather-size="16" data-feather-color="brown-dark"
-                    data-feather-bg="brown-fade-light"></i>
-                <span>Laporan Kehadiran</span>
-                <i class="fa fa-angle-right"></i>
-            </a>
-
-            <a href="{{ route('event.index') }}" class="{{ request()->routeIs('event.*') ? 'active-nav' : '' }}">
-                <i data-feather="calendar" data-feather-line="1" data-feather-size="16" data-feather-color="red-dark"
-                    data-feather-bg="red-fade-light"></i>
-                <span>Event & Absensi</span>
+            <a href="{{ route('admin.mata-pelajaran.index') }}" class="{{ request()->routeIs('admin.mata-pelajaran.*') ? 'active-nav' : '' }}">
+                <i data-feather="book" data-feather-line="1" data-feather-size="17" data-feather-color="cyan-dark" data-feather-bg="cyan-fade-light"></i>
+                <span>Mata Pelajaran</span>
                 <i class="fa fa-angle-right"></i>
             </a>
         @endhasanyrole
 
-        {{-- ===== MENU SUPERADMIN ===== --}}
-        @hasrole('superadmin')
-            <h5 class="text-uppercase opacity-20 font-12 pl-3 mt-3">Sistem</h5>
-            <a href="{{ route('admin.school-config.index') }}" class="{{ request()->routeIs('admin.school-config.*') ? 'active-nav' : '' }}">
-                <i data-feather="settings" data-feather-line="1" data-feather-size="16" data-feather-color="blue-dark"
-                    data-feather-bg="blue-fade-light"></i>
-                <span>Konfigurasi Sekolah</span>
-                <i class="fa fa-angle-right"></i>
-            </a>
-            <a href="{{ url('/log-viewer') }}" target="_blank">
-                <i data-feather="terminal" data-feather-line="1" data-feather-size="16" data-feather-color="dark-dark"
-                    data-feather-bg="gray-fade-light"></i>
-                <span>Log Viewer</span>
-                <i class="fa fa-angle-right"></i>
-            </a>
-        @endhasrole
 
-        {{-- ===== SELALU ADA ===== --}}
+        {{-- PENJADWALAN --}}
+        @hasanyrole('superadmin|admin_tatib|waka|kepala_sekolah')
+            <h5 class="text-uppercase opacity-20 font-12 pl-3 mt-3">Penjadwalan</h5>
+
+            <a href="{{ route('admin.set-jam.index') }}" class="{{ request()->routeIs('admin.set-jam.*') ? 'active-nav' : '' }}">
+                <i data-feather="clock" data-feather-line="1" data-feather-size="17" data-feather-color="blue-dark" data-feather-bg="blue-fade-light"></i>
+                <span>Set Jam Pelajaran</span>
+                <i class="fa fa-angle-right"></i>
+            </a>
+
+            <a href="{{ route('admin.jadwal-kbm.index') }}" class="{{ request()->routeIs(['admin.jadwal-kbm.index','admin.jadwal-kbm.show','admin.jadwal-kbm.create','admin.jadwal-kbm.edit']) ? 'active-nav' : '' }}">
+                <i data-feather="calendar" data-feather-line="1" data-feather-size="17" data-feather-color="orange-dark" data-feather-bg="orange-fade-light"></i>
+                <span>Jadwal KBM</span>
+                <i class="fa fa-angle-right"></i>
+            </a>
+        @endhasanyrole
+
+
+        {{-- PENGATURAN IZIN --}}
+        {{-- PENGATURAN IZIN --}}
+        {{-- @hasanyrole('superadmin|admin_tatib|bk|wali_kelas')
+            <h5 class="text-uppercase opacity-20 font-12 pl-3 mt-3">Pengajuan Izin</h5>
+            @php $izinPendingCount = \App\Models\PengajuanIzin::diajukan()->count(); @endphp
+
+            <a href="{{ route('admin.izin.index') }}" class="{{ request()->routeIs('admin.izin.*') ? 'active-nav' : '' }}">
+                <i data-feather="file-text" data-feather-line="1" data-feather-size="17" data-feather-color="teal-dark" data-feather-bg="teal-fade-light"></i>
+                <span>Verifikasi Izin Siswa</span>
+                @if ($izinPendingCount > 0)
+                    <span class="badge bg-danger text-white ms-auto" style="font-size:0.7rem; padding:3px 7px; border-radius:20px;">
+                        {{ $izinPendingCount > 9 ? '9+' : $izinPendingCount }}
+                    </span>
+                @endif
+                <i class="fa fa-angle-right"></i>
+            </a>
+        @endhasrole --}}
+
+
+        {{-- PKL — Admin / Waka --}}
+        @can('pkl.view')
+            <h5 class="text-uppercase opacity-20 font-12 pl-3 mt-3">PKL</h5>
+
+            <a href="{{ route('admin.pkl.lokasi.index') }}" class="{{ request()->routeIs('admin.pkl.lokasi.*') ? 'active-nav' : '' }}">
+                <i data-feather="map-pin" data-feather-line="1" data-feather-size="17" data-feather-color="yellow-dark" data-feather-bg="yellow-fade-light"></i>
+                <span>Lokasi PKL</span>
+                <i class="fa fa-angle-right"></i>
+            </a>
+
+            <a href="{{ route('admin.pkl.penugasan.index') }}" class="{{ request()->routeIs('admin.pkl.penugasan.*') ? 'active-nav' : '' }}">
+                <i data-feather="user-check" data-feather-line="1" data-feather-size="17" data-feather-color="teal-dark" data-feather-bg="teal-fade-light"></i>
+                <span>Penugasan Siswa PKL</span>
+                <i class="fa fa-angle-right"></i>
+            </a>
+
+            <a href="{{ route('admin.pkl.rekap.per-siswa') }}" class="{{ request()->routeIs('admin.pkl.rekap.*') ? 'active-nav' : '' }}">
+                <i data-feather="bar-chart-2" data-feather-line="1" data-feather-size="17" data-feather-color="purple-dark" data-feather-bg="purple-fade-light"></i>
+                <span>Rekap & Laporan PKL</span>
+                <i class="fa fa-angle-right"></i>
+            </a>
+        @endcan
+
+
+        {{-- AKUN --}}
         <h5 class="text-uppercase opacity-20 font-12 pl-3 mt-3">Akun</h5>
 
-        <a href="{{ url('/test-profile') }}" class="{{ request()->routeIs('profile.*') ? 'active-nav' : '' }}"
-           style="position: relative; z-index: 9999; pointer-events: auto;">
-            <i data-feather="user" data-feather-line="1" data-feather-size="16" data-feather-color="magenta-dark"
-                data-feather-bg="magenta-fade-light"></i>
+        <a href="{{ route('profile.index') }}" class="{{ request()->routeIs('profile.*') ? 'active-nav' : '' }}">
+            <i data-feather="user" data-feather-line="1" data-feather-size="17" data-feather-color="slate-dark" data-feather-bg="slate-fade-light"></i>
             <span>Profil Saya</span>
             <i class="fa fa-angle-right"></i>
         </a>
 
-        <a href="{{ route('logout') }}"
-            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-            <i data-feather="log-out" data-feather-line="1" data-feather-size="16" data-feather-color="red-dark"
-                data-feather-bg="red-fade-light"></i>
+        <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+            <i data-feather="log-out" data-feather-line="1" data-feather-size="17" data-feather-color="red-dark" data-feather-bg="red-fade-light"></i>
             <span>Keluar</span>
             <i class="fa fa-angle-right"></i>
         </a>
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-            @csrf
-        </form>
 
-        <a href="#" class="close-menu">
-            <i data-feather="x" data-feather-line="3" data-feather-size="16" data-feather-color="red-dark"
-                data-feather-bg="red-fade-dark"></i>
-            <span>Tutup Menu</span>
-            <i class="fa fa-circle"></i>
-        </a>
-
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
     </div>
-
 </div>
-
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Ensure profile menu link works
-        const profileLink = document.querySelector('a[href="{{ route("profile.index") }}"]');
-        if (profileLink) {
-            profileLink.addEventListener('click', function(e) {
-                e.stopPropagation();
-                window.location.href = '{{ route("profile.index") }}';
-            }, true); // Use capture phase
-        }
-    });
-</script>
-@endpush

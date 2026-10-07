@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\LaporanKehadiranGuru;
+use App\Models\Sekolah;
 use App\Services\WhatsappService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -16,35 +17,75 @@ class SendLaporanKehadiranGuruNotif implements ShouldQueue
         public readonly LaporanKehadiranGuru $laporan
     ) {}
 
-    public function handle(): void
+    public function handle(WhatsappService $wa): void
     {
-        $gtk = $this->laporan->gtk;
+        // Guard: cek toggle notifikasi WA laporan guru di konfigurasi sekolah
+        $sekolah = Sekolah::aktif();
+        if (! $sekolah?->wa_notif_laporan_guru_enabled) {
+            Log::channel('gtk')->info('[LaporanKehadiran] Notifikasi WA laporan guru dinonaktifkan, skip.', [
+                'laporan_id' => $this->laporan->id,
+            ]);
+            return;
+        }
 
-        // Kirim ke BK atau admin
-        // Untuk sekarang kirim ke nomor default sekolah
-        $nomorTujuan = config('sekolah.no_hp_admin', '081234567890'); // perlu konfigurasi
+        // Ambil nomor penerima dari konfigurasi sekolah
+        $nomorList = $sekolah->wa_notif_laporan_guru_nomor ?? [];
+
+        if (empty($nomorList)) {
+            Log::channel('gtk')->warning('[LaporanKehadiran] Tidak ada nomor penerima dikonfigurasi, skip.', [
+                'laporan_id' => $this->laporan->id,
+            ]);
+            return;
+        }
+
+        $this->laporan->loadMissing(['gtk', 'kelas', 'jadwalKbm', 'dilaporkanOlehSiswa']);
+
+        $gtk       = $this->laporan->gtk;
+        $kelas     = $this->laporan->kelas;
+        $pelapor   = $this->laporan->dilaporkanOlehSiswa?->nama_lengkap ?? 'GTK';
+        $tanggal   = $this->laporan->tanggal->format('d/m/Y');
+        $waktu     = $this->laporan->waktu_laporan->format('H:i');
+        $jamKe     = $this->laporan->jam_ke;
+        $status    = $this->laporan->status_label;
+        $catatan   = $this->laporan->catatan;
 
         $pesan = WhatsappService::templateLaporanKehadiranGuru(
-            $gtk->nama_lengkap,
-            $this->laporan->jenis,
-            $this->laporan->status,
-            $this->laporan->waktu_laporan->format('d/m/Y H:i'),
-            $this->laporan->catatan
+            $gtk?->nama_lengkap ?? '-',
+            $kelas?->nama_kelas ?? '-',
+            $jamKe,
+            $tanggal,
+            $waktu,
+            $status,
+            $pelapor,
+            $catatan
         );
 
-        $terkirim = app(WhatsappService::class)->send(
-            $nomorTujuan,
-            $pesan,
-            'laporan_kehadiran_guru',
-            $this->laporan->id
-        );
+        $adaYangTerkirim = false;
 
-        if ($terkirim) {
-            $this->laporan->update(['wa_terkirim' => true]);
-            Log::channel('gtk')->info('[LaporanKehadiran] WA notif terkirim', [
-                'laporan_id' => $this->laporan->id,
-                'no_hp' => $nomorTujuan,
-            ]);
+        foreach ($nomorList as $nomor) {
+            $nomor = trim((string) $nomor);
+            if ($nomor === '') {
+                continue;
+            }
+
+            $sukses = $wa->send($nomor, $pesan, 'laporan_kehadiran_guru', $this->laporan->id);
+
+            if ($sukses) {
+                $adaYangTerkirim = true;
+                Log::channel('gtk')->info('[LaporanKehadiran] WA notif terkirim', [
+                    'laporan_id' => $this->laporan->id,
+                    'no_hp'      => $nomor,
+                ]);
+            } else {
+                Log::channel('gtk')->warning('[LaporanKehadiran] WA notif gagal', [
+                    'laporan_id' => $this->laporan->id,
+                    'no_hp'      => $nomor,
+                ]);
+            }
+        }
+
+        if ($adaYangTerkirim) {
+            $this->laporan->updateQuietly(['wa_terkirim' => true]);
         }
     }
 }

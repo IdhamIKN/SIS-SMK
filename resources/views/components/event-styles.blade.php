@@ -362,7 +362,7 @@
         padding: 10px 16px 12px;
         background: rgba(255,255,255,.96); backdrop-filter: blur(10px);
         border-top: 1px solid var(--border);
-        display: flex; gap: 10px; z-index: 999;
+        display: flex; gap: 10px; z-index: 99;
         box-shadow: 0 -4px 20px rgba(0,0,0,.06);
     }
     .action-bar form { flex: 1; display: flex; }

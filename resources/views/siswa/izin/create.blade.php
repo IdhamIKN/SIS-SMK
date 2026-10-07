@@ -389,3 +389,25 @@
         });
     </script>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if ($errors->any())
+                if (typeof Swal !== 'undefined' && !window.__swalValidationShown) {
+                    window.__swalValidationShown = true;
+                    const errorList = @json($errors->all());
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validasi Gagal',
+                        html: '<ul style="padding:0;margin:0;list-style:none;text-align:left;">' +
+                            errorList.map(m => '<li style="margin-bottom:4px;">• ' + m + '</li>').join('') +
+                            '</ul>',
+                        confirmButtonText: 'Oke',
+                        confirmButtonColor: '#ef4444',
+                    });
+                }
+            @endif
+        });
+    </script>
+@endpush

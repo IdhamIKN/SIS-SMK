@@ -4,16 +4,44 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SchoolConfigUpdateRequest;
+use App\Models\AutoPelanggaranRule;
+use App\Models\AutoPenghargaanRule;
 use App\Models\Sekolah;
+use App\Services\TatibPoinService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class SchoolConfigController extends Controller
 {
+    public function __construct(protected TatibPoinService $tatibPoinService) {}
+
     public function index()
     {
         $sekolah = Sekolah::aktif();
-        return view('admin.school-config.index', compact('sekolah'));
+
+        $pasalPelanggaran = $this->tatibPoinService->subPasalOptions(
+            'pelanggaran',
+            $this->tatibPoinService->tahunAjaranAktif()
+        );
+
+        $pasalPenghargaan = $this->tatibPoinService->subPasalOptions(
+            'penghargaan',
+            $this->tatibPoinService->tahunAjaranAktif()
+        );
+
+        $autoPelanggaranRules = AutoPelanggaranRule::with('pasal')
+            ->orderBy('urutan')->orderBy('id')->get();
+
+        $autoPenghargaanRules = AutoPenghargaanRule::with('pasal')
+            ->orderBy('urutan')->orderBy('id')->get();
+
+        return view('admin.school-config.index', compact(
+            'sekolah',
+            'pasalPelanggaran',
+            'pasalPenghargaan',
+            'autoPelanggaranRules',
+            'autoPenghargaanRules'
+        ));
     }
 
     public function update(SchoolConfigUpdateRequest $request)
@@ -22,91 +50,95 @@ class SchoolConfigController extends Controller
 
         $sekolah = Sekolah::aktif();
 
-        // Prepare data for update
         $updateData = [];
 
-        // Informasi Dasar Sekolah
-        if (isset($validated['sekolah'])) {
-            $updateData['sekolah'] = $validated['sekolah'];
-        }
-        if (isset($validated['alsekolah'])) {
-            $updateData['alsekolah'] = $validated['alsekolah'];
-        }
-        if (isset($validated['telp'])) {
-            $updateData['telp'] = $validated['telp'];
-        }
-        if (isset($validated['email'])) {
-            $updateData['email'] = $validated['email'];
-        }
-        if (isset($validated['kab'])) {
-            $updateData['kab'] = $validated['kab'];
-        }
-        if (isset($validated['alias'])) {
-            $updateData['alias'] = $validated['alias'];
+        $plainFields = [
+            'sekolah', 'alsekolah', 'telp', 'email', 'kab', 'alias',
+            'nama_ks', 'nip_ks', 'nama_waka', 'nip_waka',
+            'nama_ketua', 'nip_ketua', 'site_url', 'site_logo', 'wasekolah',
+            'jam_masuk', 'jam_pulang', 'jam_masuk_khusus', 'jam_pulang_khusus',
+            'jam_mulai_absensi', 'batas_tepat_waktu', 'batas_absen_masuk',
+            'latitude', 'longitude', 'radius_meter', 'system_name',
+            // Auto Alfa
+            'jam_eksekusi_auto_alfa', 'pasal_alfa_id',
+            // Auto Poin Hadir & Terlambat
+            'pasal_hadir_id', 'pasal_terlambat_id',
+        ];
+
+        foreach ($plainFields as $field) {
+            if (array_key_exists($field, $validated)) {
+                $updateData[$field] = $validated[$field];
+            }
         }
 
-        // Kepala Sekolah
-        if (isset($validated['nama_ks'])) {
-            $updateData['nama_ks'] = $validated['nama_ks'];
-        }
-        if (isset($validated['nip_ks'])) {
-            $updateData['nip_ks'] = $validated['nip_ks'];
+        // Boolean toggles — checkbox tidak terkirim saat unchecked, maka default false
+        $booleanFields = [
+            'wa_notif_masuk_enabled',
+            'wa_notif_pulang_enabled',
+            'wa_notif_event_enabled',
+            'wa_notif_tatib_enabled',
+            'wa_notif_laporan_guru_enabled',
+            'auto_alfa_enabled',
+            'auto_point_alfa_enabled',
+            'wa_notif_alfa_enabled',
+            'auto_poin_hadir_enabled',
+            'auto_poin_terlambat_enabled',
+            'libur_mode',
+        ];
+
+        foreach ($booleanFields as $field) {
+            $updateData[$field] = $request->boolean($field);
         }
 
-        // Wakil Kepala Sekolah
-        if (isset($validated['nama_waka'])) {
-            $updateData['nama_waka'] = $validated['nama_waka'];
-        }
-        if (isset($validated['nip_waka'])) {
-            $updateData['nip_waka'] = $validated['nip_waka'];
-        }
-
-        // Ketua
-        if (isset($validated['nama_ketua'])) {
-            $updateData['nama_ketua'] = $validated['nama_ketua'];
-        }
-        if (isset($validated['nip_ketua'])) {
-            $updateData['nip_ketua'] = $validated['nip_ketua'];
-        }
-
-        // Website & Media
-        if (isset($validated['site_url'])) {
-            $updateData['site_url'] = $validated['site_url'];
-        }
-        if (isset($validated['site_logo'])) {
-            $updateData['site_logo'] = $validated['site_logo'];
-        }
-        if (isset($validated['wasekolah'])) {
-            $updateData['wasekolah'] = $validated['wasekolah'];
+        // Tanggal libur panjang — kosongkan jika mode dimatikan
+        if ($updateData['libur_mode']) {
+            $updateData['libur_dari']   = $validated['libur_dari']   ?? null;
+            $updateData['libur_sampai'] = $validated['libur_sampai'] ?? null;
+        } else {
+            // Tetap simpan tanggal meskipun mode off, supaya tidak hilang
+            // saat admin mengaktifkan lagi nanti
+            if (array_key_exists('libur_dari', $validated)) {
+                $updateData['libur_dari'] = $validated['libur_dari'] ?: null;
+            }
+            if (array_key_exists('libur_sampai', $validated)) {
+                $updateData['libur_sampai'] = $validated['libur_sampai'] ?: null;
+            }
         }
 
-        // Jam Sekolah
-        if (isset($validated['jam_masuk'])) {
-            $updateData['jam_masuk'] = $validated['jam_masuk'];
-        }
-        if (isset($validated['jam_pulang'])) {
-            $updateData['jam_pulang'] = $validated['jam_pulang'];
-        }
-        if (isset($validated['hari_efektif'])) {
+        // Nomor penerima laporan guru — parse textarea ke JSON array
+        $nomorRaw = $validated['wa_notif_laporan_guru_nomor'] ?? '';
+        $nomorArr = array_values(array_filter(
+            array_map('trim', preg_split('/[\n,]+/', (string) $nomorRaw)),
+            fn ($n) => $n !== ''
+        ));
+        $updateData['wa_notif_laporan_guru_nomor'] = count($nomorArr) > 0 ? $nomorArr : null;
+
+        if (array_key_exists('hari_efektif', $validated)) {
             $updateData['hari_efektif'] = json_encode($validated['hari_efektif']);
         }
 
-        // Lokasi & Sistem
-        if (isset($validated['latitude'])) {
-            $updateData['latitude'] = $validated['latitude'];
+        $updateData['hari_khusus'] = json_encode($validated['hari_khusus'] ?? []);
+
+        // Kosongkan pasal_alfa_id jika auto_point_alfa dimatikan
+        if (! $updateData['auto_point_alfa_enabled']) {
+            $updateData['pasal_alfa_id'] = null;
         }
-        if (isset($validated['longitude'])) {
-            $updateData['longitude'] = $validated['longitude'];
+
+        // Kosongkan pasal jika toggle hadir/terlambat dimatikan
+        if (! $updateData['auto_poin_hadir_enabled']) {
+            $updateData['pasal_hadir_id'] = null;
         }
-        if (isset($validated['system_name'])) {
-            $updateData['system_name'] = $validated['system_name'];
+        if (! $updateData['auto_poin_terlambat_enabled']) {
+            $updateData['pasal_terlambat_id'] = null;
         }
 
         $sekolah->update($updateData);
 
-        // Clear cache untuk memastikan perubahan langsung terlihat
+        // Clear cache
         Cache::forget('sekolah_data');
+        Cache::forget('sekolah_runtime_config');
         Cache::forget('config');
+        Cache::forget('jam_shift_config');
 
         return redirect()->back()->with('success', 'Konfigurasi sekolah berhasil diperbarui.');
     }

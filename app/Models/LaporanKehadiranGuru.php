@@ -22,6 +22,7 @@ class LaporanKehadiranGuru extends Model
         'dilaporkan_oleh_siswa_id',
         'waktu_laporan',
         'catatan',
+        'wa_terkirim',
         'created_at',
         'updated_at',
     ];
@@ -57,37 +58,15 @@ class LaporanKehadiranGuru extends Model
      */
     public function getStatusLabelAttribute(): string
     {
-        $labels = [
-            'hijau' => 'Hadir Tepat Waktu',
-            'kuning' => 'Hadir Terlambat',
-            'merah' => 'Tidak Hadir — No Tugas',
-            'abu' => 'Tidak Hadir — Ada Tugas',
-            'biru' => 'Hadir Lalu Pergi — Ada Tugas',
-            'pink' => 'Hadir Lalu Pergi — No Tugas',
-            'orange' => '⚠ Tidak Ada Laporan',
-            'putih' => 'Belum Ada Laporan',
-        ];
-
-        return $labels[$this->status] ?? $this->status;
+        return config("status_guru.statuses.{$this->status}.label", ucfirst($this->status));
     }
 
     /**
-     * Get warna status untuk UI
+     * Get warna status untuk UI (Tailwind palette — konsisten dengan panel & dashboard)
      */
     public function getStatusColorAttribute(): string
     {
-        $colors = [
-            'hijau' => '#4CAF50',
-            'kuning' => '#FFC107',
-            'merah' => '#F44336',
-            'abu' => '#9E9E9E',
-            'biru' => '#2196F3',
-            'pink' => '#E91E63',
-            'orange' => '#FF5722',
-            'putih' => '#FFFFFF',
-        ];
-
-        return $colors[$this->status] ?? '#FFFFFF';
+        return config("status_guru.statuses.{$this->status}.color", '#94a3b8');
     }
 
     /**
@@ -95,17 +74,14 @@ class LaporanKehadiranGuru extends Model
      */
     public function getStatusBgAttribute(): string
     {
-        $bgColors = [
-            'hijau' => '#E8F5E8',
-            'kuning' => '#FFFDE7',
-            'merah' => '#FFEBEE',
-            'abu' => '#F5F5F5',
-            'biru' => '#E3F2FD',
-            'pink' => '#FCE4EC',
-            'orange' => '#FFF3E0',
-            'putih' => '#FFFFFF',
-        ];
+        return config("status_guru.statuses.{$this->status}.bg", '#f8fafc');
+    }
 
-        return $bgColors[$this->status] ?? '#FFFFFF';
+    /**
+     * Get warna teks status untuk badge
+     */
+    public function getStatusTextAttribute(): string
+    {
+        return config("status_guru.statuses.{$this->status}.text", '#64748b');
     }
 }

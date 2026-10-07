@@ -27,7 +27,7 @@ class UserProfileChangePasswordRequest extends FormRequest
             'password.required' => 'Password baru wajib diisi.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
             'password.min' => 'Password minimal 8 karakter.',
-            'password.mixed_case' => 'Password harus mengandung huruf besar dan kecil.',
+            'password.mixed' => 'Password harus mengandung huruf besar dan kecil.',
             'password.numbers' => 'Password harus mengandung angka.',
         ];
     }

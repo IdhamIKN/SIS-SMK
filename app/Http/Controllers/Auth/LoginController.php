@@ -49,7 +49,11 @@ class LoginController extends Controller
             }
         } elseif (preg_match('/^\d+$/', $username)) {
             // NIS atau NISN (siswa) - panjang bervariasi, bukan 16 atau 18 digit 0094163349
-            $siswa = Siswa::where('nisn', $username)->orWhere('nisn', $username)->with('user')->first();
+            $siswa = Siswa::withTrashed()
+                ->where('nisn', $username)
+                ->orWhere('nis', $username)
+                ->with('user')
+                ->first();
             if ($siswa && $siswa->user) {
                 $user = $siswa->user;
                 Log::channel('sis')->info('[Auth] NIS/NISN detected', ['identifier' => $username]);
@@ -65,6 +69,18 @@ class LoginController extends Controller
         }
 
         if ($user && Hash::check($request->password, $user->password)) {
+            if ($user->hasRole('siswa') && ! $this->hasActiveSiswaProfile($user)) {
+                Log::channel('sis')->warning('[Auth] Archived siswa login blocked', [
+                    'user_id' => $user->id,
+                    'username' => $request->username,
+                    'ip' => $request->ip(),
+                ]);
+
+                return back()->withErrors([
+                    'username' => 'Akun siswa ini sedang diarsipkan. Hubungi admin jika perlu dipulihkan.',
+                ])->onlyInput('username');
+            }
+
             Auth::login($user, $request->boolean('remember'));
             $request->session()->regenerate();
 
@@ -108,5 +124,18 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    private function hasActiveSiswaProfile(User $user): bool
+    {
+        return Siswa::query()
+            ->where(function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+
+                if ($user->siswa_id) {
+                    $query->orWhere('id', $user->siswa_id);
+                }
+            })
+            ->exists();
     }
 }

@@ -186,38 +186,27 @@ class KelasController extends Controller
      */
     public function destroy(Kelas $kela): RedirectResponse
     {
-        Log::channel('sis')->info('[Kelas] Delete started', [
+        Log::channel('sis')->info('[Kelas] Archive started', [
             'kelas_id' => $kela->id,
             'nama_kelas' => $kela->nama_kelas,
             'user_id' => request()->user()->id,
         ]);
 
-        // Cek apakah kelas masih memiliki siswa
-        $jumlahSiswa = $kela->siswa()->count();
-        if ($jumlahSiswa > 0) {
-            Log::channel('sis')->warning('[Kelas] Delete blocked — kelas memiliki siswa', [
-                'kelas_id' => $kela->id,
-                'jumlah_siswa' => $jumlahSiswa,
-            ]);
-
-            return redirect()
-                ->route('kelas.show', $kela)
-                ->with('error', 'Kelas tidak dapat dihapus karena masih memiliki '.$jumlahSiswa.' siswa. Pindahkan siswa terlebih dahulu.');
-        }
-
         try {
+            // Soft delete — kelas diarsipkan, semua data terkait tetap utuh
             $kela->delete();
 
-            Log::channel('sis')->info('[Kelas] Delete success', [
+            Log::channel('sis')->info('[Kelas] Archive success', [
                 'kelas_id' => $kela->id,
                 'nama_kelas' => $kela->nama_kelas,
+                'deleted_at' => $kela->deleted_at,
             ]);
 
             return redirect()
                 ->route('kelas.index')
-                ->with('success', 'Kelas '.$kela->nama_kelas.' berhasil dihapus.');
+                ->with('success', 'Kelas '.$kela->nama_kelas.' berhasil diarsipkan.');
         } catch (\Throwable $e) {
-            Log::channel('sis')->error('[Kelas] Delete failed', [
+            Log::channel('sis')->error('[Kelas] Archive failed', [
                 'kelas_id' => $kela->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
@@ -225,8 +214,53 @@ class KelasController extends Controller
 
             return redirect()
                 ->route('kelas.show', $kela)
-                ->with('error', 'Gagal menghapus kelas: '.$e->getMessage());
+                ->with('error', 'Gagal mengarsipkan kelas: '.$e->getMessage());
         }
+    }
+
+    /**
+     * Display list of archived (soft-deleted) classes.
+     */
+    public function archived(Request $request): View
+    {
+        Log::channel('sis')->info('[Kelas] Archived list access', [
+            'user_id' => $request->user()->id,
+        ]);
+
+        $kelas = Kelas::onlyTrashed()
+            ->with(['jurusan', 'waliKelas'])
+            ->withCount('siswa')
+            ->when($request->search, fn ($q) => $q->where('nama_kelas', 'like', '%'.$request->search.'%'))
+            ->latest('deleted_at')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('kelas.archived', compact('kelas'));
+    }
+
+    /**
+     * Restore an archived class.
+     */
+    public function restore(int $id): RedirectResponse
+    {
+        $kela = Kelas::onlyTrashed()->findOrFail($id);
+
+        Log::channel('sis')->info('[Kelas] Restore started', [
+            'kelas_id' => $kela->id,
+            'nama_kelas' => $kela->nama_kelas,
+            'user_id' => request()->user()->id,
+        ]);
+
+        $kela->restore();
+
+        Log::channel('sis')->info('[Kelas] Restore success', [
+            'kelas_id' => $kela->id,
+            'nama_kelas' => $kela->nama_kelas,
+        ]);
+
+        return redirect()
+            ->route('kelas.archived')
+            ->with('success', 'Kelas '.$kela->nama_kelas.' berhasil dipulihkan.');
     }
 
     /**

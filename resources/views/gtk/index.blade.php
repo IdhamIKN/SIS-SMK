@@ -102,6 +102,25 @@
         }
         .fab-add:hover { filter: brightness(1.08); transform: translateY(-1px); }
         .fab-add:active { transform: scale(.97); }
+        
+        /* Role badges di card list */
+        .role-badge {
+            display: inline-flex; align-items: center; gap: 3px;
+            padding: 2px 7px; border-radius: 20px;
+            font-size: .62rem; font-weight: 700; white-space: nowrap;
+        }
+        .rb-superadmin { background:#fef3c7; color:#b45309; }
+        .rb-kepsek     { background:#ede9fe; color:#7c3aed; }
+        .rb-waka       { background:#dbeafe; color:#1d4ed8; }
+        .rb-admin_tatib{ background:#fee2e2; color:#dc2626; }
+        .rb-gtk        { background:#dcfce7; color:#15803d; }
+        .rb-bk         { background:#e0f2fe; color:#0369a1; }
+        .rb-kurikulum  { background:#fef3c7; color:#92400e; }
+        .rb-wali_kelas { background:#f0fdf4; color:#166534; }
+        .rb-siswa      { background:#f1f5f9; color:#475569; }
+        .rb-TU         { background:#fdf4ff; color:#7e22ce; }
+        .rb-Event      { background:#fff7ed; color:#c2410c; }
+        .rb-default    { background:#f1f5f9; color:#475569; }
     </style>
 @endpush
 
@@ -151,21 +170,26 @@
                 <i class="fas fa-search s-icon-left"></i>
                 <input type="text" name="search"
                     value="{{ request('search') }}"
-                    placeholder="Cari nama GTK...">
+                    placeholder="Cari nama atau NIP GTK...">
             </div>
-            <select name="jabatan" class="filter-select">
-                <option value="">Semua Jabatan</option>
-                <option value="Guru"                  {{ request('jabatan') == 'Guru'                  ? 'selected' : '' }}>Guru</option>
-                <option value="Kepala Sekolah"        {{ request('jabatan') == 'Kepala Sekolah'        ? 'selected' : '' }}>Kepala Sekolah</option>
-                <option value="Wakil Kepala Sekolah"  {{ request('jabatan') == 'Wakil Kepala Sekolah'  ? 'selected' : '' }}>Wakil Kepala Sekolah</option>
-                <option value="BK"                    {{ request('jabatan') == 'BK'                    ? 'selected' : '' }}>Bimbingan Konseling</option>
-                <option value="Tata Usaha"            {{ request('jabatan') == 'Tata Usaha'            ? 'selected' : '' }}>Tata Usaha</option>
+            <select name="role" class="filter-select">
+                <option value="">Semua Role</option>
+                <!--<option value="superadmin"  {{ request('role') == 'superadmin'  ? 'selected' : '' }}>Superadmin</option>-->
+                <option value="kepsek"      {{ request('role') == 'kepsek'      ? 'selected' : '' }}>Kepala Sekolah</option>
+                <option value="waka"        {{ request('role') == 'waka'        ? 'selected' : '' }}>Wakil Kepala Sekolah</option>
+                <option value="admin_tatib" {{ request('role') == 'admin_tatib' ? 'selected' : '' }}>Admin Tatib</option>
+                <option value="gtk"         {{ request('role') == 'gtk'         ? 'selected' : '' }}>Guru (GTK)</option>
+                <option value="bk"          {{ request('role') == 'bk'          ? 'selected' : '' }}>Bimbingan Konseling</option>
+                <option value="kurikulum"   {{ request('role') == 'kurikulum'   ? 'selected' : '' }}>Kurikulum</option>
+                <option value="wali_kelas"  {{ request('role') == 'wali_kelas'  ? 'selected' : '' }}>Wali Kelas</option>
+                <option value="TU"          {{ request('role') == 'TU'          ? 'selected' : '' }}>Tata Usaha</option>
+                <option value="Event"       {{ request('role') == 'Event'       ? 'selected' : '' }}>Event</option>
             </select>
             <button type="submit" class="btn-search">
                 <i class="fas fa-search"></i> Cari GTK
             </button>
         </form>
-
+    
         <div style="margin-top:12px; text-align:center;">
             <a href="{{ route('gtk.import') }}" class="btn-search" style="background:#10b981;">
                 <i class="fas fa-upload"></i> Import GTK
@@ -173,56 +197,72 @@
         </div>
     </div>
 
-    {{-- Daftar GTK --}}
-    @if ($gtks->count() > 0)
-        @foreach ($gtks as $gtk)
-            <div class="card izin-item">
-                <div class="c-head">
-                    <div class="gtk-avatar">
-                        @if ($gtk->foto)
-                            <img src="{{ Storage::url($gtk->foto) }}" alt="{{ $gtk->nama_lengkap }}">
+
+{{-- Daftar GTK --}}
+@if ($gtks->count() > 0)
+    @foreach ($gtks as $gtk)
+        <div class="card izin-item">
+            <div class="c-head">
+                <div class="gtk-avatar">
+                    @if ($gtk->foto)
+                        <img src="{{ Storage::url($gtk->foto) }}" alt="{{ $gtk->nama_lengkap }}">
+                    @else
+                        <i class="fas fa-user-tie"></i>
+                    @endif
+                </div>
+                <div style="flex:1; min-width:0;">
+                    <h3 style="margin:0 0 2px; font-size:.9rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                        {{ $gtk->nama_lengkap }}
+                    </h3>
+                    <p style="margin:0; font-size:.72rem; color:#64748b;">
+                        {{-- NIP jika ada, fallback ke kd_guru --}}
+                        @if ($gtk->nip)
+                            <i class="fas fa-id-badge" style="font-size:.6rem;"></i> {{ $gtk->nip }}
                         @else
-                            <i class="fas fa-user-tie"></i>
+                            <i class="fas fa-hashtag" style="font-size:.6rem;"></i> {{ $gtk->kd_guru ?? '-' }}
                         @endif
-                    </div>
-                    <div style="flex:1; min-width:0;">
-                        <h3 style="margin:0 0 2px; font-size:.9rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                            {{ $gtk->nama_lengkap }}
-                        </h3>
-                        <p style="margin:0; font-size:.72rem; color:#64748b;">
-                            {{ $gtk->kd_guru ?? '-' }}
-                        </p>
-                    </div>
-                    <span class="hbadge badge-status {{ $gtk->status_aktif ? 'status-approved' : 'status-rejected' }}">
-                        {{ $gtk->status_aktif ? 'Aktif' : 'Non Aktif' }}
-                    </span>
+                    </p>
+                </div>
+                <span class="hbadge badge-status {{ $gtk->status_aktif ? 'status-approved' : 'status-rejected' }}">
+                    {{ $gtk->status_aktif ? 'Aktif' : 'Non Aktif' }}
+                </span>
+            </div>
+
+            <div class="c-body" style="padding:10px 16px 14px;">
+                <div class="izin-meta">
+                    <span><i class="fas fa-briefcase"></i> {{ $gtk->jabatan ?? '-' }}</span>
+                    @if ($gtk->mataPelajaran->count() > 0)
+                        <span><i class="fas fa-book-open"></i> {{ Str::limit($gtk->mataPelajaran->pluck('nama_mapel')->join(', '), 22) }}</span>
+                    @endif
                 </div>
 
-                <div class="c-body" style="padding:10px 16px 14px;">
-                    <div class="izin-meta">
-                        <span><i class="fas fa-briefcase"></i> {{ $gtk->jabatan ?? '-' }}</span>
-                        @if ($gtk->mata_pelajaran)
-                            <span><i class="fas fa-book-open"></i> {{ Str::limit($gtk->mata_pelajaran, 22) }}</span>
-                        @endif
-                        @if ($gtk->nip)
-                            <span><i class="fas fa-id-card"></i> {{ $gtk->nip }}</span>
-                        @endif
+                {{-- Role badges --}}
+                @php $roles = $gtk->user?->getRoleNames() ?? collect(); @endphp
+                @if ($roles->isNotEmpty())
+                    <div style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px;">
+                        @foreach ($roles as $role)
+                            <span class="role-badge rb-{{ $role }}">
+                                <i class="fas fa-tag" style="font-size:.55rem;"></i> {{ $role }}
+                            </span>
+                        @endforeach
                     </div>
-                    <div class="action-group">
-                        <a href="{{ route('gtk.show', $gtk) }}" class="action-btn btn-view">
-                            <i class="fas fa-eye"></i> Detail
-                        </a>
-                        <a href="{{ route('gtk.edit', $gtk) }}" class="action-btn btn-edit">
-                            <i class="fas fa-pen"></i> Edit
-                        </a>
-                        <button type="button" class="action-btn btn-delete"
-                                onclick="confirmDelete('{{ route('gtk.destroy', $gtk) }}', '{{ $gtk->nama_lengkap }}')">
-                            <i class="fas fa-trash-alt"></i> Hapus
-                        </button>
-                    </div>
+                @endif
+
+                <div class="action-group">
+                    <a href="{{ route('gtk.show', $gtk) }}" class="action-btn btn-view">
+                        <i class="fas fa-eye"></i> Detail
+                    </a>
+                    <a href="{{ route('gtk.edit', $gtk) }}" class="action-btn btn-edit">
+                        <i class="fas fa-pen"></i> Edit
+                    </a>
+                    <button type="button" class="action-btn btn-delete"
+                            onclick="confirmDelete('{{ route('gtk.destroy', $gtk) }}', '{{ $gtk->nama_lengkap }}')">
+                        <i class="fas fa-trash-alt"></i> Hapus
+                    </button>
                 </div>
             </div>
-        @endforeach
+        </div>
+    @endforeach
 
         {{-- Pagination --}}
         @if ($gtks->hasPages())
